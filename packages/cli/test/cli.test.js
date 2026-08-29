@@ -424,6 +424,38 @@ test('doctor fails instead of reporting healthy when no authentication path is u
   assert.equal(payload.checks.find((item) => item.id === 'env:auth').status, 'fail')
 })
 
+test('doctor surfaces an unresolvable web UI import instead of reporting healthy', async () => {
+  const root = await createProject()
+  await invoke(['init', '--root', root], { cwd: tmpdir() })
+  await mkdir(join(root, 'src'), { recursive: true })
+  await writeFile(
+    join(root, 'src', 'uses-ui.tsx'),
+    "import { Button } from '@fullstack-ai-infra/ui'\nexport default Button\n"
+  )
+
+  const broken = await invoke(['doctor', '--json', '--root', root], { cwd: tmpdir(), runner: fakeRunner() })
+  const brokenPayload = JSON.parse(broken.stdout)
+
+  assert.equal(broken.code, 1)
+  const brokenGate = brokenPayload.checks.find((item) => item.id === 'web:build-deps')
+  assert.equal(brokenGate.status, 'fail')
+  assert.match(brokenGate.detail, /cannot be resolved/)
+
+  const uiDir = join(root, 'node_modules', '@fullstack-ai-infra', 'ui')
+  await mkdir(uiDir, { recursive: true })
+  await writeFile(
+    join(uiDir, 'package.json'),
+    JSON.stringify({ name: '@fullstack-ai-infra/ui', version: '0.2.0', main: 'index.js' })
+  )
+  await writeFile(join(uiDir, 'index.js'), 'module.exports = {}\n')
+
+  const healed = await invoke(['doctor', '--json', '--root', root], { cwd: tmpdir(), runner: fakeRunner() })
+  const healedPayload = JSON.parse(healed.stdout)
+  const healedGate = healedPayload.checks.find((item) => item.id === 'web:build-deps')
+
+  assert.equal(healedGate.status, 'pass')
+})
+
 test('live doctor checks database-aware readiness endpoints', async () => {
   const root = await createProject()
   await invoke(['init', '--root', root], { cwd: tmpdir() })

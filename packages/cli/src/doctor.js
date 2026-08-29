@@ -1,4 +1,5 @@
-import { stat } from 'node:fs/promises'
+import { readdir, readFile, stat } from 'node:fs/promises'
+import { createRequire } from 'node:module'
 import { createConnection } from 'node:net'
 import { join } from 'node:path'
 import { resolveAuthConfiguration } from './auth-config.js'
@@ -6,6 +7,27 @@ import { composeArgs } from './compose.js'
 import { exists, isConfiguredSecret, readEnv } from './project.js'
 
 const REQUIRED_SECRETS = ['AUTH_SECRET', 'COLLABORATE_API_AUTH_KEY', 'COLLABORATE_INTERNAL_API_KEY']
+
+const WEB_UI_SPECIFIER = '@fullstack-ai-infra/ui'
+
+async function importsPackage(dir, specifier) {
+  let entries
+  try {
+    entries = await readdir(dir, { withFileTypes: true })
+  } catch {
+    return false
+  }
+  for (const entry of entries) {
+    const full = join(dir, entry.name)
+    if (entry.isDirectory()) {
+      if (await importsPackage(full, specifier)) return true
+    } else if (/\.(?:tsx?|jsx?)$/.test(entry.name)) {
+      const text = await readFile(full, 'utf8')
+      if (text.includes(specifier)) return true
+    }
+  }
+  return false
+}
 
 function check(id, label, status, detail) {
   return { id, label, status, detail }
@@ -172,6 +194,19 @@ export async function runDoctor({
       npm.code === 0 ? `${npmVersion}; required >=11.0.0` : 'npm executable not available'
     )
   )
+
+  if (await importsPackage(join(root, 'src'), WEB_UI_SPECIFIER)) {
+    let uiStatus = 'fail'
+    let uiDetail = `${WEB_UI_SPECIFIER} is imported by src/ but cannot be resolved; run npm install (restores vendor/) before building`
+    try {
+      createRequire(join(root, 'package.json')).resolve(WEB_UI_SPECIFIER)
+      uiStatus = 'pass'
+      uiDetail = `${WEB_UI_SPECIFIER} resolves for the web build`
+    } catch {
+      // keep the fail status and actionable detail
+    }
+    checks.push(check('web:build-deps', 'Web build dependencies', uiStatus, uiDetail))
+  }
 
   let fileEnv = {}
   if (await exists(envPath)) {

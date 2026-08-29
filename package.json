@@ -40,6 +40,7 @@
     "@atlaskit/pragmatic-drag-and-drop-hitbox": "^2.0.0",
     "@atlaskit/pragmatic-drag-and-drop-react-drop-indicator": "^4.1.1",
     "@auth/prisma-adapter": "2.11.3",
+    "@fullstack-ai-infra/ui": "file:vendor/fullstack-ai-infra-ui-0.2.0.tgz",
     "@hocuspocus/extension-database": "2.15.3",
     "@hocuspocus/extension-logger": "2.15.3",
     "@hocuspocus/provider": "^2.13.5",
