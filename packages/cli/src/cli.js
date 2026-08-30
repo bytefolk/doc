@@ -1,4 +1,5 @@
 import { createRequire } from 'node:module'
+import { homedir } from 'node:os'
 import { relative } from 'node:path'
 import { ApiClientError, createApiClient, normalizeApiBaseUrl, stripTerminalControlCharacters } from './api-client.js'
 import { hasUsableAuthPath } from './auth-config.js'
@@ -18,6 +19,7 @@ import {
   validateToken,
   writeCliConfig,
 } from './config.js'
+import { checkDockerReadiness } from './docker-readiness.js'
 import { runDoctor } from './doctor.js'
 import { InputError, readDocumentInput, readSecretToken } from './input.js'
 import { createProcessRunner } from './process.js'
@@ -291,7 +293,8 @@ function formatCapabilitiesText() {
 function formatDoctorText(result) {
   const lines = result.checks.map((item) => {
     const marker = item.status === 'pass' ? '✓' : item.status === 'warn' ? '!' : '✗'
-    return `${marker} ${item.label}: ${item.detail}`
+    const guidance = item.guidance ? `\n    ${item.guidance}` : ''
+    return `${marker} ${item.label}: ${item.detail}${guidance}`
   })
   lines.push(result.ok ? 'doctor: healthy' : 'doctor: action required')
   return lines.join('\n')
@@ -916,6 +919,7 @@ export async function runCli(argv, overrides = {}) {
         smtpProbe: overrides.smtpProbe,
         platform,
         processEnv,
+        homeDir: overrides.homeDirectory,
       })
       write(stdout, globalOptions.json ? JSON.stringify(result, null, 2) : formatDoctorText(result))
       return result.ok ? EXIT.success : EXIT.failure
@@ -928,6 +932,19 @@ export async function runCli(argv, overrides = {}) {
       })
       validateServices(services)
       const env = await requireRuntimeEnv(envPath, processEnv)
+      // Environment readiness verdict before the first pull/build side effect (doc#28).
+      const readiness = await checkDockerReadiness({
+        runner,
+        platform,
+        homeDir: overrides.homeDirectory,
+        cwd: root,
+      })
+      if (!readiness.ok) {
+        write(stderr, `docker readiness failed: ${readiness.code}`)
+        if (readiness.detail) write(stderr, readiness.detail)
+        if (readiness.guidance) write(stderr, readiness.guidance)
+        return EXIT.failure
+      }
       const args = [...compose, 'up']
       if (!flags.foreground) args.push('-d', '--wait', '--wait-timeout', '90')
       if (flags.build) args.push('--build')
