@@ -26,6 +26,6 @@ export const useDialogStore = create<IDialogState>((set) => ({
   setPubDocDialogOpen: (pubDocDialogOpen) => set({ pubDocDialogOpen }),
   trashDialogOpen: false,
   setTrashDialogOpen: (trashDialogOpen) => set({ trashDialogOpen }),
-  AIPanelOpen: true,
+  AIPanelOpen: false,
   setAIPanelOpen: (AIPanelOpen) => set({ AIPanelOpen }),
 }))

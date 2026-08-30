@@ -88,12 +88,12 @@ const AIInput = forwardRef((props: IProps, inputRef: ForwardedRef<HTMLTextAreaEl
   return (
     <div
       className={cn(
-        'w-full rounded-xl p-1 py-0 border shadow border-secondary-foreground hover:border-blue-400 relative overflow-hidden',
-        isFocus && 'border-blue-600 shadow-lg'
+        'relative w-full overflow-hidden rounded-lg border border-border bg-surface-raised p-1 py-0 shadow-sm transition-colors hover:border-ai',
+        isFocus && 'border-ai shadow-md ring-2 ring-ai-soft'
       )}
     >
       <Textarea
-        placeholder="输入 AI 指令，例如：如何写前端简历？"
+        placeholder={t('inputPlaceholder2')}
         className="w-full h-12 mt-2 bg-inherit border-none focus-visible:ring-offset-0 focus-visible:ring-0"
         rows={1}
         maxLength={300}
@@ -106,11 +106,12 @@ const AIInput = forwardRef((props: IProps, inputRef: ForwardedRef<HTMLTextAreaEl
         value={instruction}
         disabled={loading}
       />
-      {delay > 0 && <span className="text-xs text-gray-400 ml-2">{delay}s</span>}
+      {delay > 0 && <span className="ml-2 text-xs text-foreground-subtle">{delay}s</span>}
       <Button
         variant="ghost"
         size="icon"
-        className={cn('absolute bottom-0 right-0 p-1 h-8 w-8', isFocus ? 'text-blue-600' : 'opacity-70')}
+        className={cn('absolute bottom-0 right-0 h-8 w-8 p-1', isFocus ? 'text-ai-strong' : 'opacity-70')}
+        aria-label={loading ? t('AIgenerating') : t('sendInstruction')}
         onClick={handleClick}
         disabled={!instruction}
       >
@@ -124,6 +125,7 @@ const AIInput = forwardRef((props: IProps, inputRef: ForwardedRef<HTMLTextAreaEl
           disabled={!loading}
           onClick={onAbortRequestAI}
           className="absolute bottom-0 left-0 p-1 h-8 w-8"
+          aria-label={t('stopGenerating')}
         >
           <CircleStop size={16} />
         </Button>

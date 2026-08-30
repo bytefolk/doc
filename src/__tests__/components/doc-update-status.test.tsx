@@ -36,6 +36,8 @@ test('Doc update status component', async () => {
 
   const state = screen.getByRole('collaborative-state')
   expect(state.getAttribute('data-title')).toBe('connected')
+  expect(state.className).toContain('ui-status--source')
+  expect(state.className).toContain('is-available')
 
   // const charCount = screen.getByRole('char-count')
   // expect(charCount.textContent).toContain(CHAR_COUNT.toString())

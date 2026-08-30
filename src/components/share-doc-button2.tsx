@@ -15,6 +15,7 @@ import { useUserStore } from '@/stores/user-store'
 import { useDocsStore } from '@/stores/docs-store'
 import { post, del } from '@/lib/ajax'
 import { MAX_SHARE_COUNT } from '@/constants'
+import { useToast } from '@/components/ui/use-toast'
 
 interface IProps {
   id: string
@@ -24,6 +25,7 @@ interface IProps {
 
 export default function ShareDocButton(props: IProps) {
   const t = useTranslations('shareDoc')
+  const { toast } = useToast()
   const { id, className = '', disabled = false } = props
   const myShareRelations = useShareStore((s) => s.myShareRelations)
 
@@ -48,7 +50,10 @@ export default function ShareDocButton(props: IProps) {
     setRemoveTransition(async () => {
       const url = '/api/doc/share-relation'
       const res = await del(url, { id })
-      if (res.errno !== 0) return alert(res.msg)
+      if (res.errno !== 0) {
+        toast({ variant: 'destructive', description: res.msg })
+        return
+      }
       removeMyShareRelation(id)
     })
   }
@@ -62,13 +67,25 @@ export default function ShareDocButton(props: IProps) {
   const curDoc = useDocsStore((s) => s.docs.find((i) => i.id === id))
   async function addRelation() {
     if (userInfo == null || userInfo.id == null) return
-    if (email === userInfo.email) return alert(t('canNotShareToSelf'))
-    if (shareRelations.some((i) => i.user?.email === email)) return alert(t('shareExist'))
-    if (shareRelations.length >= MAX_SHARE_COUNT) return alert(t('maxShare', { maxNum: MAX_SHARE_COUNT }))
+    if (email === userInfo.email) {
+      toast({ variant: 'destructive', description: t('canNotShareToSelf') })
+      return
+    }
+    if (shareRelations.some((i) => i.user?.email === email)) {
+      toast({ variant: 'destructive', description: t('shareExist') })
+      return
+    }
+    if (shareRelations.length >= MAX_SHARE_COUNT) {
+      toast({ variant: 'destructive', description: t('maxShare', { maxNum: MAX_SHARE_COUNT }) })
+      return
+    }
 
     const url = '/api/doc/share-relation'
     const res = await post(url, { email, access, docId: id })
-    if (res.errno !== 0) return alert(res.msg)
+    if (res.errno !== 0) {
+      toast({ variant: 'destructive', description: res.msg })
+      return
+    }
 
     const { shareRelation, userName } = res.data
     addMyShareRelation({
@@ -81,7 +98,10 @@ export default function ShareDocButton(props: IProps) {
   }
   function addRelationHandler() {
     if (email.trim() === '') return
-    if (access === '') return alert(t('noAccess'))
+    if (access === '') {
+      toast({ variant: 'destructive', description: t('noAccess') })
+      return
+    }
     if (addLoading) return
     setAddTransition(addRelation)
   }
@@ -116,7 +136,9 @@ export default function ShareDocButton(props: IProps) {
         <div className="px-1">
           <h3 className="font-bold mb-2">{t('shareDesc')}</h3>
           <div className="max-h-72 overflow-y-auto">
-            {shareRelations.length === 0 && <p className="text-sm text-gray-600 text-center my-6">{t('notShared')}</p>}
+            {shareRelations.length === 0 && (
+              <p className="my-6 text-center text-sm text-foreground-muted">{t('notShared')}</p>
+            )}
             {shareRelations.map((i) => (
               <div key={i.id} className="flex items-center justify-between py-1 my-1">
                 <div className="inline-flex items-center">
@@ -124,17 +146,19 @@ export default function ShareDocButton(props: IProps) {
                   <p className="text-sm w-52 text-ellipsis overflow-hidden">{i.user?.name || i.user?.email}</p>
                 </div>
                 <Badge variant={i.access === 'WRITE' ? 'outline' : 'secondary'}>{i.access}</Badge>
-                <div
-                  className="cursor-pointer hover:bg-active rounded-full p-1"
+                <button
+                  type="button"
+                  aria-label={`${t('confirmRemove')} ${i.user?.name || i.user?.email || ''}`}
+                  className="cursor-pointer rounded-full p-1 hover:bg-active"
                   onClick={() => removeRelationHandler(i.id)}
                 >
                   <XIcon className="w-4 h-4" />
-                </div>
+                </button>
               </div>
             ))}
           </div>
           <div className="mt-4">
-            <p className="text-sm font-bold text-gray-600">{t('newShare')}</p>
+            <p className="text-sm font-bold text-foreground-muted">{t('newShare')}</p>
             <div className="flex items-center justify-between py-2 space-x-2">
               <Input
                 data-testid="share-new-email-input"
@@ -169,7 +193,7 @@ export default function ShareDocButton(props: IProps) {
             </div>
           </div>
           <div className="mt-4">
-            <p className="text-sm font-bold text-gray-600">{t('copyLink')}</p>
+            <p className="text-sm font-bold text-foreground-muted">{t('copyLink')}</p>
             <div className="flex items-center justify-between py-2 space-x-2">
               <Input type="url" defaultValue={link} className="h-8" />
               <Button size="sm" variant="secondary" onClick={handleCopy} disabled={copied} className="h-8">

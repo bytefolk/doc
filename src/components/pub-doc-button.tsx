@@ -72,11 +72,13 @@ export default function PubDocButton(props: IProps) {
       const checkExistedRes = await get(checkExistedUrl)
       const { data } = checkExistedRes
       if (data?.exists && data.ownedByCurrentUser === false) {
-        return alert(t('urlExist'))
+        toast({ variant: 'destructive', description: t('urlExist') })
+        return
       }
       if (data?.docId != null && data.docId !== id) {
         // 已经存在了
-        return alert(t('urlExist'))
+        toast({ variant: 'destructive', description: t('urlExist') })
+        return
       }
 
       if (!curPubDoc) {
@@ -179,26 +181,28 @@ export default function PubDocButton(props: IProps) {
         <div className="px-1">
           <h3 className="font-bold mb-2">{t('pubDesc')}</h3>
           {curPubDoc && curPubDoc.status !== PUB_DOC_STATUS.PUBLISHED && (
-            <p className="mb-3 text-sm text-amber-600">
+            <p className="mb-3 text-sm text-warning-strong">
               当前状态：{getPubDocStatusLabel(curPubDoc.status)}
               {curPubDoc.statusReason ? `（${curPubDoc.statusReason}）` : ''}
             </p>
           )}
           {isFrozen && (
-            <p className="mb-3 text-sm text-slate-500">该发布内容已被冻结，作者端不能直接恢复，请联系管理员处理。</p>
+            <p className="mb-3 text-sm text-foreground-muted">
+              该发布内容已被冻结，作者端不能直接恢复，请联系管理员处理。
+            </p>
           )}
           <div className="mt-4">
-            <p className="text-sm font-bold text-gray-600 my-2">{t('customUrlSuffix')}</p>
+            <p className="my-2 text-sm font-bold text-foreground-muted">{t('customUrlSuffix')}</p>
             <Input
               value={urlSuffix}
               onChange={(e) => setUrlSuffix(e.target.value)}
               className="w-full"
               disabled={!!curPubDoc}
             />
-            {!isUrlSuffixValid && <p className="text-sm text-red-500 my-1">{t('InvalidTip')}</p>}
+            {!isUrlSuffixValid && <p className="my-1 text-sm text-danger">{t('InvalidTip')}</p>}
           </div>
           <div className="mt-4">
-            <p className="text-sm font-bold text-gray-600 my-2">{t('URL')}</p>
+            <p className="my-2 text-sm font-bold text-foreground-muted">{t('URL')}</p>
             <div>
               <code>{url}</code>
               <Button variant="link" className="inline underline" onClick={handleCopy}>

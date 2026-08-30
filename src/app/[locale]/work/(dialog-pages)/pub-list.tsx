@@ -60,7 +60,7 @@ function PubDocListContent() {
         </div>
       )}
       {pubDocs.map((p) => (
-        <div key={p.publishId} className="flex items-center justify-between px-2 py-2 hover:bg-muted/50 group">
+        <div key={p.publishId} className="group flex items-center justify-between px-2 py-2 hover:bg-muted">
           <div className="flex items-center space-x-2">
             <ExternalLink className="h-4 w-4" />
             <span>{p.title}</span>
@@ -70,10 +70,10 @@ function PubDocListContent() {
             <span
               className={`text-xs ${
                 p.status === PUB_DOC_STATUS.PUBLISHED
-                  ? 'text-green-600'
+                  ? 'text-success-strong'
                   : p.status === PUB_DOC_STATUS.FROZEN
-                    ? 'text-amber-600'
-                    : 'text-slate-500'
+                    ? 'text-warning-strong'
+                    : 'text-foreground-muted'
               }`}
             >
               {getPubDocStatusLabel(p.status)}
@@ -107,8 +107,8 @@ function CopyLinkButton({ publishId }: { publishId: string }) {
 
   return (
     <Button variant="link" onClick={handleCopyLink} className="invisible group-hover:visible">
-      {copied ? <CopyCheck className="h-4 w-4 mr-1 text-green-500" /> : <Copy className="h-4 w-4 mr-1" />}
-      {copied ? <span className="text-green-500">{t('copySuccess')}</span> : <span>{t('copyLink')}</span>}
+      {copied ? <CopyCheck className="mr-1 h-4 w-4 text-success" /> : <Copy className="mr-1 h-4 w-4" />}
+      {copied ? <span className="text-success">{t('copySuccess')}</span> : <span>{t('copyLink')}</span>}
     </Button>
   )
 }

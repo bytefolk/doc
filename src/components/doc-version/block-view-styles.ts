@@ -6,7 +6,7 @@ export function getStaticTextBlockClass(kind: StaticTextBlockKind) {
   return cn(
     'w-full max-w-full min-w-0 px-3 text-foreground whitespace-pre-wrap [overflow-wrap:anywhere]',
     ['listItem', 'taskItem'].includes(kind) ? 'py-1' : 'py-2',
-    kind === 'blockquote' && 'border-l-2 border-muted-foreground/30 pl-3 italic'
+    kind === 'blockquote' && 'border-l-2 border-border-strong pl-3 italic'
   )
 }
 
@@ -17,11 +17,11 @@ export function getStaticHeadingClass(level: number) {
 }
 
 export function getStaticCodeBlockClass() {
-  return 'rounded-md bg-black/80 px-3 py-2 text-xs text-white whitespace-pre-wrap [overflow-wrap:anywhere]'
+  return 'rounded-md bg-surface-inset px-3 py-2 text-xs text-foreground whitespace-pre-wrap [overflow-wrap:anywhere]'
 }
 
 export function getStaticMermaidCodeClass() {
-  return 'rounded-md bg-black/80 px-3 py-2 text-xs text-white whitespace-pre-wrap'
+  return 'rounded-md bg-surface-inset px-3 py-2 text-xs text-foreground whitespace-pre-wrap'
 }
 
 export function getStaticContainerBlockClass() {
@@ -41,7 +41,7 @@ export function getStaticColumnLayoutClass(layout: string) {
 export function getStaticColumnClass(withBorder: boolean) {
   if (!withBorder) return 'border-none px-0 py-0 overflow-auto'
 
-  return 'rounded border-2 border-dotted border-black/10 px-3 py-1 overflow-auto dark:border-neutral-500'
+  return 'overflow-auto rounded border-2 border-dotted border-border-strong px-3 py-1'
 }
 
 export function getStaticTableWrapperClass() {
@@ -49,14 +49,11 @@ export function getStaticTableWrapperClass() {
 }
 
 export function getStaticTableClass() {
-  return 'min-w-full w-full border-collapse box-border border-black/10 dark:border-white/20'
+  return 'min-w-full w-full border-collapse box-border border-border'
 }
 
 export function getStaticTableCellClass(isHeader: boolean) {
-  return cn(
-    'border border-black/10 min-w-[100px] px-3 py-1.5 text-left align-top dark:border-white/20',
-    isHeader && 'bg-muted/60 font-bold'
-  )
+  return cn('min-w-[100px] border border-border px-3 py-1.5 text-left align-top', isHeader && 'bg-muted font-bold')
 }
 
 export function getStaticImageAlignClass(align?: string) {
@@ -74,6 +71,6 @@ export function getStaticImageClass() {
 export function getStaticTaskCheckboxClass(checked: boolean) {
   return cn(
     'flex h-4 w-4 shrink-0 items-center justify-center rounded-sm border text-[11px] leading-none',
-    checked ? 'border-[#1677ff] bg-[#1677ff] text-white' : 'border-muted-foreground/40 bg-background text-transparent'
+    checked ? 'border-primary bg-primary text-primary-foreground' : 'border-border-strong bg-surface text-transparent'
   )
 }

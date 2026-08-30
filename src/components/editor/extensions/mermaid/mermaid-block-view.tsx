@@ -27,7 +27,7 @@ export default function MermaidBlockView(props: ReactNodeViewProps) {
 
   const editorPanel = (
     <textarea
-      className="h-full min-h-72 w-full resize-none rounded border bg-muted/40 p-3 font-mono text-xs leading-relaxed outline-none focus:border-blue-500"
+      className="h-full min-h-72 w-full resize-none rounded border bg-surface-inset p-3 font-mono text-xs leading-relaxed outline-none focus:border-ai"
       value={code}
       maxLength={MAX_MERMAID_CODE_CHARACTERS}
       spellCheck={false}
@@ -37,7 +37,7 @@ export default function MermaidBlockView(props: ReactNodeViewProps) {
   )
 
   const previewPanel = (
-    <div className="h-full min-h-72 overflow-auto rounded border bg-white p-3 dark:bg-gray-950">
+    <div className="h-full min-h-72 overflow-auto rounded border bg-surface-raised p-3">
       <MermaidRenderer code={code} className="flex min-h-64 items-center justify-center [&_svg]:max-w-full" />
     </div>
   )
@@ -47,13 +47,13 @@ export default function MermaidBlockView(props: ReactNodeViewProps) {
       data-type="mermaid-block"
       className={cn(
         'my-4 rounded border bg-background p-3',
-        selected ? 'border-blue-500 ring-2 ring-blue-200' : 'border-border'
+        selected ? 'border-ai ring-2 ring-ai-soft' : 'border-border'
       )}
       onClick={onClick}
     >
       <div className="mb-2 flex items-center justify-between gap-2 text-xs text-muted-foreground">
         <span>{t('mermaidDiagram')}</span>
-        <div className="flex rounded border bg-muted/30 p-0.5">
+        <div className="flex rounded border bg-surface-inset p-0.5">
           <Button
             type="button"
             size="sm"

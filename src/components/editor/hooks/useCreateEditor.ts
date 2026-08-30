@@ -20,6 +20,8 @@ import { useDocsStore, IDoc } from '@/stores/docs-store'
 import { useLocale, useTranslations } from 'next-intl'
 import { uint8ArrayToBase64 } from '@/lib/doc-version/binary'
 import { registerDocSnapshotProvider, unregisterDocSnapshotProvider } from '@/lib/doc-version/snapshot-provider'
+import { hydrateLegacyEditorContent } from '@/lib/editor-legacy-fallback'
+import { hasDocParsedContent, markDocParsedContent } from '@/lib/editor-parsed-content'
 
 export default function useCreateEditor(id: string) {
   const userInfo = useUserStore((s) => s.userInfo)
@@ -129,34 +131,29 @@ export default function useCreateEditor(id: string) {
         }),
       ],
       onCreate: ({ editor }) => {
-        provider?.on('open', async () => {
-          // console.log('editor provider open...')
+        let initializedAfterSync = false
+        provider?.on('synced', async () => {
+          if (initializedAfterSync) return
+          initializedAfterSync = true
           const doc = docs.find((i) => i.id === id)
-          if (doc == null) return
-
           const AutoCreatedTitle = locale === 'zh-cn' ? DEFAULT_NEW_DOC_TITLE : DEFAULT_NEW_DOC_TITLE_EN
-          const isAutoCreated = doc.title === AutoCreatedTitle // 自定创建的文档，只有 JSON 格式，需要转化一次格式
-          const isRecentlyUpdated = isDocRecentlyUpdated(doc)
-          if (isRecentlyUpdated && !isAutoCreated) return
+          const isAutoCreated = doc?.title === AutoCreatedTitle
+          const needsFallback = doc != null && (!isDocRecentlyUpdated(doc) || isAutoCreated)
 
-          const hasParsed = hasDocParsedContent(id)
-          if (hasParsed) return // has parsed content
+          await hydrateLegacyEditorContent({
+            needsFallback,
+            isEditorEmpty: () => editor.isEmpty,
+            getDocumentVersion: () => uint8ArrayToBase64(Y.encodeStateVector(ydoc)),
+            hasHydrated: () => hasDocParsedContent(id),
+            fetchPersistedDocument: () => get(`/api/doc/${id}`),
+            applyPersistedContent: (content) => editor.commands.setContent(content),
+            markHydrated: () => markDocParsedContent(id),
+          })
 
-          // Get doc content, and set content, when JSON convert to Yjs doc failed. We will remove this code after a long time (almost all docs have been converted).
-          const { errno, data } = await get(`/api/doc/${id}`)
-          if (errno !== 0) return
-          // console.log('data....', data)
-          const { contentBinary, content } = data
-          if (contentBinary == null && content) {
-            console.log('Notice: editor setContent by JSON format 1 ', id)
-            editor.commands.setContent(JSON.parse(content))
+          if (!editor.isDestroyed) {
             setLoading(false)
+            setDocId(id)
           }
-        })
-        provider?.on('synced', () => {
-          // console.log('editor provider synced...')
-          setLoading(false)
-          setDocId(id)
         })
         provider?.on('connect', () => {
           // console.log('editor provider connect...')
@@ -213,21 +210,5 @@ function isDocRecentlyUpdated(doc: IDoc) {
   const dt = new Date('2024/08/15').getTime() // 08.14 协同编辑发布到预览
   if (createdAt > dt) return true
   if (updatedAt > dt) return true
-  return false
-}
-
-/**
- * 判断该文档是否已经解析过内容（不要重复解析）
- * @param docId doc id
- * @returns boolean
- */
-function hasDocParsedContent(docId: string) {
-  const key = 'EDITOR_PARSED_CONTENT_IDS'
-  const parsedIdsStr = localStorage.getItem(key)
-  const parsedIds = parsedIdsStr ? JSON.parse(parsedIdsStr) : []
-  if (parsedIds.includes(docId)) return true
-
-  parsedIds.push(docId) // record
-  localStorage.setItem(key, JSON.stringify(parsedIds)) // save
   return false
 }

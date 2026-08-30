@@ -24,11 +24,11 @@ export default function ChatItemAIGenerating(props: IProps) {
   }, [content])
 
   return (
-    <div className="flex items-start gap-1 my-1">
+    <div className="my-1 flex items-start gap-2">
       <div className="w-5">
-        <Bot className="w-5 h-5 text-blue-500 mt-1" />
+        <Bot className="mt-1 h-5 w-5 animate-pulse text-ai" />
       </div>
-      <div className="bg-gray-100 dark:bg-gray-800 dark:text-gray-300 px-2 py-1 rounded-md mr-2 flex-auto">
+      <div className="mr-2 flex-auto rounded-lg border border-ai bg-ai-soft px-3 py-2 text-foreground">
         {!content && (
           <div className="text-center">
             <span className="text-sm text-muted-foreground">{t('AIgenerating')}</span>

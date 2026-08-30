@@ -33,7 +33,7 @@ export default function MermaidPreviewCard(props: MermaidPreviewCardProps) {
           {t('mermaidInsertToDoc')}
         </Button>
       </div>
-      <div className="overflow-auto bg-white p-3 dark:bg-gray-950">
+      <div className="overflow-auto bg-surface-raised p-3">
         <MermaidRenderer code={code} className="flex min-h-32 items-center justify-center [&_svg]:max-w-full" />
       </div>
     </div>

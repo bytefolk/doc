@@ -1,7 +1,15 @@
 {
   "common": {
     "brandName": "doc",
-    "notSupportMobile": "Mobile devices are not supported yet"
+    "notSupportMobile": "Mobile devices are not supported yet",
+    "openDocumentNavigation": "Open document navigation",
+    "closeDocumentNavigation": "Close document navigation",
+    "documentNavigation": "Document navigation",
+    "documentToolbar": "Document toolbar",
+    "documentActions": "Document actions",
+    "moreDocumentActions": "More document actions",
+    "changeLanguage": "Change language, current {locale}",
+    "closeDialog": "Close dialog"
   },
   "metadata": {
     "title": "doc — self-hosted collaborative document infrastructure",
@@ -75,7 +83,9 @@
     "haveLogin": "You have logged in",
     "login": "Login",
     "logout": "Logout",
-    "logoutConfirm": "Are you sure you want to log out?"
+    "logoutConfirm": "Are you sure you want to log out?",
+    "profileTitle": "Complete your profile",
+    "profileDescription": "Choose the name collaborators will see, then continue to your workspace."
   },
   "personalAccessTokens": {
     "title": "Personal access tokens",
@@ -116,6 +126,9 @@
     "others": "OR CONTINUE WITH",
     "email": "Email",
     "enterYourEmail": "Enter your email address",
+    "invalidEmail": "Enter a valid email address.",
+    "requiredEmail": "Email is required.",
+    "signInFailed": "Sign-in failed. Please try again.",
     "withEmail": "Continue with Email",
     "loading": "Loading sign-in options…",
     "unavailable": "No sign-in method is configured. Ask the instance operator to configure one."
@@ -127,6 +140,11 @@
   "userAndSetting": {
     "title": "User / Setting",
     "changeUerInfo": "Change User Info",
+    "email": "Email",
+    "name": "Name",
+    "namePlaceholder": "Input your name",
+    "avatar": "Avatar",
+    "avatarPlaceholder": "https://github.com/username.png",
     "submit": "Submit",
     "success": "Success"
   },
@@ -191,10 +209,14 @@
     "notFound": "Cannot find the doc",
     "create": "Create",
     "titleInputPlaceholder": "Doc title...",
+    "titleInputLabel": "Document title",
     "exportPDF": "Export PDF",
     "downloadPDF": "Click to download PDF manually",
     "createdAt": "CreatedAt",
-    "updatedAt": "UpdatedAt"
+    "updatedAt": "UpdatedAt",
+    "collapseDocument": "Collapse {title}",
+    "expandDocument": "Expand {title}",
+    "createDocumentUnder": "Create document under {title}"
   },
   "shareDoc": {
     "share": "Share",
@@ -341,6 +363,8 @@
     "inputPlaceholder2": "Input AI command, such as: outline based on title",
     "inputPlaceholder3": "Input AI command for selected content, such as: expand this content",
     "AIgenerating": "AI generating...",
+    "sendInstruction": "Send AI instruction",
+    "stopGenerating": "Stop AI generation",
     "copy": "Copy",
     "replace": "Replace",
     "insert": "Insert",

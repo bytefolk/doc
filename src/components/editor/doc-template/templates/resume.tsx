@@ -24,7 +24,7 @@ export default function ResumeTemplate() {
     <Card className="cursor-pointer" onClick={clickHandler}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-base font-medium truncate">{t('resume')}</CardTitle>
-        <File className="h-4 w-4 flex-shrink-0 text-blue-500" />
+        <File className="h-4 w-4 flex-shrink-0 text-info" />
       </CardHeader>
       <CardContent>
         <CardDescription className="truncate">{t('resumeDesc')}</CardDescription>

@@ -21,61 +21,113 @@ import VersionDialog from '@/components/doc-version/version-dialog'
 import VersionEntryButton from '@/components/doc-version/version-entry-button'
 import { useDocsStore } from '@/stores/docs-store'
 import { useUserStore } from '@/stores/user-store'
+import { Topbar } from '@fullstack-ai-infra/ui'
+import { useTranslations } from 'next-intl'
+import { useCompactWorkspace } from '@/hooks/use-compact-workspace'
 
 export default function TopBar() {
+  const t = useTranslations('common')
+  const isCompact = useCompactWorkspace()
   const docs = useDocsStore((s) => s.docs)
   const id = useDocsStore((s) => s.curDocId)
   const doc = useMemo(() => docs.find((d) => d.id === id), [docs, id])
   const userInfo = useUserStore((s) => s.userInfo)
 
   return (
-    <div className="flex text-secondary-foreground px-3 bg-ground pb-1 border-b mt-1">
-      <div className="text-start inline-flex items-center">
-        <Logo />
-        <DocUpdateStatus id={id} />
-      </div>
-      <div className="flex-1 text-end">
-        {/* 后续再拆分组件 */}
-        <div className="inline-flex items-center space-x-1">
+    <Topbar
+      aria-label={t('documentToolbar')}
+      className="max-[1023px]:pl-14 max-[480px]:pr-2"
+      breadcrumbs={
+        <div className="inline-flex items-center gap-3">
+          <Logo />
+          <div className="max-[479px]:hidden">
+            <DocUpdateStatus id={id} />
+          </div>
+        </div>
+      }
+      actions={
+        <>
           {id !== '0' && (
             <>
               <AIPanelButton />
-              <StarDocButton id={id} disabled={doc?.userId !== userInfo?.id} />
-              <ShareDocButton id={id} disabled={doc?.userId !== userInfo?.id} />
-              <PubDocButton id={id} disabled={doc?.userId !== userInfo?.id} />
-              <TopBarHandlers id={id} disabled={doc?.userId !== userInfo?.id} />
+              {isCompact ? (
+                <CompactDocumentActions id={id} disabled={doc?.userId !== userInfo?.id} />
+              ) : (
+                <>
+                  <StarDocButton id={id} disabled={doc?.userId !== userInfo?.id} />
+                  <ShareDocButton id={id} disabled={doc?.userId !== userInfo?.id} />
+                  <PubDocButton id={id} disabled={doc?.userId !== userInfo?.id} />
+                  <TopBarHandlers id={id} disabled={doc?.userId !== userInfo?.id} />
+                </>
+              )}
             </>
           )}
           <ChangeLocale />
           <ChangeTheme />
-        </div>
-      </div>
-    </div>
+        </>
+      }
+    />
   )
 }
 
-function TopBarHandlers(props: { id: string; disabled?: boolean }) {
+function CompactDocumentActions(props: { id: string; disabled?: boolean }) {
   const { id, disabled = false } = props
+  const t = useTranslations('common')
   const [open, setOpen] = useState(false)
 
   return (
     <>
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button variant="ghost" size="icon" className="mx-2" disabled={disabled}>
-            <Ellipsis className="h-4 w-4" />
+          <Button type="button" variant="ghost" size="icon" aria-label={t('documentActions')} disabled={disabled}>
+            <Ellipsis aria-hidden="true" className="h-4 w-4" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-32 p-1">
-          <DuplicateDocButton id={id} />
-          <MoveDocButton id={id} />
-          <ExportPdfButton id={id} />
-          <VersionEntryButton onEntryClick={() => setOpen(false)} />
+        <PopoverContent align="end" className="w-52 space-y-1 p-1">
+          <StarDocButton id={id} disabled={disabled} className="w-full justify-start" />
+          <ShareDocButton id={id} disabled={disabled} className="w-full justify-start" />
+          <PubDocButton id={id} disabled={disabled} className="w-full justify-start" />
           <Separator className="my-1" />
-          <DocDeleteButton id={id} />
+          <TopBarHandlerItems id={id} onVersionEntry={() => setOpen(false)} />
         </PopoverContent>
       </Popover>
       <VersionDialog id={id} />
+    </>
+  )
+}
+
+function TopBarHandlers(props: { id: string; disabled?: boolean }) {
+  const { id, disabled = false } = props
+  const [open, setOpen] = useState(false)
+  const t = useTranslations('common')
+
+  return (
+    <>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button type="button" variant="ghost" size="icon" aria-label={t('moreDocumentActions')} disabled={disabled}>
+            <Ellipsis aria-hidden="true" className="h-4 w-4" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-32 p-1">
+          <TopBarHandlerItems id={id} onVersionEntry={() => setOpen(false)} />
+        </PopoverContent>
+      </Popover>
+      <VersionDialog id={id} />
+    </>
+  )
+}
+
+function TopBarHandlerItems(props: { id: string; onVersionEntry?: () => void }) {
+  const { id, onVersionEntry } = props
+  return (
+    <>
+      <DuplicateDocButton id={id} />
+      <MoveDocButton id={id} />
+      <ExportPdfButton id={id} />
+      <VersionEntryButton onEntryClick={onVersionEntry} />
+      <Separator className="my-1" />
+      <DocDeleteButton id={id} />
     </>
   )
 }

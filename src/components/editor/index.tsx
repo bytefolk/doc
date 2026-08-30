@@ -34,6 +34,7 @@ import { useTranslations } from 'next-intl'
 import emitter from '@/lib/emitter'
 import { useEditorStore } from '@/stores/editor-store'
 import { useDialogStore } from '@/stores/dialog-store'
+import { SourceStatus } from '@fullstack-ai-infra/ui'
 
 export const EditorContext = createContext<Editor | null>(null)
 
@@ -223,8 +224,8 @@ const TiptapEditor = (props: IProps) => {
 
   if (isConnectedTimeout) {
     return (
-      <div className="mx-10">
-        <p className="text-sm text-muted-foreground">{t('collabConnFailed')}</p>
+      <div className="mx-4 rounded-lg border border-danger bg-danger-soft p-4 sm:mx-10">
+        <SourceStatus state="error" label={t('collabConnFailed')} />
       </div>
     )
   }
@@ -233,7 +234,7 @@ const TiptapEditor = (props: IProps) => {
 
   if (loading) {
     return (
-      <div className="space-y-2 mx-10">
+      <div className="mx-4 space-y-2 sm:mx-10">
         <Skeleton className="h-6 w-full" />
         <Skeleton className="h-6 w-full" />
       </div>
@@ -242,7 +243,11 @@ const TiptapEditor = (props: IProps) => {
 
   return (
     <EditorContext.Provider value={editor}>
-      {isDisconnected && <div className="mx-10 mb-6 text-red-500">{t('collabConnFailed')}</div>}
+      {isDisconnected && (
+        <div className="mx-4 mb-6 rounded-lg border border-danger bg-danger-soft p-3 sm:mx-10">
+          <SourceStatus state="offline" label={t('collabConnFailed')} />
+        </div>
+      )}
       {enableFindReplace &&
         workContentPanelDiv &&
         createPortal(<FindReplacePanel editor={editor} controller={findReplaceController} />, workContentPanelDiv)}

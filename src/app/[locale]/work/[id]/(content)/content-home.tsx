@@ -25,7 +25,7 @@ export default function ContentHome() {
   return (
     <div
       id={WORK_CONTENT_CONTAINER_ID}
-      className="bg-background mx-auto my-10"
+      className="mx-auto my-4 rounded-xl bg-surface px-4 py-5 shadow-sm sm:my-10 sm:px-8 sm:py-6"
       style={{ maxWidth: `${CONTENT_WIDTH}px` }}
     >
       <header className="mb-8">
@@ -35,11 +35,11 @@ export default function ContentHome() {
           <NewButton />
         </div>
       </header>
-      <main className="space-y-8">
+      <div className="space-y-8">
         <RecentDocsList />
         <FavoriteDocsList />
         <SharedDocsList />
-      </main>
+      </div>
     </div>
   )
 }
@@ -64,10 +64,10 @@ function SearchInput() {
 
   return (
     <div className="relative flex-grow cursor-pointer">
-      <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+      <Search className="absolute left-3 top-2.5 h-4 w-4 text-foreground-subtle" />
       <Input
         placeholder={t('searchPlaceholder')}
-        className="pl-8 w-full cursor-pointer hover:border-gray-400"
+        className="w-full cursor-pointer pl-9 hover:border-border-strong"
         ref={inputRef}
       />
     </div>
@@ -109,14 +109,23 @@ function RecentDocsList() {
       <h2 className="text-xl font-semibold mb-4">{t('recentDocs')}</h2>
       {recentDocs.length === 0 && <NotFound />}
       {recentDocs.length > 0 && (
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {recentDocs.map((doc) => (
-            <Card key={doc.id} className="cursor-pointer" onClick={() => nav(doc.id)}>
+            <Card
+              key={doc.id}
+              className="cursor-pointer bg-surface-raised transition-colors hover:border-border-strong"
+              onClick={() => nav(doc.id)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') nav(doc.id)
+              }}
+              role="link"
+              tabIndex={0}
+            >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-base font-medium truncate">
                   {doc.icon} {doc.title}
                 </CardTitle>
-                <File className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                <File className="h-4 w-4 flex-shrink-0 text-foreground-subtle" />
               </CardHeader>
               <CardContent>
                 <CardDescription className="truncate">
@@ -165,14 +174,23 @@ function FavoriteDocsList() {
       </div>
       {favorDocs.length === 0 && <NotFound />}
       {favorDocs.length > 0 && (
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {favorDocs.map((doc) => (
-            <Card key={doc.id} className="cursor-pointer" onClick={() => nav(doc.id)}>
+            <Card
+              key={doc.id}
+              className="cursor-pointer bg-surface-raised transition-colors hover:border-border-strong"
+              onClick={() => nav(doc.id)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') nav(doc.id)
+              }}
+              role="link"
+              tabIndex={0}
+            >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-base font-medium truncate">
                   {doc.icon} {doc.title}
                 </CardTitle>
-                <Star className="h-4 w-4 flex-shrink-0 text-yellow-400" />
+                <Star className="h-4 w-4 flex-shrink-0 text-warning" />
               </CardHeader>
               <CardContent>
                 <CardDescription className="truncate">
@@ -227,14 +245,23 @@ function SharedDocsList() {
       </div>
       {docs.length === 0 && <NotFound />}
       {docs.length > 0 && (
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {docs.map((doc) => (
-            <Card key={doc.id} className="cursor-pointer" onClick={() => nav(doc.id)}>
+            <Card
+              key={doc.id}
+              className="cursor-pointer bg-surface-raised transition-colors hover:border-border-strong"
+              onClick={() => nav(doc.id)}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') nav(doc.id)
+              }}
+              role="link"
+              tabIndex={0}
+            >
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-base font-medium truncate">
                   {doc.icon} {doc.title}
                 </CardTitle>
-                <Users className="h-4 w-4 flex-shrink-0 text-blue-400" />
+                <Users className="h-4 w-4 flex-shrink-0 text-info" />
               </CardHeader>
               <CardContent>
                 <CardDescription className="truncate">

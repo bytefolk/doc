@@ -23,6 +23,7 @@ interface IProps {
   email: string
   name: string
   avatar: string
+  redirectTo?: string
 }
 
 export function UserProfileForm(props: IProps) {
@@ -44,6 +45,11 @@ export function UserProfileForm(props: IProps) {
     const { errno } = await patch('/api/user', values)
     if (errno === 0) {
       setSuccessStatus(true)
+      if (props.redirectTo) {
+        const redirectTo = props.redirectTo
+        setTimeout(() => window.location.assign(redirectTo), 300)
+        return
+      }
     }
     setTimeout(() => {
       location.href = location.href
@@ -59,7 +65,7 @@ export function UserProfileForm(props: IProps) {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email</FormLabel>
+                <FormLabel>{t('email')}</FormLabel>
                 <FormControl>
                   <Input role="email-input" {...field} disabled />
                 </FormControl>
@@ -72,9 +78,9 @@ export function UserProfileForm(props: IProps) {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Name</FormLabel>
+                <FormLabel>{t('name')}</FormLabel>
                 <FormControl>
-                  <Input role="name-input" placeholder="Input your name" {...field} />
+                  <Input role="name-input" placeholder={t('namePlaceholder')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -85,9 +91,9 @@ export function UserProfileForm(props: IProps) {
             name="avatar"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Avatar</FormLabel>
+                <FormLabel>{t('avatar')}</FormLabel>
                 <FormControl>
-                  <Input role="avatar-input" placeholder="https://github.com/username.png" {...field} />
+                  <Input role="avatar-input" placeholder={t('avatarPlaceholder')} {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

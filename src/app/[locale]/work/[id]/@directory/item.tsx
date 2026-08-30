@@ -37,7 +37,7 @@ export default function Item(props: IProps) {
   const hasChildren = orderedChildren.length > 0
 
   const [showChildren, setShowChildren] = useState(hasChildren ? isDescendant(id, curDocId, docs) : false)
-  function toggleShowChildren(e: React.MouseEvent<HTMLDivElement>) {
+  function toggleShowChildren(e: React.MouseEvent<HTMLElement>) {
     e.stopPropagation()
     setShowChildren(!showChildren)
   }
@@ -90,25 +90,30 @@ export default function Item(props: IProps) {
     <div>
       <div
         ref={rowRef}
+        role="treeitem"
+        aria-selected={isCurrent}
+        aria-expanded={hasChildren ? showChildren : undefined}
         data-testid={`directory-item-${id}`}
         data-doc-id={id}
         className={cn(
-          'relative text-sm flex justify-between items-center w-full hover:text-secondary-foreground hover:bg-active rounded-sm group mb-0.5 px-1 pl-3',
-          isCurrent && 'text-secondary-foreground font-bold bg-active rounded-sm',
+          'group relative mb-0.5 flex w-full items-center justify-between rounded-md px-1 pl-3 text-sm text-foreground-muted hover:bg-surface hover:text-foreground',
+          isCurrent && 'bg-surface font-semibold text-foreground shadow-[inset_2px_0_var(--ui-primary)]',
           isDragging && 'opacity-50',
-          instruction?.operation === 'combine' && !instruction.blocked && 'bg-primary/15 ring-1 ring-primary/30'
+          instruction?.operation === 'combine' && !instruction.blocked && 'bg-primary-soft ring-1 ring-primary'
         )}
       >
         {/* icon 显示/隐藏 children */}
         {hasChildren && (
-          <div
-            className="cursor-pointer hover:bg-active rounded-full p-0.5"
+          <button
+            type="button"
+            aria-label={showChildren ? t('collapseDocument', { title }) : t('expandDocument', { title })}
+            className="rounded-full p-0.5 hover:bg-primary-soft"
             onClick={toggleShowChildren}
             style={{ marginLeft: `${level * 8}px` }}
           >
             {showChildren && <ChevronDown className="h-4 w-4" />}
             {!showChildren && <ChevronRight className="h-4 w-4" />}
-          </div>
+          </button>
         )}
 
         {/* 标题链接 */}
@@ -116,9 +121,17 @@ export default function Item(props: IProps) {
           ref={titleRef}
           data-testid={`directory-drag-title-${id}`}
           onClick={onClickTitle}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault()
+              onClickTitle()
+            }
+          }}
+          role="link"
+          tabIndex={0}
           className={cn(
             'flex-auto overflow-hidden py-1.5 px-0.5 flex items-center',
-            sortBy === 'default' ? 'cursor-grab touch-none active:cursor-grabbing' : 'cursor-pointer'
+            sortBy === 'default' ? 'cursor-grab touch-pan-y active:cursor-grabbing' : 'cursor-pointer'
           )}
         >
           {/* no icon */}
@@ -141,17 +154,19 @@ export default function Item(props: IProps) {
         </div>
 
         {/* 操作按钮 */}
-        <div className="inline-flex items-center invisible group-hover:visible ml-1 w-6 pr-2">
+        <div className="invisible ml-1 inline-flex w-7 items-center group-hover:visible group-focus-within:visible">
           <ItemHandlers id={id} />
         </div>
 
         {/* 创建文档 */}
-        <div
+        <button
+          type="button"
+          aria-label={t('createDocumentUnder', { title })}
           onClick={() => createDocHandler(id)}
-          className="cursor-pointer rounded-full p-1 hover:bg-active invisible group-hover:visible"
+          className="invisible cursor-pointer rounded-full p-1 hover:bg-primary-soft group-hover:visible group-focus-within:visible"
         >
           <Plus className="h-4 w-4" />
-        </div>
+        </button>
         {instruction && instruction.operation !== 'combine' && !instruction.blocked && (
           <DropIndicator instruction={instruction} />
         )}

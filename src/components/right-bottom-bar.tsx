@@ -12,7 +12,7 @@ export default function RightBottomBar() {
   const locale = useLocale()
 
   return (
-    <div className="absolute flex flex-col space-y-2 bottom-16 right-8">
+    <div className="absolute bottom-16 right-3 flex flex-col space-y-2 sm:right-8">
       <BackToTop />
       <KeyboardShortcutsButton />
       {locale === 'zh-cn' && (

@@ -100,7 +100,7 @@ function ExportPDF() {
   return (
     <div className="h-52">
       {loadingScript && (
-        <div className="flex items-center justify-center h-full text-gray-500">
+        <div className="flex h-full items-center justify-center text-foreground-muted">
           <div className="inline-flex items-center">
             <Loader className="h-5 w-5 mr-1 animate-spin" />
             <span>Loading...</span>
@@ -108,8 +108,8 @@ function ExportPDF() {
         </div>
       )}
       {!loadingScript && loadError && (
-        <div className="flex items-center justify-center h-full text-gray-500">
-          <span className="text-red-500">Error: Load JS files failed.</span>
+        <div className="flex h-full items-center justify-center text-foreground-muted">
+          <span className="text-danger">Error: Load JS files failed.</span>
         </div>
       )}
       {!loadingScript && !loadError && (

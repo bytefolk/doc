@@ -48,6 +48,7 @@ describe('sign-in provider selection', () => {
 
     expect(await screen.findByRole('button', { name: 'Continue with Email' })).toBeTruthy()
     expect(screen.queryByRole('button', { name: 'Continue with Github' })).toBeNull()
+    expect(document.querySelector('.ui-card')).toBeTruthy()
   })
 
   it('prefers Resend when both email providers are available', async () => {
@@ -65,10 +66,42 @@ describe('sign-in provider selection', () => {
     })
   })
 
+  it('uses inline live validation instead of the browser validation bubble', async () => {
+    authMocks.getProviders.mockResolvedValue({ nodemailer: emailProvider })
+    renderPage()
+
+    const emailInput = await screen.findByLabelText('Email')
+    const form = screen.getByRole('button', { name: 'Continue with Email' }).closest('form')!
+    expect(form.noValidate).toBe(true)
+    fireEvent.submit(form)
+
+    expect((await screen.findByRole('alert')).textContent).toContain('Email is required.')
+    expect(emailInput.getAttribute('aria-invalid')).toBe('true')
+
+    fireEvent.change(emailInput, { target: { value: 'not-an-email' } })
+    fireEvent.submit(form)
+    expect((await screen.findByRole('alert')).textContent).toContain('Enter a valid email address.')
+    expect(authMocks.signIn).not.toHaveBeenCalled()
+  })
+
+  it('announces an email sign-in rejection', async () => {
+    authMocks.getProviders.mockResolvedValue({ nodemailer: emailProvider })
+    authMocks.signIn.mockRejectedValueOnce(new Error('provider unavailable'))
+    renderPage()
+
+    fireEvent.change(await screen.findByLabelText('Email'), { target: { value: 'owner@example.test' } })
+    fireEvent.submit(screen.getByRole('button', { name: 'Continue with Email' }).closest('form')!)
+
+    expect((await screen.findByRole('alert')).textContent).toContain('Sign-in failed. Please try again.')
+  })
+
   it('shows an operator-facing error when no provider is configured', async () => {
     authMocks.getProviders.mockResolvedValue({})
     renderPage()
 
+    expect((await screen.findByText(/No sign-in method is configured/)).textContent).toContain(
+      'No sign-in method is configured'
+    )
     expect((await screen.findByRole('alert')).textContent).toContain('No sign-in method is configured')
     expect(screen.queryByRole('button', { name: 'Continue with Email' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Continue with Github' })).toBeNull()

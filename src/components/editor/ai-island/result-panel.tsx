@@ -76,7 +76,7 @@ export default function ResultPanel(props: IProps) {
   if (!result && !loading) return null
 
   return (
-    <div className="border-2 border-blue-600 rounded-lg shadow-lg p-4 pb-2 mb-2">
+    <div className="mb-2 rounded-lg border border-ai bg-ai-soft p-4 pb-2 shadow-md">
       <div className="max-h-72 overflow-y-auto">
         {!result && (
           <div className="text-center">
@@ -91,7 +91,7 @@ export default function ResultPanel(props: IProps) {
             onClick={onReplace}
             disabled={loading || isSelectionEmpty}
             variant="ghost"
-            className="p-2 text-blue-500 hover:bg-inherit hover:text-blue-400"
+            className="p-2 text-ai-strong hover:bg-inherit hover:text-ai-hover"
             tabIndex={-1}
           >
             <Replace className="h-4 w-4 mr-1" />
@@ -101,7 +101,7 @@ export default function ResultPanel(props: IProps) {
             onClick={onInsert}
             disabled={loading}
             variant="ghost"
-            className="p-2 text-blue-500 hover:bg-inherit hover:text-blue-400"
+            className="p-2 text-ai-strong hover:bg-inherit hover:text-ai-hover"
             tabIndex={-1}
           >
             <BetweenHorizonalStart className="h-4 w-4 mr-1" />
@@ -111,7 +111,7 @@ export default function ResultPanel(props: IProps) {
             onClick={reRequestAI}
             disabled={loading}
             variant="ghost"
-            className="p-2 text-blue-500 hover:bg-inherit hover:text-blue-400"
+            className="p-2 text-ai-strong hover:bg-inherit hover:text-ai-hover"
             tabIndex={-1}
           >
             <Sparkle className="h-4 w-4 mr-1" />
@@ -121,7 +121,7 @@ export default function ResultPanel(props: IProps) {
             onClick={onClose}
             disabled={loading}
             variant="ghost"
-            className="p-2 text-red-500 hover:bg-inherit hover:text-red-400"
+            className="p-2 text-danger hover:bg-inherit"
             tabIndex={-1}
           >
             <X className="h-4 w-4 mr-1" />

@@ -202,7 +202,7 @@ export default function PersonalAccessTokenManager() {
         </form>
 
         {createdToken && (
-          <div className="space-y-3 rounded-md border border-amber-500/50 bg-amber-500/10 p-4" role="status">
+          <div className="space-y-3 rounded-md border border-warning bg-warning-soft p-4" role="status">
             <p className="font-medium">{t('createdTitle')}</p>
             <p className="text-sm text-muted-foreground">{t('createdDescription')}</p>
             <div className="flex flex-col gap-2 sm:flex-row">
@@ -219,10 +219,7 @@ export default function PersonalAccessTokenManager() {
         )}
 
         {error && (
-          <p
-            className="rounded-md border border-destructive/50 bg-destructive/10 p-3 text-sm text-destructive"
-            role="alert"
-          >
+          <p className="rounded-md border border-danger bg-danger-soft p-3 text-sm text-danger" role="alert">
             {error}
           </p>
         )}

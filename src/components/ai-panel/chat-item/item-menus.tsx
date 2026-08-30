@@ -69,7 +69,7 @@ export default function ItemMenus(props: IProps) {
   }
 
   return (
-    <div className="flex justify-start text-sm text-gray-500 ml-6">
+    <div className="ml-6 flex justify-start text-sm text-foreground-subtle">
       <TooltipProvider>
         <Tooltip>
           <TooltipTrigger asChild>
@@ -78,10 +78,10 @@ export default function ItemMenus(props: IProps) {
               disabled={loading}
               variant="ghost"
               size="sm"
-              className="p-2 h-6 hover:bg-inherit hover:text-blue-400"
+              className="h-6 p-2 hover:bg-inherit hover:text-ai"
               tabIndex={-1}
             >
-              {copied ? <CopyCheck className="h-4 w-4 mr-1 text-green-600" /> : <Copy className="h-4 w-4 mr-1" />}
+              {copied ? <CopyCheck className="mr-1 h-4 w-4 text-success" /> : <Copy className="mr-1 h-4 w-4" />}
             </Button>
           </TooltipTrigger>
           <TooltipContent className="bg-secondary-foreground text-secondary text-sm">
@@ -98,7 +98,7 @@ export default function ItemMenus(props: IProps) {
               disabled={loading}
               variant="ghost"
               size="sm"
-              className="p-2 h-6 hover:bg-inherit hover:text-blue-400"
+              className="h-6 p-2 hover:bg-inherit hover:text-ai"
               tabIndex={-1}
             >
               <BetweenHorizonalStart className="h-4 w-4 mr-1" />
@@ -116,7 +116,7 @@ export default function ItemMenus(props: IProps) {
               disabled={loading || isSelectionEmpty}
               variant="ghost"
               size="sm"
-              className="p-2 h-6 hover:bg-inherit hover:text-blue-400"
+              className="h-6 p-2 hover:bg-inherit hover:text-ai"
               tabIndex={-1}
             >
               <Replace className="h-4 w-4 mr-1" />
@@ -134,7 +134,7 @@ export default function ItemMenus(props: IProps) {
               disabled={loading || !reRequestAI}
               variant="ghost"
               size="sm"
-              className="p-2 h-6 hover:bg-inherit hover:text-blue-400"
+              className="h-6 p-2 hover:bg-inherit hover:text-ai"
               tabIndex={-1}
             >
               <RefreshCcw className="h-4 w-4 mr-1" />

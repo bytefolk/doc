@@ -50,9 +50,9 @@ export default function Info(props: IProps) {
 
 function TokenLimitSpan({ tokenLimit }: { tokenLimit: number | null }) {
   if (tokenLimit === null) return <span>---</span>
-  let color = 'text-green-500'
-  if (tokenLimit < 3000) color = 'text-orange-500'
-  if (tokenLimit < 1000) color = 'text-red-500'
+  let color = 'text-success'
+  if (tokenLimit < 3000) color = 'text-warning'
+  if (tokenLimit < 1000) color = 'text-danger'
   if (tokenLimit < 0) return <span>---</span>
   return <span className={`${color} font-bold`}>{tokenLimit}</span>
 }

@@ -28,6 +28,8 @@
     "db:preflight": "prisma db execute --file prisma/preflight/ensure-share-relation-unique.sql --schema prisma/schema.prisma",
     "db:push": "npm run db:preflight && prisma db push",
     "test": "vitest",
+    "test:e2e": "playwright test",
+    "test:e2e:full": "DOC_E2E_FULL_LOOP=1 playwright test e2e/workspace.spec.ts",
     "test:cli": "npm test --workspace @fullstack-ai-infra/doc-cli",
     "test-ci": "vitest run && npm run test:cli",
     "verify:local-loop": "node scripts/verify-local-loop.mjs",
@@ -128,6 +130,7 @@
   "devDependencies": {
     "@commitlint/cli": "^19.2.1",
     "@commitlint/config-conventional": "^19.1.0",
+    "@playwright/test": "^1.58.2",
     "@tailwindcss/typography": "^0.5.12",
     "@testing-library/react": "^16.1.0",
     "@types/ali-oss": "^6.16.11",
@@ -154,7 +157,7 @@
     "postcss": "^8.5.6",
     "prettier": "^3.2.5",
     "prisma": "^5.11.0",
-    "tailwindcss": "^3.3.0",
+    "tailwindcss": "^3.4.19",
     "typescript": "^5",
     "vite": "8.1.5",
     "vitest": "4.1.10"

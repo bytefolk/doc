@@ -11,7 +11,7 @@ export default function AIMenu() {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button size="sm" variant="ghost" tabIndex={-1} className="text-blue-500 hover:text-blue-500">
+        <Button size="sm" variant="ghost" tabIndex={-1} className="text-ai-strong hover:text-ai-strong">
           <Sparkles className="h-4 w-4 mr-1" />
           Ask AI
           <ChevronDown className="h-2 w-2 ml-1" />

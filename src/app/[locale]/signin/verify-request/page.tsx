@@ -1,19 +1,20 @@
 import HomeNav from '@/components/home-nav'
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useTranslations } from 'next-intl'
 
 export default function VerifyRequestPage() {
   const t = useTranslations('verifyRequest')
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-slate-50 to-white dark:from-gray-900 dark:to-gray-800">
+    <main className="doc-grid flex min-h-screen items-center justify-center bg-canvas px-4 py-16">
       <HomeNav />
-      <div className="w-full max-w-md space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-2xl font-semibold text-secondary-foreground">{t('title')}</h1>
-          <p className="text-gray-500">{t('subTitle')}</p>
-        </div>
-      </div>
-    </div>
+      <Card className="w-full max-w-md bg-surface-raised shadow-md">
+        <CardHeader className="items-center py-8 text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">doc workspace</p>
+          <CardTitle className="text-2xl">{t('title')}</CardTitle>
+          <CardDescription>{t('subTitle')}</CardDescription>
+        </CardHeader>
+      </Card>
+    </main>
   )
 }

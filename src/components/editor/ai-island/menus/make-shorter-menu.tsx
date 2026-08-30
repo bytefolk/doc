@@ -49,7 +49,7 @@ export default function MakeShorterMenu(props: IProps) {
   if (editor == null) return null
 
   return (
-    <Button onClick={handleClick} variant="ghost" className="p-2 text-blue-500 hover:bg-inherit hover:text-blue-400">
+    <Button onClick={handleClick} variant="ghost" className="p-2 text-ai-strong hover:bg-inherit hover:text-ai-hover">
       {t('simply')}
       <MoveUpRight className="h-4 w-4" />
     </Button>

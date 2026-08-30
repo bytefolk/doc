@@ -23,7 +23,7 @@ export default function TodosTemplate() {
     <Card className="cursor-pointer" onClick={clickHandler}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-base font-medium truncate">{t('todos')}</CardTitle>
-        <ListTodo className="h-4 w-4 flex-shrink-0 text-green-600" />
+        <ListTodo className="h-4 w-4 flex-shrink-0 text-success" />
       </CardHeader>
       <CardContent>
         <CardDescription className="truncate">{t('todosDesc')}</CardDescription>

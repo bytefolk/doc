@@ -93,13 +93,13 @@ const CustomInput = forwardRef((props: IProps, inputRef: ForwardedRef<HTMLInputE
   return (
     <div
       className={cn(
-        'rounded-xl p-1 py-0 border border-gray-400 shadow flex items-center justify-start hover:border-secondary-foreground',
-        isFocus && 'border-blue-600 hover:border-blue-600 shadow-lg'
+        'flex items-center justify-start rounded-lg border border-border bg-surface-raised p-1 py-0 shadow-sm hover:border-ai',
+        isFocus && 'border-ai shadow-md ring-2 ring-ai-soft'
       )}
     >
       <Sparkles
         size={16}
-        className={cn('ml-2', isFocus ? 'text-blue-600' : 'opacity-50', loading && 'animate-pulse')}
+        className={cn('ml-2', isFocus ? 'text-ai-strong' : 'opacity-50', loading && 'animate-pulse')}
       />
       <div className="flex-auto flex items-center justify-start">
         <Input
@@ -115,11 +115,12 @@ const CustomInput = forwardRef((props: IProps, inputRef: ForwardedRef<HTMLInputE
           onCompositionEnd={handleCompositionEnd}
           className="bg-inherit border-none focus-visible:ring-offset-0 focus-visible:ring-0"
         />
-        {delay > 0 && <span className="text-xs text-gray-400 ml-2">{delay}s</span>}
+        {delay > 0 && <span className="ml-2 text-xs text-foreground-subtle">{delay}s</span>}
         <Button
           variant="ghost"
           size="icon"
-          className={cn(isFocus ? 'text-blue-600' : 'opacity-50')}
+          className={cn(isFocus ? 'text-ai-strong' : 'opacity-50')}
+          aria-label={loading ? t('AIgenerating') : 'Send AI instruction'}
           onClick={handleClick}
           disabled={!instruction}
         >
@@ -127,7 +128,7 @@ const CustomInput = forwardRef((props: IProps, inputRef: ForwardedRef<HTMLInputE
           {loading && <LoaderCircle size={16} className="animate-spin" />}
         </Button>
         {loading && (
-          <Button variant="ghost" size="icon" onClick={onAbortRequestAI}>
+          <Button variant="ghost" size="icon" aria-label="Stop AI generation" onClick={onAbortRequestAI}>
             <CircleStop size={16} />
           </Button>
         )}

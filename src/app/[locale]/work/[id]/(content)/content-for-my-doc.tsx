@@ -1,7 +1,6 @@
 'use client'
 
 import React, { useEffect, useState, useMemo } from 'react'
-import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import TiptapEditor from '@/components/editor'
 import { updateTitle, updateIcon } from '../client-action'
@@ -18,6 +17,7 @@ import { useDocsStore } from '@/stores/docs-store'
 import { useTranslations } from 'next-intl'
 import { getRandomElement } from '@/lib/utils'
 import { flushCurrentDocVersionByBeacon, flushDocVersionById } from '@/lib/doc-version/client'
+import AutoGrowingTitle from '@/components/auto-growing-title'
 
 export default function ContentForMyDoc() {
   const docs = useDocsStore((s) => s.docs)
@@ -72,10 +72,10 @@ export default function ContentForMyDoc() {
   return (
     <div
       id={WORK_CONTENT_CONTAINER_ID}
-      className={`mx-auto my-12 mb-20 scroll-mt-5`}
+      className="mx-auto my-8 mb-20 min-w-0 scroll-mt-5 sm:my-12"
       style={{ maxWidth: `${fullWidth}px` }}
     >
-      <div className="mx-10 mb-6 flex">
+      <div className="mx-4 mb-6 flex min-w-0 items-center sm:mx-10">
         <IconInput id={id} icon={icon} updateDocIcon={updateDocIcon} />
         <TitleInput id={id} title={title} updateDocTitle={updateDocTitle} />
         {/* 可能还会再增加其他功能，例如设置 Icon 、背景等 */}
@@ -111,8 +111,8 @@ function IconInput(props: { id: string; icon: string | null; updateDocIcon: (id:
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <div className="mr-2 cursor-pointer">
-          <span className="text-4xl">{icon}</span>
+        <div className="mr-2 shrink-0 cursor-pointer">
+          <span className="text-3xl sm:text-4xl">{icon}</span>
         </div>
       </PopoverTrigger>
       <PopoverContent className="p-2 w-80">
@@ -134,28 +134,29 @@ function TitleInput(props: { id: string; title: string; updateDocTitle: (id: str
     document.title = title || t('unTitled')
   }, [title, t])
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     const newTitle = e.target.value
     updateDocTitle(id, newTitle)
     updateTitle(id, newTitle || t('unTitled')) // 更新数据库
   }
 
-  function handleKeyUp(e: React.KeyboardEvent<HTMLInputElement>) {
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) {
     if (e.code !== 'Enter') return
-    const pos = (e.target as HTMLInputElement).selectionStart || 0 // cursor position
+    e.preventDefault()
+    const pos = e.currentTarget.selectionStart || 0 // cursor position
     if (pos < title.length) return
     emitter.emit(EVENT_KEY_FOCUS_CONTENT)
   }
 
   return (
-    <Input
+    <AutoGrowingTitle
       id={DOC_TITLE_INPUT_ID}
+      aria-label={t('titleInputLabel')}
       placeholder={t('titleInputPlaceholder')}
       value={title}
       maxLength={100}
       onChange={handleChange}
-      className="border-none p-0 text-4xl font-bold focus-visible:ring-transparent"
-      onKeyUp={handleKeyUp}
+      onKeyDown={handleKeyDown}
     />
   )
 }

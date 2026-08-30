@@ -6,6 +6,15 @@ All notable changes to `doc` are documented here.
 
 ### Added
 
+- Adoption of the shared `@fullstack-ai-infra/ui` design system for the first document
+  workflow: workspace shell (responsive sidebar with compact mode), editor chrome, and
+  landing/sign-in surfaces consume shared tokens and components; adds a Playwright
+  end-to-end baseline for the sign-in flow and component coverage for the new shell.
+- Shared design system adoption for the first document workflow: the web app consumes
+  `@fullstack-ai-infra/ui` tokens and components (supplied via the vendored tarball), with a
+  responsive workspace and compact-mode navigation, accessibility labels, theme bootstrap,
+  editor legacy fallback and parsed-content helpers, and a Playwright end-to-end baseline for
+  the sign-in flow.
 - New `doc` product identity and mem-aligned dark-first design system.
 - Next.js document product and integrated Yjs/Hocuspocus collaboration service.
 - Document version history, diff, and restore capability.

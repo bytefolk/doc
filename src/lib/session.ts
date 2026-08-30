@@ -17,20 +17,17 @@ export async function getUserInfo() {
     return null
   }
 
-  if (user.id == null) {
-    try {
-      const res = await db.user.findUnique({
-        where: { email: user.email },
-        select: { id: true },
-      })
-      if (res == null) {
-        return null
-      }
-      return { ...user, id: res.id }
-    } catch (e) {
-      console.error('get user info error ', e)
+  try {
+    const persistedUser = await db.user.findUnique({
+      where: { email: user.email },
+      select: { id: true, email: true, name: true, image: true },
+    })
+    if (persistedUser == null) {
       return null
     }
+    return { ...user, ...persistedUser }
+  } catch (e) {
+    console.error('get user info error ', e)
+    return null
   }
-  return user
 }

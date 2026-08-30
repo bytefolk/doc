@@ -7,12 +7,14 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 // import { Link } from '@/i18n/routing'
 import HomeNav from '@/components/home-nav'
 import { useTranslations } from 'next-intl'
 
 export default function SignInPage() {
   const [providers, setProviders] = useState<Awaited<ReturnType<typeof getProviders>>>()
+  const [authError, setAuthError] = useState('')
 
   useEffect(() => {
     let active = true
@@ -42,26 +44,42 @@ export default function SignInPage() {
   const [isGithubSignInPending, startGithubSignInTransition] = useTransition()
   const handleGitHubSignIn = () => {
     startGithubSignInTransition(async () => {
-      await signIn('github', { callbackUrl: callbackUrl || '/' })
+      setAuthError('')
+      try {
+        await signIn('github', { callbackUrl: callbackUrl || '/' })
+      } catch {
+        setAuthError(t('signInFailed'))
+      }
     })
   }
 
   // handle email sign in
   const [email, setEmail] = useState('')
+  const [emailError, setEmailError] = useState('')
   const [isEmailSignInPending, setIsEmailSignInPending] = useState(false)
   const emailProviderId = providers?.resend ? 'resend' : providers?.nodemailer ? 'nodemailer' : null
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!validateEmail(email)) {
-      return alert('Invalid email format 邮箱格式错误')
+    const normalizedEmail = email.trim()
+    if (!normalizedEmail) {
+      setEmailError(t('requiredEmail'))
+      return
     }
+    if (!validateEmail(normalizedEmail)) {
+      setEmailError(t('invalidEmail'))
+      return
+    }
+    setAuthError('')
+    setEmailError('')
     setIsEmailSignInPending(true)
     if (!emailProviderId) {
       setIsEmailSignInPending(false)
       return
     }
     try {
-      await signIn(emailProviderId, { email, callbackUrl: callbackUrl || '/' })
+      await signIn(emailProviderId, { email: normalizedEmail, callbackUrl: callbackUrl || '/' })
+    } catch {
+      setEmailError(t('signInFailed'))
     } finally {
       setIsEmailSignInPending(false)
     }
@@ -77,78 +95,94 @@ export default function SignInPage() {
   const hasEmail = Boolean(emailProviderId)
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-gradient-to-br from-slate-50 to-white dark:from-gray-900 dark:to-gray-800">
+    <main className="doc-grid flex min-h-screen items-center justify-center bg-canvas px-4 py-16">
       <HomeNav />
-      <div className="w-full max-w-md space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-2xl font-semibold text-secondary-foreground">{t('title')}</h1>
-          <p className="text-sm text-gray-500">{t('subTitle')}</p>
-        </div>
+      <Card className="w-full max-w-md bg-surface-raised shadow-md">
+        <CardHeader className="items-center pb-2 text-center">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">doc workspace</p>
+          <CardTitle className="text-2xl">{t('title')}</CardTitle>
+          <CardDescription>{t('subTitle')}</CardDescription>
+        </CardHeader>
 
-        {/* Login Form */}
-        {hasGitHub && (
-          <div className="space-y-6">
-            {/* GitHub Login */}
+        <CardContent className="space-y-6">
+          {hasGitHub && (
             <Button
               variant="outline"
-              className="w-full h-11 text-sm font-medium border-gray-300"
+              className="w-full"
+              size="lg"
               onClick={handleGitHubSignIn}
               disabled={isGithubSignInPending}
             >
-              <Github className="mr-2 h-4 w-4" />
+              <Github className="h-4 w-4" />
               {t('withGithub')}
             </Button>
-          </div>
-        )}
+          )}
 
-        {/* Divider */}
-        {hasGitHub && hasEmail && (
-          <div className="relative">
-            <div className="absolute inset-0 flex items-center">
-              <Separator className="w-full" />
+          {hasGitHub && hasEmail && (
+            <div className="relative" aria-hidden="true">
+              <div className="absolute inset-0 flex items-center">
+                <Separator className="w-full" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase tracking-wide">
+                <span className="bg-surface-raised px-2 text-foreground-subtle">{t('others')}</span>
+              </div>
             </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className=" bg-secondary px-2 text-gray-500">{t('others')}</span>
-            </div>
-          </div>
-        )}
+          )}
 
-        {/* Email Login Form */}
-        {hasEmail && (
-          <form className="space-y-4" onSubmit={handleEmailSignIn}>
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium text-muted-foreground">
-                {t('email')}
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder={t('enterYourEmail')}
-                className="h-11 border-gray-300 focus:border-gray-400 focus:ring-gray-400"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
+          {hasEmail && (
+            <form className="space-y-4" noValidate onSubmit={handleEmailSignIn}>
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium text-foreground-muted">
+                  {t('email')}
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder={t('enterYourEmail')}
+                  aria-invalid={Boolean(emailError)}
+                  aria-describedby={emailError ? 'signin-email-error' : undefined}
+                  required
+                  value={email}
+                  onChange={(e) => {
+                    setEmail(e.target.value)
+                    if (emailError) setEmailError('')
+                  }}
+                />
+                {emailError && (
+                  <p id="signin-email-error" role="alert" aria-live="polite" className="text-sm text-danger">
+                    {emailError}
+                  </p>
+                )}
+              </div>
 
-            <Button
-              type="submit"
-              className="w-full h-11 bg-gray-900 hover:bg-gray-800 text-white font-medium"
-              disabled={isEmailSignInPending}
+              <Button type="submit" className="w-full" size="lg" disabled={isEmailSignInPending}>
+                {t('withEmail')}
+              </Button>
+            </form>
+          )}
+
+          {authError && (
+            <p
+              role="alert"
+              aria-live="polite"
+              className="rounded-md bg-danger-soft p-3 text-center text-sm text-danger"
             >
-              {t('withEmail')}
-            </Button>
-          </form>
-        )}
+              {authError}
+            </p>
+          )}
 
-        {providers === undefined && <p className="text-center text-sm text-muted-foreground">{t('loading')}</p>}
-        {providers === null || (providers !== undefined && !hasGitHub && !hasEmail) ? (
-          <p role="alert" className="text-center text-sm text-destructive">
-            {t('unavailable')}
-          </p>
-        ) : null}
-      </div>
-    </div>
+          {providers === undefined && <p className="text-center text-sm text-foreground-muted">{t('loading')}</p>}
+          {providers === null || (providers !== undefined && !hasGitHub && !hasEmail) ? (
+            <p
+              role="alert"
+              aria-live="polite"
+              className="rounded-md bg-danger-soft p-3 text-center text-sm text-danger"
+            >
+              {t('unavailable')}
+            </p>
+          ) : null}
+        </CardContent>
+      </Card>
+    </main>
   )
 }

@@ -210,7 +210,7 @@ export function RootDropZone({ position, children }: { position: 'first' | 'last
     <div
       ref={ref}
       data-testid={`directory-root-drop-${position}`}
-      className={active ? 'rounded-sm bg-primary/15 ring-1 ring-primary/40' : ''}
+      className={active ? 'rounded-sm bg-primary-soft ring-1 ring-primary' : ''}
     >
       {children}
     </div>
