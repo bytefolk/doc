@@ -22,6 +22,11 @@ All notable changes to `doc` are documented here.
 - Product goal, current specification, development and local-run documentation.
 - `doc` operations CLI with capability inventory, secure initialization, diagnostics, full-stack
   lifecycle, status, logs, development, and guarded local database commands.
+- Docker environment readiness pre-checks (doc#28): `doc doctor` reports Docker daemon readiness
+  with a stable code and actionable guidance, and `doc up` refuses to start the stack before that
+  verdict passes. Detects the two known Windows/WSL traps — daemon not running
+  (`docker_daemon_unreachable`) and `credsStore: desktop.exe` under WSL
+  (`docker_credsstore_desktop_exe`) — before any image pull or build.
 - Database-aware Web and collaboration health endpoints.
 - Full Docker Compose stack for PostgreSQL, schema application, collaboration, and Web.
 - Loopback-only Mailpit service and a zero-credential email sign-in path for local deployments.

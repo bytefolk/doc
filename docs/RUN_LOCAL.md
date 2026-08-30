@@ -4,7 +4,12 @@
 
 - Node.js 24
 - npm 11+
-- Docker with Compose
+- Docker with Compose, and the Docker daemon running (Docker Desktop started, or WSL
+  integration enabled)
+
+`doc doctor` reports Docker daemon readiness with a stable code and guidance before any image
+pull or build, and `doc up` refuses to start the stack until that verdict passes. See
+[Docker readiness](#docker-readiness) for the two known Windows/WSL traps.
 
 ## 1. Configure
 
@@ -129,3 +134,25 @@ npm run doc -- down
 ```
 
 The CLI never deletes the PostgreSQL volume.
+
+## Docker readiness
+
+`doc doctor` and `doc up` decide Docker readiness before the first image pull or build, so a
+broken Docker environment fails with an actionable message instead of dying mid-`up`. Two known
+Windows/WSL traps are detected with stable codes:
+
+- `docker_daemon_unreachable` — the Docker daemon is not running. Start Docker Desktop (or enable
+  Docker Desktop WSL integration), then re-run.
+- `docker_credsstore_desktop_exe` — `~/.docker/config.json` sets `"credsStore": "desktop.exe"`
+  while running under WSL. The Docker Desktop credential helper is a Windows executable and cannot
+  execute under WSL, so even public image pulls fail with
+  `fork/exec docker-credential-desktop.exe: exec format error`. Remove the `credsStore` entry from
+  `~/.docker/config.json`, then re-run:
+
+  ```bash
+  # remove the credsStore line (or set it to an empty value), e.g.
+  #   "credsStore": "desktop.exe"   ->   delete this line
+  ```
+
+Neither check starts Docker or pulls anything; they only read Docker state and the local Docker
+client configuration.

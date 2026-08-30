@@ -1,9 +1,11 @@
 import { readdir, readFile, stat } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { createConnection } from 'node:net'
+import { homedir } from 'node:os'
 import { join } from 'node:path'
 import { resolveAuthConfiguration } from './auth-config.js'
 import { composeArgs } from './compose.js'
+import { checkDockerReadiness } from './docker-readiness.js'
 import { exists, isConfiguredSecret, readEnv } from './project.js'
 
 const REQUIRED_SECRETS = ['AUTH_SECRET', 'COLLABORATE_API_AUTH_KEY', 'COLLABORATE_INTERNAL_API_KEY']
@@ -29,8 +31,8 @@ async function importsPackage(dir, specifier) {
   return false
 }
 
-function check(id, label, status, detail) {
-  return { id, label, status, detail }
+function check(id, label, status, detail, extra = {}) {
+  return { id, label, status, detail, ...extra }
 }
 
 function versionAtLeast(version, minimum) {
@@ -172,6 +174,7 @@ export async function runDoctor({
   smtpProbe = probeSmtp,
   platform = process.platform,
   processEnv = process.env,
+  homeDir = homedir(),
 }) {
   const checks = []
   checks.push(check('project', 'doc project', 'pass', root))
@@ -319,13 +322,14 @@ export async function runDoctor({
     )
   )
 
-  const daemon = await runner.capture('docker', ['info', '--format', '{{.ServerVersion}}'], { cwd: root })
+  const daemonReadiness = await checkDockerReadiness({ runner, platform, homeDir, cwd: root })
   checks.push(
     check(
       'docker-daemon',
       'Docker daemon',
-      daemon.code === 0 ? 'pass' : 'fail',
-      daemon.code === 0 ? `reachable (${daemon.stdout.trim()})` : 'daemon is not reachable'
+      daemonReadiness.ok ? 'pass' : 'fail',
+      daemonReadiness.detail,
+      daemonReadiness.ok ? {} : { code: daemonReadiness.code, guidance: daemonReadiness.guidance }
     )
   )
 
