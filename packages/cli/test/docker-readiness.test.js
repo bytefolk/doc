@@ -4,11 +4,7 @@ import { mkdtemp, mkdir, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { runCli } from '../src/cli.js'
-import {
-  checkDockerReadiness,
-  hasDesktopExeCredsStore,
-  DOCKER_READINESS_CODES,
-} from '../src/docker-readiness.js'
+import { checkDockerReadiness, hasDesktopExeCredsStore, DOCKER_READINESS_CODES } from '../src/docker-readiness.js'
 
 function outputStream() {
   let content = ''
@@ -89,7 +85,13 @@ async function createProject() {
   )
   await writeFile(
     join(root, 'services', 'collaboration', '.env.example'),
-    ['PORT=1234', 'DATABASE_URL=postgresql://doc:doc@localhost:5432/doc', 'API_AUTH_KEY=x', 'INTERNAL_API_KEY=y', ''].join('\n')
+    [
+      'PORT=1234',
+      'DATABASE_URL=postgresql://doc:doc@localhost:5432/doc',
+      'API_AUTH_KEY=x',
+      'INTERNAL_API_KEY=y',
+      '',
+    ].join('\n')
   )
   return root
 }

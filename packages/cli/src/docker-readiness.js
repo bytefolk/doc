@@ -56,12 +56,7 @@ export async function hasDesktopExeCredsStore(homeDir = homedir()) {
  * trap is absent. A non-ok verdict carries a stable `code` and actionable
  * `guidance`. This check performs no pull/build and has no side effects.
  */
-export async function checkDockerReadiness({
-  runner,
-  platform = process.platform,
-  homeDir = homedir(),
-  cwd,
-}) {
+export async function checkDockerReadiness({ runner, platform = process.platform, homeDir = homedir(), cwd }) {
   const info = await runner.capture('docker', ['info', '--format', '{{.ServerVersion}}'], { cwd })
   const infoStderr = info.stderr || ''
 
