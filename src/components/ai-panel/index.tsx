@@ -29,6 +29,7 @@ import SummaryMenu from './shortcut-menus/summary-menu'
 import { MessagesType } from './hooks/useGenMessages'
 import ClearChatButton from './clear-chat-button'
 import { buildHistoryMessages } from './util'
+import { AIStatus } from '@fullstack-ai-infra/ui'
 
 interface IChatItem {
   id: string
@@ -198,24 +199,31 @@ export default function AiPanel() {
   }
 
   return (
-    <>
-      <div className="flex justify-between w-full p-1 py-2 border-b border-b-secondary text-muted-foreground">
-        <p className="font-bold ml-1">{t('AIWritingChat')}</p>
-        <div className="flex items-center gap-1">
+    <div className="flex h-full min-h-0 w-full flex-col">
+      <div className="flex w-full items-center justify-between gap-2 border-b border-border bg-ai-soft px-3 py-2 text-foreground-muted">
+        <div className="flex min-w-0 flex-1 items-center gap-2">
+          <p className="shrink-0 whitespace-nowrap font-semibold text-foreground">{t('AIWritingChat')}</p>
+          <AIStatus
+            className="min-w-0 truncate whitespace-nowrap"
+            state={loading ? 'thinking' : 'idle'}
+            label={loading ? t('AIgenerating') : t('useAIWritingChat')}
+          />
+        </div>
+        <div className="flex shrink-0 items-center gap-1">
           <ClearChatButton disabled={clearDisabled} onConfirm={handleClearChat} />
-          <Button variant="ghost" size="icon" onClick={() => setAIPanelOpen(false)} className="p-1 m-0 h-6 w-6">
+          <Button variant="ghost" size="icon" aria-label={t('close')} onClick={() => setAIPanelOpen(false)}>
             <X size={16} />
           </Button>
         </div>
       </div>
       {/* 无聊天记录时，input 居中显示 */}
       {chatList.length === 0 && !loading && (
-        <div className="flex-auto w-full flex flex-col items-center justify-center">
-          <div className="flex flex-col items-center justify-center w-full h-full p-4 text-secondary-foreground ">
-            <div className={cn('mb-2 ', isFocus && 'text-blue-600')}>
+        <div className="flex w-full flex-auto flex-col items-center justify-center bg-surface">
+          <div className="flex h-full w-full flex-col items-center justify-center p-4 text-foreground-muted">
+            <div className={cn('mb-2 text-ai', isFocus && 'text-ai-strong')}>
               <Bot size={40} />
             </div>
-            <p className={cn('mb-2', isFocus && 'text-blue-600')}>{t('useAIWritingChat')}</p>
+            <p className={cn('mb-2', isFocus && 'text-ai-strong')}>{t('useAIWritingChat')}</p>
             <AIInput
               isFocus={isFocus}
               loading={loading}
@@ -247,7 +255,7 @@ export default function AiPanel() {
       {/* 有聊天记录时，聊天记录居中显示，input 底部显示 */}
       {(chatList.length > 0 || loading) && (
         <>
-          <div className="flex-auto w-full p-2 overflow-y-auto" ref={chatListRef}>
+          <div className="w-full flex-auto overflow-y-auto bg-surface p-3" ref={chatListRef}>
             {chatList.map((chatItem, index) => {
               const { from, content } = chatItem
               if (from === 'user') {
@@ -270,7 +278,7 @@ export default function AiPanel() {
             {loading && <ChatItemUser content={instruction} />}
             {loading && <ChatItemAIGenerating content={AIResult} />}
           </div>
-          <div className="w-full p-4">
+          <div className="w-full border-t border-border bg-surface-raised p-4">
             <AIInput
               isFocus={isFocus}
               loading={loading}
@@ -285,6 +293,6 @@ export default function AiPanel() {
           </div>
         </>
       )}
-    </>
+    </div>
   )
 }

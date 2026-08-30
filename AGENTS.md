@@ -21,6 +21,8 @@ These instructions apply to the entire repository.
 
 ## Product language
 
-Use the lowercase product name `doc`. Keep the visual and written system compatible with
-`fullstack-ai-infra/mem`: restrained, technical, dark-first, and explicit about current capability
-versus roadmap.
+Use the lowercase product name `doc`. Consume the organization-owned semantic tokens and shared
+components from `@fullstack-ai-infra/ui`; do not recreate brand primitives or introduce raw product
+colors. The approved C direction is warm paper canvas, stone navigation, sage primary actions, and
+lavender reserved for AI affordances. Light and dark themes are equally supported, and product copy
+must remain explicit about current capability versus roadmap.

@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
+import { Button, buttonVariants } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { PubDocStatusValue } from '@/lib/pub-doc-status'
 import AdminPubStatusSelect from './admin-pub-status-select'
@@ -94,11 +94,13 @@ export default function AdminDocDetailDialog({ doc }: Props) {
 
         <div className="flex flex-wrap items-center gap-3 border-t border-slate-100 pt-4">
           {doc.latestPubDoc?.publishId && (
-            <Button asChild variant="outline" size="sm">
-              <Link href={`/pub/${doc.latestPubDoc.publishId}`} target="_blank">
-                查看发布页
-              </Link>
-            </Button>
+            <Link
+              href={`/pub/${doc.latestPubDoc.publishId}`}
+              target="_blank"
+              className={buttonVariants({ variant: 'outline', size: 'sm' })}
+            >
+              查看发布页
+            </Link>
           )}
         </div>
       </DialogContent>

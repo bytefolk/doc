@@ -3,12 +3,12 @@
 import { useState, useEffect } from 'react'
 import { useUserStore } from '@/stores/user-store'
 import { CONTENT_WIDTH, WORK_CONTENT_CONTAINER_ID } from '@/constants'
-import { Input } from '@/components/ui/input'
 import TiptapEditor from '@/components/editor'
 import { useDocsStore } from '@/stores/docs-store'
 import { useShareStore, IShareRelationDoc } from '@/stores/share-store'
 import { useTranslations } from 'next-intl'
 import { patch } from '@/lib/ajax'
+import AutoGrowingTitle from '@/components/auto-growing-title'
 
 export default function ContentForShareDoc() {
   const userInfo = useUserStore((s) => s.userInfo)
@@ -21,6 +21,7 @@ export default function ContentForShareDoc() {
   const [readonly, setReadonly] = useState(false)
 
   const t = useTranslations('sharedDocPage')
+  const docT = useTranslations('docItem')
 
   const [renderEditor, setRenderEditor] = useState(false)
   useEffect(() => {
@@ -76,24 +77,19 @@ export default function ContentForShareDoc() {
   return (
     <div
       id={WORK_CONTENT_CONTAINER_ID}
-      className={`mx-auto my-12 mb-20 scroll-mt-5`}
+      className="mx-auto my-8 mb-20 min-w-0 scroll-mt-5 sm:my-12"
       style={{ maxWidth: `${fullWidth}px` }}
     >
-      <div className="mx-10 mb-6 flex">
+      <div className="mx-4 mb-6 flex min-w-0 items-center sm:mx-10">
         {doc.icon && (
-          <div className="mr-2">
-            <span className="text-4xl">{doc.icon}</span>
+          <div className="mr-2 shrink-0">
+            <span className="text-3xl sm:text-4xl">{doc.icon}</span>
           </div>
         )}
-        <Input
-          value={doc.title}
-          maxLength={100}
-          className="border-none p-0 text-4xl font-bold focus-visible:ring-transparent"
-          disabled
-        />
+        <AutoGrowingTitle value={doc.title} maxLength={100} aria-label={docT('titleInputLabel')} disabled />
         {/* 可能还会再增加其他功能，例如设置 Icon 、背景等 */}
       </div>
-      {readonly && <p className="mx-10 my-6 text-sm text-muted-foreground">{t('readonly')}</p>}
+      {readonly && <p className="mx-4 my-6 text-sm text-muted-foreground sm:mx-10">{t('readonly')}</p>}
       {authority && renderEditor && <TiptapEditor id={doc.id} readonly={readonly} />}
       {/* {authority && <p className="mx-10">editor {doc.id}</p>} */}
     </div>

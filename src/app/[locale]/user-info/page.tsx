@@ -2,10 +2,11 @@ import { Link } from '@/i18n/routing'
 import HomeNav from '@/components/home-nav'
 import SignOutButton from '@/components/sign-out-button'
 import PersonalAccessTokenManager from '@/components/personal-access-token-manager'
+import { UserProfileForm } from '@/components/user-profile-form'
 import { getUserInfo } from '@/lib/session'
 import { getTranslations } from 'next-intl/server'
 
-export default async function UserTestPage() {
+export default async function UserTestPage({ params }: { params: { locale: string } }) {
   const user = await getUserInfo()
   const t = await getTranslations('userInfo')
 
@@ -31,6 +32,20 @@ export default async function UserTestPage() {
           </p>
           <SignOutButton>{t('logout')}</SignOutButton>
         </div>
+        <section className="overflow-hidden rounded-lg border bg-card" aria-labelledby="profile-heading">
+          <div className="space-y-1 border-b px-6 py-5">
+            <h1 id="profile-heading" className="text-lg font-semibold">
+              {t('profileTitle')}
+            </h1>
+            <p className="text-sm text-muted-foreground">{t('profileDescription')}</p>
+          </div>
+          <UserProfileForm
+            name={user.name || ''}
+            avatar={user.image || ''}
+            email={user.email || ''}
+            redirectTo={`/${params.locale}/work`}
+          />
+        </section>
         <PersonalAccessTokenManager />
       </main>
     </Wrapper>

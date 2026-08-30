@@ -1,7 +1,9 @@
 import type { Config } from 'tailwindcss'
+import uiPreset from '@fullstack-ai-infra/ui/tailwind-preset'
 
 const config = {
-  darkMode: ['class'],
+  presets: [uiPreset],
+  darkMode: ['class', '[data-theme="dark"]'],
   content: ['./pages/**/*.{ts,tsx}', './components/**/*.{ts,tsx}', './app/**/*.{ts,tsx}', './src/**/*.{ts,tsx}'],
   prefix: '',
   theme: {
@@ -27,53 +29,53 @@ const config = {
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       colors: {
-        border: 'hsl(var(--border))',
-        input: 'hsl(var(--input))',
-        ring: 'hsl(var(--ring))',
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
-        active: 'hsl(var(--active))',
+        border: 'var(--ui-border)',
+        input: 'var(--ui-border-strong)',
+        ring: 'var(--ui-focus)',
+        background: 'var(--ui-canvas)',
+        foreground: 'var(--ui-foreground)',
+        active: 'var(--ui-primary-soft)',
         primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
+          DEFAULT: 'var(--ui-primary)',
+          foreground: 'var(--ui-primary-foreground)',
         },
         secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
+          DEFAULT: 'var(--ui-surface-inset)',
+          foreground: 'var(--ui-foreground)',
         },
         destructive: {
-          DEFAULT: 'hsl(var(--destructive))',
-          foreground: 'hsl(var(--destructive-foreground))',
+          DEFAULT: 'var(--ui-danger)',
+          foreground: 'var(--ui-primary-foreground)',
         },
         success: {
-          DEFAULT: 'hsl(var(--success))',
-          foreground: 'hsl(var(--success-foreground))',
+          DEFAULT: 'var(--ui-success)',
+          foreground: 'var(--ui-primary-foreground)',
         },
         warning: {
-          DEFAULT: 'hsl(var(--warning))',
-          foreground: 'hsl(var(--warning-foreground))',
+          DEFAULT: 'var(--ui-warning)',
+          foreground: 'var(--ui-foreground)',
         },
         muted: {
-          DEFAULT: 'hsl(var(--muted))',
-          foreground: 'hsl(var(--muted-foreground))',
+          DEFAULT: 'var(--ui-canvas-subtle)',
+          foreground: 'var(--ui-foreground-muted)',
         },
         accent: {
-          DEFAULT: 'hsl(var(--accent))',
-          foreground: 'hsl(var(--accent-foreground))',
+          DEFAULT: 'var(--ui-primary-soft)',
+          foreground: 'var(--ui-foreground)',
         },
         popover: {
-          DEFAULT: 'hsl(var(--popover))',
-          foreground: 'hsl(var(--popover-foreground))',
+          DEFAULT: 'var(--ui-surface-raised)',
+          foreground: 'var(--ui-foreground)',
         },
         card: {
-          DEFAULT: 'hsl(var(--card))',
-          foreground: 'hsl(var(--card-foreground))',
+          DEFAULT: 'var(--ui-surface)',
+          foreground: 'var(--ui-foreground)',
         },
       },
       borderRadius: {
-        lg: 'var(--radius)',
-        md: 'calc(var(--radius) - 2px)',
-        sm: 'calc(var(--radius) - 4px)',
+        lg: 'var(--ui-radius-lg)',
+        md: 'var(--ui-radius-md)',
+        sm: 'var(--ui-radius-sm)',
       },
       keyframes: {
         'accordion-down': {

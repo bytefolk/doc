@@ -7,6 +7,11 @@ import DragButton from './drag-button'
 import TriggerAIButton from './trigger-ai-button'
 import { useGetEditor } from '@/components/editor'
 
+const CONTENT_MENU_TIPPY_OPTIONS = {
+  offset: [-4, 10] as [number, number],
+  zIndex: 40,
+}
+
 export default function ContentMenu() {
   const editor = useGetEditor()
 
@@ -31,10 +36,7 @@ export default function ContentMenu() {
       pluginKey="ContentItemMenu"
       editor={editor}
       onNodeChange={handleNodeChange}
-      tippyOptions={{
-        offset: [-4, 10],
-        zIndex: 40,
-      }}
+      tippyOptions={CONTENT_MENU_TIPPY_OPTIONS}
     >
       <div
         className="flex items-center text-muted-foreground"

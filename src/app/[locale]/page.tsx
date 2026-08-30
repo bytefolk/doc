@@ -19,7 +19,7 @@ import Logo from '@/components/logo-component'
 import SignInButton from '@/components/sign-in-button'
 import StartButton from '@/components/start-button'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { getUserInfo } from '@/lib/session'
 
 const capabilities = [
@@ -80,12 +80,10 @@ export default async function HomePage() {
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               {user ? <StartButton size="lg" /> : <SignInButton size="lg">{t('getStarted')}</SignInButton>}
-              <Button variant="outline" size="lg" asChild>
-                <a href="#architecture">
-                  {t('seeHowItWorks')}
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </a>
-              </Button>
+              <a href="#architecture" className={buttonVariants({ variant: 'outline', size: 'lg' })}>
+                {t('seeHowItWorks')}
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </a>
             </div>
             <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">
               {[t('selfHosted'), t('realtime'), t('agentReady')].map((item) => (
@@ -229,14 +227,14 @@ function ProductPreview() {
                 )
               )}
             </div>
-            <div className="mt-7 rounded-md border border-primary/20 bg-primary/5 p-3">
-              <div className="mb-2 flex items-center gap-2 text-[10px] font-medium text-primary">
+            <div className="mt-7 rounded-md border border-ai bg-ai-soft p-3">
+              <div className="mb-2 flex items-center gap-2 text-[10px] font-medium text-ai-strong">
                 <Sparkles className="h-3 w-3" />
                 Agent suggestion
               </div>
               <p className="text-[11px] leading-5 text-muted-foreground">
                 Turn the portability principle into an acceptance test and link it to the architecture decision.
-                <span className="ml-0.5 inline-block h-3 w-px translate-y-0.5 bg-primary animate-pulse-caret" />
+                <span className="ml-0.5 inline-block h-3 w-px translate-y-0.5 animate-pulse-caret bg-ai" />
               </p>
             </div>
           </div>

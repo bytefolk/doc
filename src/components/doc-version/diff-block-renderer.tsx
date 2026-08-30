@@ -26,25 +26,25 @@ import {
 // 所有 diff 相关的颜色都通过这里管理，确保一致性
 const diffStyles = {
   added: {
-    bg: 'bg-emerald-50',
-    bgSubtle: 'bg-emerald-50/50',
-    text: 'text-emerald-900',
-    textSubtle: 'text-emerald-700',
-    segment: 'bg-emerald-100 text-emerald-950',
+    bg: 'bg-success-soft',
+    bgSubtle: 'bg-success-soft',
+    text: 'text-success-strong',
+    textSubtle: 'text-success',
+    segment: 'bg-success-soft text-foreground',
   },
   removed: {
-    bg: 'bg-red-50',
-    bgSubtle: 'bg-red-50/50',
-    text: 'text-red-900',
-    textSubtle: 'text-red-700',
-    segment: 'bg-red-100 text-red-900 line-through',
+    bg: 'bg-danger-soft',
+    bgSubtle: 'bg-danger-soft',
+    text: 'text-danger',
+    textSubtle: 'text-danger',
+    segment: 'bg-danger-soft text-danger line-through',
   },
   modified: {
-    bg: 'bg-amber-50',
-    bgSubtle: 'bg-amber-50/70',
-    text: 'text-amber-900',
-    textSubtle: 'text-amber-700',
-    segment: 'bg-amber-100 text-amber-950',
+    bg: 'bg-warning-soft',
+    bgSubtle: 'bg-warning-soft',
+    text: 'text-warning-strong',
+    textSubtle: 'text-warning',
+    segment: 'bg-warning-soft text-foreground',
   },
   unchanged: {
     bg: '',
@@ -134,7 +134,7 @@ export default function DiffBlockRenderer(props: { block: RenderBlock }) {
         {imageChangeType === 'replaced' && <p className="text-xs text-muted-foreground">图片已替换</p>}
         {imageChangeType === 'replaced' && previousSrc ? (
           <div className="flex flex-col gap-3">
-            <div className="rounded-md border bg-red-50 p-2">
+            <div className="rounded-md border border-danger bg-danger-soft p-2">
               <p className="mb-2 text-xs text-muted-foreground">旧版本</p>
               <img
                 src={previousSrc}
@@ -143,7 +143,7 @@ export default function DiffBlockRenderer(props: { block: RenderBlock }) {
                 style={width ? { width } : undefined}
               />
             </div>
-            <div className="rounded-md border bg-emerald-50 p-2">
+            <div className="rounded-md border border-success bg-success-soft p-2">
               <p className="mb-2 text-xs text-muted-foreground">新版本</p>
               <img
                 src={src}

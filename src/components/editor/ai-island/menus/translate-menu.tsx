@@ -52,7 +52,7 @@ export default function TranslateMenu(props: IProps) {
   return (
     <HoverCard openDelay={300}>
       <HoverCardTrigger asChild>
-        <Button variant="ghost" className="p-2 text-blue-500 hover:bg-inherit hover:text-blue-400">
+        <Button variant="ghost" className="p-2 text-ai-strong hover:bg-inherit hover:text-ai-hover">
           {t('translate')}
           <Ellipsis className="h-4 w-4 ml-1" />
         </Button>
@@ -61,7 +61,7 @@ export default function TranslateMenu(props: IProps) {
         <Button
           variant="ghost"
           onClick={() => handleClick(t('English'))}
-          className="p-2 text-blue-500 hover:bg-inherit hover:text-blue-400"
+          className="p-2 text-ai-strong hover:bg-inherit hover:text-ai-hover"
         >
           {t('English')}
           <MoveUpRight className="h-4 w-4" />
@@ -69,7 +69,7 @@ export default function TranslateMenu(props: IProps) {
         <Button
           variant="ghost"
           onClick={() => handleClick(t('Japanese'))}
-          className="p-2 text-blue-500 hover:bg-inherit hover:text-blue-400"
+          className="p-2 text-ai-strong hover:bg-inherit hover:text-ai-hover"
         >
           {t('Japanese')}
           <MoveUpRight className="h-4 w-4" />
@@ -77,7 +77,7 @@ export default function TranslateMenu(props: IProps) {
         <Button
           variant="ghost"
           onClick={() => handleClick(t('Chinese'))}
-          className="p-2 text-blue-500 hover:bg-inherit hover:text-blue-400"
+          className="p-2 text-ai-strong hover:bg-inherit hover:text-ai-hover"
         >
           {t('Chinese')}
           <MoveUpRight className="h-4 w-4" />

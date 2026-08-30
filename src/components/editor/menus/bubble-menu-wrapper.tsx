@@ -9,9 +9,7 @@ export default function Wrapper({
   className?: string
   menuType?: string
 }>) {
-  const initClassName = `border rounded p-1 shadow
-  bg-background dark:bg-background-dark dark:border-gray-800 dark:shadow-lg 
-  inline-flex`
+  const initClassName = 'inline-flex rounded-md border border-border bg-surface-raised p-1 shadow-md'
 
   const conditionalClasses = menuType === 'table-menu' ? '' : 'space-x-1'
 

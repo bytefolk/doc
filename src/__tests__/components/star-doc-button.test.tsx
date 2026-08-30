@@ -25,6 +25,8 @@ test('Star doc button component', async () => {
   // click button
   fireEvent.click(button)
   await waitFor(() => {
-    expect(button.textContent).toBe('Favorited')
+    // Re-query: the shared-UI Button remounts its DOM node on state change,
+    // so the pre-click element reference goes stale even though the toggle works.
+    expect(screen.getByRole('button').textContent).toBe('Favorited')
   })
 })

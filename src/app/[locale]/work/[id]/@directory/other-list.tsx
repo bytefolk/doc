@@ -72,7 +72,7 @@ export default function OtherList(props: IProps) {
         <div>
           <span>{t('title')}</span>
           {noticeCount > 0 && (
-            <Badge variant="outline" className="bg-red-300 ml-1 px-1.5">
+            <Badge variant="destructive" className="ml-1 px-1.5">
               {noticeCount}
             </Badge>
           )}
@@ -132,7 +132,7 @@ function AuthorList({ author }: { author: IShareRelationUser }) {
         </div>
         <div className="truncate flex-auto">
           {noticeCount > 0 && (
-            <Badge variant="outline" className="bg-red-100 mr-1 px-1.5">
+            <Badge variant="destructive" className="mr-1 px-1.5">
               {noticeCount}
             </Badge>
           )}
@@ -183,7 +183,7 @@ function OtherDocItem({ doc }: { doc: ShareRelationDocAndNoticeType }) {
         {!icon && <FileInput className="h-4 w-4 mr-1" />}
         <div className="truncate flex-auto">
           {noticeType !== 'NONE' && (
-            <Badge variant="outline" className="bg-red-100 mr-1 px-1.5">
+            <Badge variant="destructive" className="mr-1 px-1.5">
               {noticeType}
             </Badge>
           )}

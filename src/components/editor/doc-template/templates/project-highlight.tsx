@@ -24,7 +24,7 @@ export default function ProjectHighLightTemplate() {
     <Card className="cursor-pointer" onClick={clickHandler}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-base font-medium truncate">{t('projectHighlight')}</CardTitle>
-        <Lightbulb className="h-4 w-4 flex-shrink-0 text-yellow-500" />
+        <Lightbulb className="h-4 w-4 flex-shrink-0 text-warning-strong" />
       </CardHeader>
       <CardContent>
         <CardDescription className="truncate">{t('projectHighlightDesc')}</CardDescription>

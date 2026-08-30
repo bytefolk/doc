@@ -49,7 +49,7 @@ export default function ContinueMenu(props: IProps) {
   }
 
   return (
-    <Button onClick={handleClick} variant="link" className={isFocus ? 'text-blue-600' : 'opacity-70'}>
+    <Button onClick={handleClick} variant="link" className={isFocus ? 'text-ai-strong' : 'opacity-70'}>
       {t('continue')}
       <MoveUpRight className="h-4 w-4" />
     </Button>

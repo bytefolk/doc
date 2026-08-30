@@ -1,7 +1,15 @@
 {
   "common": {
     "brandName": "doc",
-    "notSupportMobile": "不支持移动端，请使用 PC 浏览器访问"
+    "notSupportMobile": "不支持移动端，请使用 PC 浏览器访问",
+    "openDocumentNavigation": "打开文档导航",
+    "closeDocumentNavigation": "关闭文档导航",
+    "documentNavigation": "文档导航",
+    "documentToolbar": "文档工具栏",
+    "documentActions": "文档操作",
+    "moreDocumentActions": "更多文档操作",
+    "changeLanguage": "切换语言，当前为 {locale}",
+    "closeDialog": "关闭对话框"
   },
   "metadata": {
     "title": "doc — 自托管协作文档基础设施",
@@ -75,7 +83,9 @@
     "haveLogin": "你已经登录",
     "login": "登录",
     "logout": "退出",
-    "logoutConfirm": "是否退出登录？"
+    "logoutConfirm": "是否退出登录？",
+    "profileTitle": "完善个人资料",
+    "profileDescription": "设置协作者可见的名称，然后进入工作区。"
   },
   "personalAccessTokens": {
     "title": "个人访问令牌",
@@ -116,6 +126,9 @@
     "others": "使用其他方式",
     "email": "邮箱",
     "enterYourEmail": "输入你的邮箱",
+    "invalidEmail": "请输入有效的邮箱地址。",
+    "requiredEmail": "请输入邮箱地址。",
+    "signInFailed": "登录失败，请重试。",
     "withEmail": "使用邮箱登录",
     "loading": "正在加载登录方式…",
     "unavailable": "当前未配置可用的登录方式，请联系实例管理员。"
@@ -127,6 +140,11 @@
   "userAndSetting": {
     "title": "用户/设置",
     "changeUerInfo": "修改用户信息",
+    "email": "邮箱",
+    "name": "名称",
+    "namePlaceholder": "输入你的名称",
+    "avatar": "头像",
+    "avatarPlaceholder": "https://github.com/username.png",
     "submit": "提交",
     "success": "成功"
   },
@@ -191,10 +209,14 @@
     "notFound": "找不到该文档",
     "create": "新建文档",
     "titleInputPlaceholder": "请输入标题...",
+    "titleInputLabel": "文档标题",
     "exportPDF": "导出 PDF",
     "downloadPDF": "点击手动下载 PDF",
     "createdAt": "创建时间",
-    "updatedAt": "更新时间"
+    "updatedAt": "更新时间",
+    "collapseDocument": "收起 {title}",
+    "expandDocument": "展开 {title}",
+    "createDocumentUnder": "在 {title} 下新建文档"
   },
   "shareDoc": {
     "share": "分享",
@@ -341,6 +363,8 @@
     "inputPlaceholder2": "输入 AI 指令，如：根据标题写大纲",
     "inputPlaceholder3": "针对选中内容，输入 AI 指令，如：扩展一下这段内容",
     "AIgenerating": "AI 生成中......",
+    "sendInstruction": "发送 AI 指令",
+    "stopGenerating": "停止 AI 生成",
     "copy": "复制",
     "replace": "替换",
     "insert": "插入",

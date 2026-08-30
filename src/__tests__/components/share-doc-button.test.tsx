@@ -41,6 +41,8 @@ test('Share doc button component', async () => {
   const shareNewButton = screen.getByTestId('share-new-button')
   fireEvent.click(shareNewButton)
   await waitFor(() => {
-    expect(shareButton.textContent).toBe('Shared')
+    // Re-query: the shared-UI Button remounts its DOM node on state change,
+    // so the pre-click element reference goes stale even though the toggle works.
+    expect(screen.getByRole('share-button').textContent).toBe('Shared')
   })
 })

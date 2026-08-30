@@ -69,14 +69,14 @@ export default function ImageUploadView(props: ImageUploadViewProps) {
 
   const wrapperClass = cn(
     'flex flex-col items-center justify-center px-8 py-10 rounded-lg bg-opacity-80',
-    draggedInside && 'bg-neutral-100'
+    draggedInside && 'bg-active'
   )
 
   return (
     <div className={wrapperClass} onDrop={onDrop} onDragOver={onDragEnter} onDragLeave={onDragLeave}>
-      <ImageIcon className="w-12 h-12 mb-4 text-black dark:text-white opacity-20" />
+      <ImageIcon className="mb-4 h-12 w-12 text-foreground opacity-20" />
       <div className="flex flex-col items-center justify-center gap-2">
-        <div className="text-sm font-medium text-center text-neutral-400 dark:text-neutral-500">
+        <div className="text-center text-sm font-medium text-foreground-subtle">
           {draggedInside ? t('putImageHere') : t('dragImageHere')}
         </div>
         <div

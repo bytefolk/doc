@@ -55,11 +55,11 @@ export default function Outline() {
     <div className="absolute top-1/2 transform -translate-y-1/2 bg-background right-10">
       <HoverCard openDelay={300}>
         <HoverCardTrigger className="flex flex-col space-y-1 cursor-pointer items-end">
-          <span className="text-sm text-gray-500 text-center">{t('titles')}</span>
+          <span className="text-center text-sm text-foreground-subtle">{t('titles')}</span>
           {headingNodes.map((nodePos, index) => {
             const level = getHeadingLevel(nodePos)
             const widthClass = LevelToCSSWidthMap.get(level) || ''
-            return <div key={index} className={cn('h-1.5 bg-gray-300', widthClass)}></div>
+            return <div key={index} className={cn('h-1.5 bg-border-strong', widthClass)}></div>
           })}
         </HoverCardTrigger>
         <HoverCardContent className="w-56 max-h-96 overflow-auto bg-background" side="left" sideOffset={10}>
@@ -71,7 +71,7 @@ export default function Outline() {
                 key={index}
                 onClick={() => clickHeading(nodePos)}
                 className={cn(
-                  'text-gray-500 truncate hover:text-foreground',
+                  'truncate text-foreground-subtle hover:text-foreground',
                   paddingClass,
                   editor?.isEditable && 'cursor-pointer'
                 )}

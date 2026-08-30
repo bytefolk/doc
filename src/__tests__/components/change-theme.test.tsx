@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import NextIntlClientProviderWrapper from '../utils/next-intl-client-provider-wrapper'
 import ChangeTheme from '@/components/change-theme'
 import { ThemeProvider } from '@/components/theme-provider'
@@ -28,6 +28,7 @@ test('Change theme component', async () => {
       </NextIntlClientProviderWrapper>
     </ThemeProvider>
   )
-  const button = screen.getByRole('button')
+  const button = screen.getByRole('button', { name: 'Change theme' })
   expect(button.getAttribute('data-title')).toBe(theme)
+  await waitFor(() => expect(document.documentElement.dataset.theme).toBe(theme))
 })

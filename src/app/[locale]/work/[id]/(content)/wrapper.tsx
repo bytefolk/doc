@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { User } from 'next-auth'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
@@ -16,6 +16,8 @@ import { useTranslations } from 'next-intl'
 import RightBottomBar from '@/components/right-bottom-bar'
 import AIPanel from '@/components/ai-panel'
 import { useDialogStore } from '@/stores/dialog-store'
+import { Button } from '@/components/ui/button'
+import { useCompactWorkspace } from '@/hooks/use-compact-workspace'
 interface IProps {
   id: string
   userInfo: User | null
@@ -84,8 +86,71 @@ export default function ContentWrapper(props: IProps) {
   const { createDoc } = useDocs()
 
   const t = useTranslations('docItem')
+  const aiT = useTranslations('AIInput')
 
   const AIPanelOpen = useDialogStore((s) => s.AIPanelOpen)
+  const setAIPanelOpen = useDialogStore((s) => s.setAIPanelOpen)
+  const isCompact = useCompactWorkspace()
+  const compactAiPanelRef = useRef<HTMLElement>(null)
+  const compactAiWasOpenRef = useRef(false)
+
+  useEffect(() => {
+    if (!AIPanelOpen || !isCompact) return
+    compactAiWasOpenRef.current = true
+    const panel = compactAiPanelRef.current
+    panel
+      ?.querySelector<HTMLElement>('button:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')
+      ?.focus()
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.defaultPrevented) return
+      const target = event.target instanceof HTMLElement ? event.target : null
+      const focusIsInNestedLayer =
+        target != null &&
+        !panel?.contains(target) &&
+        Boolean(
+          target.closest(
+            '[data-radix-popper-content-wrapper], [role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"]'
+          )
+        )
+      if (focusIsInNestedLayer) return
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        setAIPanelOpen(false)
+        return
+      }
+      if (event.key !== 'Tab' || !panel) return
+      const focusable = panel.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), a[href], input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+      )
+      if (!focusable.length) {
+        event.preventDefault()
+        return
+      }
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      } else if (!panel.contains(document.activeElement)) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [AIPanelOpen, isCompact, setAIPanelOpen])
+
+  useEffect(() => {
+    if (compactAiWasOpenRef.current && !AIPanelOpen) {
+      document.querySelector<HTMLElement>('[aria-controls="ai-assistant-panel"]')?.focus()
+      compactAiWasOpenRef.current = false
+    }
+    if (!isCompact) compactAiWasOpenRef.current = false
+  }, [AIPanelOpen, isCompact])
 
   if (loading || creating || userInfo == null) {
     return (
@@ -123,26 +188,55 @@ export default function ContentWrapper(props: IProps) {
 
   if (curDoc || shareDoc) {
     return (
-      <ResizablePanelGroup direction="horizontal" className="flex">
-        <ResizablePanel id={WORK_CONTENT_PANEL_ID} defaultSize={80} className="flex-auto relative min-w-[980px]">
+      <ResizablePanelGroup id="document-ai-panel-group" direction="horizontal" className="relative flex min-w-0">
+        <ResizablePanel
+          id={WORK_CONTENT_PANEL_ID}
+          order={1}
+          defaultSize={68}
+          minSize={40}
+          className="relative min-w-0 flex-auto"
+        >
           <div
             id={WORK_CONTENT_SCROLL_CONTAINER}
             className="overflow-y-auto"
-            style={{ height: 'calc(100vh - 45px - 29px)' }}
+            style={{ height: 'calc(100vh - var(--ui-topbar-height) - 2.25rem)' }}
           >
             {getContentComponent()}
           </div>
           <RightBottomBar />
         </ResizablePanel>
-        {AIPanelOpen && <ResizableHandle />}
-        {AIPanelOpen && (
+        {AIPanelOpen && !isCompact && <ResizableHandle id="document-ai-resize-handle" />}
+        {AIPanelOpen && !isCompact && (
           <ResizablePanel
-            defaultSize={20}
-            className="flex flex-col items-center justify-center min-w-[180px]"
-            style={{ height: 'calc(100vh - 45px - 29px)' }}
+            id="ai-assistant-panel"
+            order={2}
+            defaultSize={32}
+            minSize={28}
+            className="min-w-[340px] border-l border-border bg-surface"
+            style={{ height: 'calc(100vh - var(--ui-topbar-height) - 2.25rem)' }}
           >
             <AIPanel />
           </ResizablePanel>
+        )}
+        {AIPanelOpen && isCompact && (
+          <>
+            <div
+              aria-hidden="true"
+              className="fixed inset-x-0 bottom-0 top-[var(--ui-topbar-height)] z-20 bg-overlay"
+              onMouseDown={() => setAIPanelOpen(false)}
+            />
+            <aside
+              ref={compactAiPanelRef}
+              id="ai-assistant-panel"
+              role="dialog"
+              aria-modal="true"
+              aria-label={aiT('AIWritingChat')}
+              data-testid="ai-panel-drawer"
+              className="fixed bottom-0 right-0 top-[var(--ui-topbar-height)] z-30 flex w-full max-w-md flex-col border-l border-border bg-surface shadow-lg"
+            >
+              <AIPanel />
+            </aside>
+          </>
         )}
       </ResizablePanelGroup>
     )
@@ -150,12 +244,12 @@ export default function ContentWrapper(props: IProps) {
 
   if (notFound) {
     return (
-      <div className="p-8 text-center text-muted-foreground">
+      <div className="p-8 text-center text-foreground-muted" role="alert">
         <p>
-          {t('notFound')},&nbsp;
-          <span className="underline cursor-pointer" onClick={() => createDoc()}>
+          {t('notFound')}
+          <Button variant="link" className="ml-1" onClick={() => createDoc()}>
             {t('create')}
-          </span>
+          </Button>
         </p>
       </div>
     )

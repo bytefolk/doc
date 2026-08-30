@@ -56,7 +56,7 @@ export default function List({ defaultParamId, defaultList, defaultPubDocs }: Li
 
   // show or hide list
   const [showChildren, setShowChildren] = useState(false)
-  function toggleShowChildren(e: React.MouseEvent<HTMLDivElement>) {
+  function toggleShowChildren(e: React.MouseEvent<HTMLElement>) {
     e.stopPropagation()
     setShowChildren(!showChildren)
   }
@@ -87,27 +87,29 @@ export default function List({ defaultParamId, defaultList, defaultPubDocs }: Li
   if (loading)
     return (
       <div className="space-y-2 px-2 pt-2">
-        <Skeleton className="h-6 w-full bg-black/10" />
-        <Skeleton className="h-6 w-full bg-black/10" />
-        <Skeleton className="h-6 w-full bg-black/10" />
+        <Skeleton className="h-6 w-full" />
+        <Skeleton className="h-6 w-full" />
+        <Skeleton className="h-6 w-full" />
       </div>
     )
 
   return (
     // <div className="h-[1000px]">
-    <>
+    <div role="tree" aria-label={t('title')}>
       <div className="mb-2">
         <div className="flex justify-between items-center">
-          <h3
-            className="px-1 mt-1 mb-1 text-sm font-bold flex items-center cursor-pointer"
+          <button
+            type="button"
+            aria-expanded={showChildren}
+            className="my-1 flex items-center rounded-md px-1 text-sm font-semibold text-foreground hover:bg-surface"
             onClick={toggleShowChildren}
           >
-            <div className="hover:bg-active rounded-full p-0.5">
+            <span className="rounded-full p-0.5" aria-hidden="true">
               {showChildren && <ChevronDown className="h-4 w-4" />}
               {!showChildren && <ChevronRight className="h-4 w-4" />}
-            </div>
+            </span>
             <span>{t('title')}</span>
-          </h3>
+          </button>
           <SortButton />
         </div>
 
@@ -132,7 +134,7 @@ export default function List({ defaultParamId, defaultList, defaultPubDocs }: Li
       </div>
       {/* create button */}
       <CreateButton />
-    </>
+    </div>
   )
 }
 

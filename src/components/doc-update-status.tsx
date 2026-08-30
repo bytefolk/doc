@@ -1,12 +1,12 @@
 'use client'
 
-import { memo } from 'react'
+import { memo, useEffect, useState } from 'react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
-import { cn } from '@/lib/utils'
 import { useEditorStore, ICollabUser } from '@/stores/editor-store'
 import { useLocale, useTranslations } from 'next-intl'
+import { SourceStatus, type SourceStatusState } from '@fullstack-ai-infra/ui'
 
 interface IProps {
   id: string
@@ -14,6 +14,8 @@ interface IProps {
 
 export default function DocUpdateStatus(props: IProps) {
   const { id } = props
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
 
   const editorDocId = useEditorStore((s) => s.docId)
 
@@ -27,11 +29,13 @@ export default function DocUpdateStatus(props: IProps) {
 
   // collaborative users
   const collaborativeUsers = useEditorStore((s) => s.collaborativeUsers)
+  const sourceState: SourceStatusState =
+    collaborativeState === 'connected' ? 'available' : collaborativeState === 'connecting' ? 'syncing' : 'offline'
 
   if (id === '0') return null
 
   // 切换文档的瞬间，两者可能不一致
-  if (id !== editorDocId) return <Skeleton className="h-6 w-32 ml-3" />
+  if (!mounted || id !== editorDocId) return <Skeleton className="h-6 w-32 ml-3" />
 
   return (
     <>
@@ -54,20 +58,15 @@ export default function DocUpdateStatus(props: IProps) {
         })}
       </div>
       {/* collaborative state */}
-      <div className="ml-2 inline-flex items-center">
-        <div
-          role="collaborative-state"
-          data-title={collaborativeState}
-          className={cn('w-2 h-2 rounded-full', {
-            'bg-yellow-500 dark:bg-yellow-400': collaborativeState === 'connecting',
-            'bg-green-500 dark:bg-green-400': collaborativeState === 'connected',
-            'bg-red-500 dark:bg-red-400': collaborativeState === 'disconnected',
-          })}
-        ></div>
-        {/* <span className="text-muted-foreground ml-1">{collaborativeState}</span> */}
-      </div>
+      <SourceStatus
+        role="collaborative-state"
+        data-title={collaborativeState}
+        className="ml-2"
+        state={sourceState}
+        label={collaborativeState}
+      />
       {/* character count */}
-      <span role="char-count" className="text-muted-foreground text-sm ml-2 inline-flex items-center">
+      <span role="char-count" className="ml-2 inline-flex items-center text-xs text-foreground-muted">
         {locale === 'zh-cn' && `共 ${characterCount >= 0 ? characterCount : '---'} 字`}
         {locale !== 'zh-cn' &&
           `Total ${wordCount >= 0 ? wordCount : '---'} words, ${characterCount >= 0 ? characterCount : '---'} characters`}

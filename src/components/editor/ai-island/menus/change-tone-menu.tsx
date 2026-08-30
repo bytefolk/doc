@@ -52,7 +52,7 @@ export default function ChangeToneMenu(props: IProps) {
   return (
     <HoverCard openDelay={300}>
       <HoverCardTrigger asChild>
-        <Button variant="ghost" className="p-2 text-blue-500 hover:bg-inherit hover:text-blue-400">
+        <Button variant="ghost" className="p-2 text-ai-strong hover:bg-inherit hover:text-ai-hover">
           {t('tone')}
           <Ellipsis className="h-4 w-4 ml-1" />
         </Button>
@@ -61,7 +61,7 @@ export default function ChangeToneMenu(props: IProps) {
         <Button
           variant="ghost"
           onClick={() => handleClick(t('professional'))}
-          className="p-2 text-blue-500 hover:bg-inherit hover:text-blue-400"
+          className="p-2 text-ai-strong hover:bg-inherit hover:text-ai-hover"
         >
           {t('professional')}
           <MoveUpRight className="h-4 w-4" />
@@ -69,7 +69,7 @@ export default function ChangeToneMenu(props: IProps) {
         <Button
           variant="ghost"
           onClick={() => handleClick(t('casual'))}
-          className="p-2 text-blue-500 hover:bg-inherit hover:text-blue-400"
+          className="p-2 text-ai-strong hover:bg-inherit hover:text-ai-hover"
         >
           {t('casual')}
           <MoveUpRight className="h-4 w-4" />
@@ -77,7 +77,7 @@ export default function ChangeToneMenu(props: IProps) {
         <Button
           variant="ghost"
           onClick={() => handleClick(t('neutral'))}
-          className="p-2 text-blue-500 hover:bg-inherit hover:text-blue-400"
+          className="p-2 text-ai-strong hover:bg-inherit hover:text-ai-hover"
         >
           {t('neutral')}
           <MoveUpRight className="h-4 w-4" />
@@ -85,7 +85,7 @@ export default function ChangeToneMenu(props: IProps) {
         <Button
           variant="ghost"
           onClick={() => handleClick(t('formal'))}
-          className="p-2 text-blue-500 hover:bg-inherit hover:text-blue-400"
+          className="p-2 text-ai-strong hover:bg-inherit hover:text-ai-hover"
         >
           {t('formal')}
           <MoveUpRight className="h-4 w-4" />
@@ -93,7 +93,7 @@ export default function ChangeToneMenu(props: IProps) {
         <Button
           variant="ghost"
           onClick={() => handleClick(t('friendly'))}
-          className="p-2 text-blue-500 hover:bg-inherit hover:text-blue-400"
+          className="p-2 text-ai-strong hover:bg-inherit hover:text-ai-hover"
         >
           {t('friendly')}
           <MoveUpRight className="h-4 w-4" />

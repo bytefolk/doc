@@ -48,7 +48,7 @@ export default function MermaidRenderer(props: MermaidRendererProps) {
   if (error) {
     return (
       <div className={className}>
-        <div className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/40 dark:text-red-300">
+        <div className="rounded border border-danger bg-danger-soft p-3 text-sm text-danger">
           <p className="font-medium">{t('mermaidRenderFailedTip')}</p>
           <pre className="mt-2 whitespace-pre-wrap text-xs">{error}</pre>
         </div>

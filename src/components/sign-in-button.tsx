@@ -8,7 +8,7 @@
 
 // import { Link } from '@/i18n/routing'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 
 function getHref() {
   if (typeof location === 'undefined') return ''
@@ -28,10 +28,8 @@ export default function SignInButton({
   const url = `/api/auth/signin?callbackUrl=${encodeURIComponent(href)}`
 
   return (
-    <Button className={className} size={size} asChild>
-      <Link role="sign-in-link" href={url}>
-        {children}
-      </Link>
-    </Button>
+    <Link role="sign-in-link" href={url} className={buttonVariants({ size, className })}>
+      {children}
+    </Link>
   )
 }

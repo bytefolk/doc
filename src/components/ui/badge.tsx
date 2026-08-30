@@ -1,35 +1,41 @@
-import * as React from "react"
-import { cva, type VariantProps } from "class-variance-authority"
+'use client'
 
-import { cn } from "@/lib/utils"
+import { Badge as SharedBadge, type BadgeProps as SharedBadgeProps } from '@fullstack-ai-infra/ui'
+import * as React from 'react'
 
-const badgeVariants = cva(
-  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-  {
-    variants: {
-      variant: {
-        default:
-          "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
-        secondary:
-          "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        destructive:
-          "border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80",
-        outline: "text-foreground",
-      },
-    },
-    defaultVariants: {
-      variant: "default",
-    },
-  }
-)
+import { cn } from '@/lib/utils'
 
-export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
+type BadgeVariant = 'default' | 'secondary' | 'destructive' | 'outline' | 'ai'
 
-function Badge({ className, variant, ...props }: BadgeProps) {
+const toneMap = {
+  default: 'success',
+  secondary: 'neutral',
+  destructive: 'danger',
+  outline: 'neutral',
+  ai: 'ai',
+} as const satisfies Record<BadgeVariant, NonNullable<SharedBadgeProps['tone']>>
+
+export interface BadgeProps extends Omit<SharedBadgeProps, 'tone' | 'variant'> {
+  variant?: BadgeVariant | null
+}
+
+interface BadgeVariantOptions {
+  variant?: BadgeVariant | null
+  className?: string
+}
+
+function badgeVariants({ variant = 'default', className }: BadgeVariantOptions = {}) {
+  const resolvedVariant = variant || 'default'
+  return cn('ui-badge', `ui-badge--${toneMap[resolvedVariant]}`, className)
+}
+
+function Badge({ className, variant = 'default', ...props }: BadgeProps) {
   return (
-    <div className={cn(badgeVariants({ variant }), className)} {...props} />
+    <SharedBadge
+      tone={toneMap[variant || 'default']}
+      className={cn(variant === 'outline' && 'border border-border', className)}
+      {...props}
+    />
   )
 }
 

@@ -15,7 +15,9 @@ export function isDescendant(id: string, descendantId: string, list: IDoc[]) {
 
 // 跳转链接 切换文档
 export function nav(id: string) {
-  const url = `/work/${id}`
+  const locale = window.location.pathname.split('/')[1]
+  const localePrefix = locale === 'en' || locale === 'zh-cn' ? `/${locale}` : ''
+  const url = `${localePrefix}/work/${id}`
   // 切换文档前异步触发一次版本保存，不阻塞后续跳转。
   flushCurrentDocVersion()
   emitter.emit(EVENT_KEY_NAV_DOC, { id })
@@ -23,7 +25,8 @@ export function nav(id: string) {
 }
 if (typeof window !== 'undefined') {
   const handlePopState = (event: PopStateEvent) => {
-    emitter.emit(EVENT_KEY_NAV_DOC, { id: event.state.docId })
+    const id = event.state?.docId || window.location.pathname.split('/').at(-1)
+    if (id) emitter.emit(EVENT_KEY_NAV_DOC, { id })
   }
   window.addEventListener('popstate', handlePopState) // 只能绑定一次
 }

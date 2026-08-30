@@ -91,7 +91,7 @@ export const getExtensions = (opt: IOptions) => {
     SlashCommands,
     Dropcursor.configure({
       width: 2,
-      class: 'ProseMirror-dropcursor border-black',
+      class: 'ProseMirror-dropcursor border-primary',
     }),
     Selection,
     SearchAndReplace.configure({

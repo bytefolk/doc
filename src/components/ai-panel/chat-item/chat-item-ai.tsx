@@ -16,11 +16,11 @@ export default function ChatItemAI(props: IProps) {
   const [viewMore, setViewMore] = useState(false)
 
   return (
-    <div className="flex items-start gap-1 my-1">
+    <div className="my-1 flex items-start gap-2">
       <div className="w-5">
-        <Bot className="w-5 h-5 text-blue-500 mt-1" />
+        <Bot className="mt-1 h-5 w-5 text-ai" />
       </div>
-      <div className="bg-gray-100 dark:bg-gray-800 dark:text-gray-300 px-2 py-1 rounded-md mr-2 flex-auto overflow-x-auto">
+      <div className="mr-2 flex-auto overflow-x-auto rounded-lg border border-ai bg-ai-soft px-3 py-2 text-foreground">
         <div className={cn('prose dark:prose-invert max-w-none', viewMore ? '' : 'max-h-60 overflow-y-hidden')}>
           <AIMarkdownContent content={content} />
         </div>

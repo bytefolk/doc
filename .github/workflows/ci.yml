@@ -33,6 +33,8 @@ jobs:
       - run: npm run format
       - run: npm run lint
       - run: npm run test-ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e -- e2e/signin.spec.ts
       - run: npm run build:collaboration
       - run: npm run check:cli
       - run: npm run build

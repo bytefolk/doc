@@ -124,7 +124,7 @@ const MenuList = React.forwardRef((props: MenuListProps, ref) => {
           <React.Fragment key={`${group.title}-wrapper`}>
             {/* 渲染 group title */}
             <div
-              className="text-neutral-500 text-[0.65rem] col-[1/-1] mx-2 my-2 font-semibold tracking-wider select-none uppercase first:mt-0.5"
+              className="col-[1/-1] mx-2 my-2 select-none text-[0.65rem] font-semibold uppercase tracking-wider text-foreground-subtle first:mt-0.5"
               key={`${group.title}`}
             >
               {group.title}

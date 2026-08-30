@@ -50,7 +50,7 @@ export default function TriggerAIButton(props: IButtonProps) {
   }, [currentNode, currentNodePos, editor, AIPanelOpen, setAIPanelOpen])
 
   return (
-    <Button size="sm" variant="ghost" onClick={handleClick} tabIndex={-1} className="px-1 text-blue-500">
+    <Button size="sm" variant="ghost" onClick={handleClick} tabIndex={-1} className="px-1 text-ai-strong">
       <Sparkles className="h-4 w-4" />
     </Button>
   )
