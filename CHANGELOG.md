@@ -6,6 +6,8 @@ All notable changes to `doc` are documented here.
 
 ### Changed
 
+- Replace the remaining user-visible organization copy in the security policy, localized landing
+  page, and footers with ByteFolk while retaining the established npm package scopes.
 - Migrate public GitHub repository, issue, documentation, and CI badge links
   to the canonical `bytefolk` organization while retaining the existing npm
   package scopes.
