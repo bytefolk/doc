@@ -8,7 +8,7 @@ require a Next.js 16 / React 19 and Auth.js migration are tracked as release blo
 stable release.
 
 Do not open a public issue for a suspected vulnerability. Report it privately through the
-fullstack-ai-infra organization security contact or a GitHub private vulnerability report once
+ByteFolk organization security contact or a GitHub private vulnerability report once
 enabled for this repository.
 
 Include the affected surface, reproduction steps, expected impact, and any mitigation you already

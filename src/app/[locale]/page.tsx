@@ -158,7 +158,7 @@ export default async function HomePage() {
         <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-8 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <div className="flex items-center gap-2">
             <Logo />
-            <span>· fullstack-ai-infra</span>
+            <span>· ByteFolk</span>
           </div>
           <span>{t('footer')}</span>
         </div>
