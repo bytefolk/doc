@@ -48,7 +48,7 @@ export default async function HomePage() {
             </a>
             <a
               className="rounded-md px-2.5 py-1.5 transition-colors hover:bg-secondary hover:text-foreground"
-              href="https://github.com/fullstack-ai-infra/doc"
+              href="https://github.com/bytefolk/doc"
               target="_blank"
               rel="noreferrer"
             >

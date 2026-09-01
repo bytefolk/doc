@@ -4,6 +4,12 @@ All notable changes to `doc` are documented here.
 
 ## [Unreleased]
 
+### Changed
+
+- Migrate public GitHub repository, issue, documentation, and CI badge links
+  to the canonical `bytefolk` organization while retaining the existing npm
+  package scopes.
+
 ### Added
 
 - Adoption of the shared `@fullstack-ai-infra/ui` design system for the first document

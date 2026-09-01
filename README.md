@@ -4,7 +4,7 @@
 >
 > 自托管 · 实时协作 · 可恢复版本 · AI 辅助 · 文档归用户所有
 
-[![CI](https://github.com/fullstack-ai-infra/doc/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/fullstack-ai-infra/doc/actions/workflows/ci.yml)
+[![CI](https://github.com/bytefolk/doc/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/bytefolk/doc/actions/workflows/ci.yml)
 [![Status](https://img.shields.io/badge/status-experimental-orange.svg)](#project-status)
 
 **A portable, self-hosted document plane for people and AI agents.**
@@ -65,10 +65,10 @@ UI、API 与协作服务必须共享同一套文档、权限和版本语义。AI
 
 ## 与 `mem` 的边界
 
-| 项目                                               | 核心对象                          | 主要职责                              |
-| -------------------------------------------------- | --------------------------------- | ------------------------------------- |
-| [`mem`](https://github.com/fullstack-ai-infra/mem) | 文件、记忆、实体、任务 checkpoint | 跨 Agent 的可迁移上下文与原始资产     |
-| `doc`                                              | 可编辑文档、目录、版本与协作状态  | 人与 Agent 共同写作、审阅、发布和恢复 |
+| 项目                                     | 核心对象                          | 主要职责                              |
+| ---------------------------------------- | --------------------------------- | ------------------------------------- |
+| [`mem`](https://github.com/bytefolk/mem) | 文件、记忆、实体、任务 checkpoint | 跨 Agent 的可迁移上下文与原始资产     |
+| `doc`                                    | 可编辑文档、目录、版本与协作状态  | 人与 Agent 共同写作、审阅、发布和恢复 |
 
 `doc` 不是通用 Agent runtime，也不替代 `mem` 的多模态原件与长期记忆。两者未来可
 通过稳定 API 连接，但各自保持独立的数据所有权和部署边界。

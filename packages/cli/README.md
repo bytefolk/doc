@@ -1,7 +1,7 @@
 # @fullstack-ai-infra/doc-cli
 
 Authenticated document and local operations CLI for
-[`doc`](https://github.com/fullstack-ai-infra/doc).
+[`doc`](https://github.com/bytefolk/doc).
 
 ```bash
 npm install --global ./packages/cli
@@ -25,5 +25,5 @@ Remote commands use scoped personal access tokens and the stable `/api/v1/docume
 stack commands continue to operate on a discovered or explicitly selected checkout.
 
 See the
-[CLI guide](https://github.com/fullstack-ai-infra/doc/blob/main/docs/CLI.md)
+[CLI guide](https://github.com/bytefolk/doc/blob/main/docs/CLI.md)
 for the complete command and safety contract.
