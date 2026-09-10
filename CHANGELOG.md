@@ -4,6 +4,13 @@ All notable changes to `doc` are documented here.
 
 ## [Unreleased]
 
+### Fixed
+
+- Pin both application and collaboration mailers to Nodemailer 9.1.1 to address
+  GHSA-2x7j-588g-ccc2 and GHSA-8m3c-c648-2xjj, using a verified canonical npm registry lock entry. Override
+  Auth.js's older Nodemailer peer range so its runtime also uses the patched copy;
+  cover application notifications and verification emails with loopback SMTP tests.
+
 ### Changed
 
 - Replace the remaining user-visible organization copy in the security policy, localized landing
