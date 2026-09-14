@@ -15,11 +15,11 @@ import {
 import { getTranslations } from 'next-intl/server'
 import ChangeLocale from '@/components/change-locale'
 import ChangeTheme from '@/components/change-theme'
+import LinkButton from '@/components/link-button'
 import Logo from '@/components/logo-component'
 import SignInButton from '@/components/sign-in-button'
 import StartButton from '@/components/start-button'
 import { Badge } from '@/components/ui/badge'
-import { buttonVariants } from '@/components/ui/button'
 import { getUserInfo } from '@/lib/session'
 
 const capabilities = [
@@ -80,10 +80,10 @@ export default async function HomePage() {
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
               {user ? <StartButton size="lg" /> : <SignInButton size="lg">{t('getStarted')}</SignInButton>}
-              <a href="#architecture" className={buttonVariants({ variant: 'outline', size: 'lg' })}>
+              <LinkButton href="#architecture" variant="outline" size="lg">
                 {t('seeHowItWorks')}
                 <ArrowRight className="ml-2 h-4 w-4" />
-              </a>
+              </LinkButton>
             </div>
             <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">
               {[t('selfHosted'), t('realtime'), t('agentReady')].map((item) => (
