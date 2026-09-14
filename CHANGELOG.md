@@ -4,6 +4,14 @@ All notable changes to `doc` are documented here.
 
 ## [Unreleased]
 
+### Fixed
+
+- Restore server rendering of the landing page and admin console after the shared design system
+  migration: the client-only `buttonVariants` helper is no longer called from server components,
+  the admin layout provides the translation context required by shared UI components, and the
+  i18n request configuration falls back to the default locale on routes outside the locale
+  middleware instead of returning a 404.
+
 ### Changed
 
 - Replace the remaining user-visible organization copy in the security policy, localized landing
