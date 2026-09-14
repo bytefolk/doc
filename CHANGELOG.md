@@ -6,6 +6,11 @@ All notable changes to `doc` are documented here.
 
 ### Fixed
 
+- Restore server rendering of the landing page and admin console after the shared design system
+  migration: the client-only `buttonVariants` helper is no longer called from server components,
+  the admin layout provides the translation context required by shared UI components, and the
+  i18n request configuration falls back to the default locale on routes outside the locale
+  middleware instead of returning a 404.
 - Pin both application and collaboration mailers to Nodemailer 9.1.1 to address
   GHSA-2x7j-588g-ccc2 and GHSA-8m3c-c648-2xjj, using a verified canonical npm registry lock entry. Override
   Auth.js's older Nodemailer peer range so its runtime also uses the patched copy;
