@@ -218,14 +218,14 @@ export default function VersionDialog(props: { id: string }) {
         style={{ maxWidth: `${VERSION_DIALOG_MAX_WIDTH}px` }}
       >
         <DialogHeader>
-          <DialogTitle className="flex items-center">
+          <DialogTitle className="flex items-center justify-center">
             <History className="size-4 shrink-0 mr-1" />
             {t('entry')}
           </DialogTitle>
           <DialogDescription>{t('dialogDescription')}</DialogDescription>
         </DialogHeader>
-        <div className="grid flex-1 min-h-0 grid-cols-[280px_1fr] gap-4">
-          <div className="border rounded-md overflow-y-auto p-2">
+        <div className="grid flex-1 min-h-0 grid-cols-1 grid-rows-[minmax(6rem,0.7fr)_minmax(0,1fr)] gap-4 sm:grid-cols-[280px_minmax(0,1fr)] sm:grid-rows-1">
+          <div className="min-w-0 border rounded-md overflow-y-auto p-2">
             {loading && <p className="text-sm text-muted-foreground">{t('loading')}</p>}
             {isVersionListEmpty && (
               <div className="flex h-full min-h-40 items-center justify-center px-4 text-center text-sm text-muted-foreground">
@@ -236,7 +236,7 @@ export default function VersionDialog(props: { id: string }) {
               versions.map((version) => (
                 <button
                   key={version.id}
-                  className="w-full text-left rounded-md p-2 hover:bg-muted data-[active=true]:bg-muted"
+                  className="w-full text-center rounded-md p-2 text-foreground hover:bg-muted data-[active=true]:bg-muted"
                   onClick={() => setSelectedVersionId(version.id)}
                   aria-label={version.createdAt}
                   data-active={selectedVersionId === version.id}
@@ -247,8 +247,8 @@ export default function VersionDialog(props: { id: string }) {
                 </button>
               ))}
           </div>
-          <div className="border rounded-md bg-background p-4 flex flex-col min-h-0">
-            <div className="h-full min-h-40 overflow-y-auto rounded-md bg-background px-6 py-5 text-foreground">
+          <div className="min-w-0 border rounded-md bg-background p-3 sm:p-4 flex flex-col min-h-0">
+            <div className="h-full min-h-0 overflow-auto rounded-md bg-background px-3 py-4 sm:px-6 sm:py-5 text-foreground">
               {isVersionListEmpty && (
                 <div className="flex h-full min-h-40 flex-col items-center justify-center gap-3 px-4 text-center text-muted-foreground">
                   <History className="size-10 opacity-40" />

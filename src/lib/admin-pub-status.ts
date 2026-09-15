@@ -20,7 +20,7 @@ export function getAdminPublishStatusMeta(latestPubDoc: LatestPubDocLike, isPubl
       code: 'published',
       label: '已发布',
       variant: 'default' as const,
-      badgeClassName: 'whitespace-nowrap border-transparent bg-success text-success-foreground',
+      badgeClassName: 'whitespace-nowrap border-transparent bg-success-soft text-success-strong',
       description: '公开访问正常',
     }
   }
@@ -30,7 +30,7 @@ export function getAdminPublishStatusMeta(latestPubDoc: LatestPubDocLike, isPubl
       code: 'frozen',
       label: '已冻结',
       variant: 'outline' as const,
-      badgeClassName: 'whitespace-nowrap border-transparent bg-warning text-warning-foreground',
+      badgeClassName: 'whitespace-nowrap border-transparent bg-warning-soft text-warning-strong',
       description: latestPubDoc.statusReason || '公开访问已暂停',
     }
   }
@@ -40,7 +40,7 @@ export function getAdminPublishStatusMeta(latestPubDoc: LatestPubDocLike, isPubl
       code: 'unpublished',
       label: '已撤销',
       variant: 'outline' as const,
-      badgeClassName: 'whitespace-nowrap border-transparent bg-slate-100 text-slate-700',
+      badgeClassName: 'whitespace-nowrap border-transparent bg-secondary text-foreground',
       description: '发布链接已下线',
     }
   }
@@ -49,7 +49,7 @@ export function getAdminPublishStatusMeta(latestPubDoc: LatestPubDocLike, isPubl
     code: 'never',
     label: '未发布',
     variant: 'outline' as const,
-    badgeClassName: 'whitespace-nowrap border-slate-200 text-slate-500',
+    badgeClassName: 'whitespace-nowrap border-border bg-card text-muted-foreground',
     description: '暂无发布记录',
   }
 }
@@ -62,7 +62,7 @@ export function getAdminPublishAction(latestPubDoc: { status: PubDocStatusValue 
       targetStatus: PUB_DOC_STATUS.FROZEN,
       label: '冻结发布',
       variant: 'outline',
-      className: 'h-7 px-2 text-xs border-warning/40 bg-warning/20 text-warning hover:bg-warning/30',
+      className: 'h-7 px-2 text-xs border-border bg-warning-soft text-warning-strong hover:bg-warning-soft',
     }
   }
 
@@ -71,7 +71,7 @@ export function getAdminPublishAction(latestPubDoc: { status: PubDocStatusValue 
       targetStatus: PUB_DOC_STATUS.PUBLISHED,
       label: '恢复公开',
       variant: 'outline',
-      className: 'h-7 px-2 text-xs border-slate-300 bg-slate-200 text-slate-700 hover:bg-slate-300',
+      className: 'h-7 px-2 text-xs border-border bg-secondary text-foreground hover:bg-muted',
     }
   }
 
@@ -79,7 +79,7 @@ export function getAdminPublishAction(latestPubDoc: { status: PubDocStatusValue 
     targetStatus: PUB_DOC_STATUS.PUBLISHED,
     label: '恢复发布',
     variant: 'outline',
-    className: 'border-slate-300 bg-slate-200 text-slate-700 hover:bg-slate-300',
+    className: 'border-border bg-secondary text-foreground hover:bg-muted',
   }
 }
 
@@ -93,7 +93,7 @@ export function getAdminPublishExtraAction(
       targetStatus: PUB_DOC_STATUS.UNPUBLISHED,
       label: '撤销发布',
       variant: 'outline',
-      className: 'h-7 px-2 text-xs border-destructive/40 bg-destructive/20 text-destructive hover:bg-destructive/30',
+      className: 'h-7 px-2 text-xs border-border bg-danger-soft text-danger-strong hover:bg-danger-soft',
       confirmText: '确认撤销该发布内容？撤销后公开链接将不可访问。',
     }
   }

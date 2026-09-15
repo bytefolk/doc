@@ -39,11 +39,13 @@ export default function AdminUserMenu({ name, email, image }: AdminUserMenuProps
             <AvatarImage src={image || ''} alt={displayName} />
             <AvatarFallback>{fallbackText}</AvatarFallback>
           </Avatar>
-          <span className="flex min-w-0 flex-col items-start text-left">
-            <span className="max-w-48 truncate text-sm font-medium text-slate-900">{displayName}</span>
-            {displayEmail ? <span className="max-w-48 truncate text-xs text-slate-500">{displayEmail}</span> : null}
+          <span className="flex min-w-0 flex-col items-center text-center">
+            <span className="max-w-48 truncate text-sm font-medium text-foreground">{displayName}</span>
+            {displayEmail ? (
+              <span className="max-w-48 truncate text-xs text-muted-foreground">{displayEmail}</span>
+            ) : null}
           </span>
-          <ChevronDown className="h-4 w-4 text-slate-500" />
+          <ChevronDown className="h-4 w-4 text-muted-foreground" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">

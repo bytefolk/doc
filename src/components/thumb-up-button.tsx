@@ -60,14 +60,14 @@ export default function ThumbUpButton(props: { initialCount: number; publishId: 
         variant="outline"
         size="lg"
         className={`flex items-center gap-3 p-6 text-lg font-semibold transition-all duration-200 hover:scale-105 ${
-          isLiked ? 'bg-blue-50 border-blue-300 text-blue-700 hover:bg-blue-100' : 'hover:bg-gray-50'
+          isLiked ? 'bg-accent border-primary text-accent-foreground hover:bg-accent' : 'hover:bg-accent'
         }`}
         disabled={loading}
       >
         <ThumbsUp
-          className={`w-8 h-8 transition-all duration-200 ${isLiked ? 'fill-blue-600 text-blue-600' : 'text-gray-600'}`}
+          className={`w-8 h-8 transition-all duration-200 ${isLiked ? 'fill-current text-primary' : 'text-muted-foreground'}`}
         />
-        <span className="tabular-nums text-xl">{thumbUpCount}</span>
+        <span className={`tabular-nums text-xl ${isLiked ? 'text-primary' : 'text-foreground'}`}>{thumbUpCount}</span>
       </Button>
     </div>
   )

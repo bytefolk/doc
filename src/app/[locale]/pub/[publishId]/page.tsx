@@ -43,8 +43,8 @@ export default async function PubDocPage({ params }: { params: { publishId: stri
       <>
         <HomeNav />
         <main className="min-h-screen flex flex-col items-center justify-center px-6">
-          <div className="max-w-xl rounded-lg border bg-white p-8 text-center shadow-sm">
-            <h1 className="text-2xl font-semibold">该文档已暂停公开访问</h1>
+          <div className="max-w-xl rounded-lg border border-border bg-card p-8 text-center text-card-foreground shadow-sm">
+            <h1 className="text-balance text-2xl font-semibold">该文档已暂停公开访问</h1>
             <p className="mt-3 text-sm text-muted-foreground">管理员已暂时冻结该发布内容，请稍后再试。</p>
           </div>
         </main>

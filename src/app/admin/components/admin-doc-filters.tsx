@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
@@ -71,15 +72,15 @@ export default function AdminDocFilters({ initialQ, initialAuthor, initialDelete
   return (
     <form className="grid gap-3 md:grid-cols-[minmax(0,2fr)_1fr_1fr_1fr_auto_auto]" onSubmit={handleSubmit}>
       <div className="space-y-2">
-        <Label>标题</Label>
+        <Label className="block text-center">标题</Label>
         <Input value={q} onChange={(event) => setQ(event.target.value)} placeholder="搜索标题" />
       </div>
       <div className="space-y-2">
-        <Label>作者</Label>
+        <Label className="block text-center">作者</Label>
         <Input value={author} onChange={(event) => setAuthor(event.target.value)} placeholder="搜索昵称或邮箱" />
       </div>
       <div className="space-y-2">
-        <Label>删除状态</Label>
+        <Label className="block text-center">删除状态</Label>
         <Select value={deleteStatus} onValueChange={(value) => setDeleteStatus(value as AdminDocDeleteStatus)}>
           <SelectTrigger>
             <SelectValue placeholder="全部" />
@@ -94,7 +95,7 @@ export default function AdminDocFilters({ initialQ, initialAuthor, initialDelete
         </Select>
       </div>
       <div className="space-y-2">
-        <Label>发布状态</Label>
+        <Label className="block text-center">发布状态</Label>
         <Select value={publishStatus} onValueChange={(value) => setPublishStatus(value as AdminDocPublishStatus)}>
           <SelectTrigger>
             <SelectValue placeholder="全部" />
@@ -109,22 +110,14 @@ export default function AdminDocFilters({ initialQ, initialAuthor, initialDelete
         </Select>
       </div>
       <div className="flex items-end">
-        <button
-          type="submit"
-          className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
-        >
+        <Button type="submit" className="h-10">
           搜索
-        </button>
+        </Button>
       </div>
       <div className="flex items-end">
-        <button
-          type="button"
-          onClick={handleReset}
-          disabled={!canReset}
-          className="inline-flex h-10 items-center justify-center rounded-md border border-input bg-background px-4 text-sm font-medium text-foreground disabled:cursor-not-allowed disabled:opacity-50"
-        >
+        <Button type="button" onClick={handleReset} disabled={!canReset} variant="outline" className="h-10">
           重置
-        </button>
+        </Button>
       </div>
     </form>
   )

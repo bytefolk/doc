@@ -132,7 +132,7 @@ export default function SignInPage() {
           {hasEmail && (
             <form className="space-y-4" noValidate onSubmit={handleEmailSignIn}>
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-foreground-muted">
+                <Label htmlFor="email" className="block text-center text-sm font-medium text-foreground-muted">
                   {t('email')}
                 </Label>
                 <Input

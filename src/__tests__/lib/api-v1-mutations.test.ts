@@ -32,7 +32,7 @@ import {
   parseRestoreVersion,
 } from '@/lib/api-v1-mutations'
 
-const mockDb = vi.mocked(db)
+const mockDb = vi.mocked(db, { deep: true })
 
 describe('api-v1-mutations', () => {
   beforeEach(() => {

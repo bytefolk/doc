@@ -6,6 +6,13 @@ All notable changes to `doc` are documented here.
 
 ### Fixed
 
+- Keep shared controls synchronized with the selected light or dark theme, restore the missing
+  button appearance on sign-in and pagination links, and pair published-page and admin surfaces
+  with semantic foreground colors. Center control labels and interface headings while preserving
+  document and chat content alignment.
+- Keep publication status labels and Mermaid diagrams readable in both themes, and fit editor
+  toolbars, popovers, and version history within narrow viewports. Correct the nested Prisma mock
+  typing so the production build validates the existing mutation tests.
 - Restore server rendering of the landing page and admin console after the shared design system
   migration: the client-only `buttonVariants` helper is no longer called from server components,
   the admin layout provides the translation context required by shared UI components, and the

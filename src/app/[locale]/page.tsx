@@ -66,26 +66,26 @@ export default async function HomePage() {
       <section className="relative border-b border-border">
         <div className="doc-grid absolute inset-0 opacity-55 [mask-image:linear-gradient(to_bottom,black,transparent_82%)]" />
         <div className="relative mx-auto grid max-w-7xl gap-14 px-4 py-20 sm:px-6 lg:grid-cols-[0.82fr_1.18fr] lg:items-center lg:py-28">
-          <div className="animate-fade-in">
+          <div className="animate-fade-in text-center">
             <Badge variant="outline" className="mb-6 gap-2 border-primary/30 bg-primary/5 text-primary">
               <span className="h-1.5 w-1.5 rounded-full bg-primary" />
               {t('eyebrow')}
             </Badge>
-            <h1 className="max-w-2xl text-balance text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
+            <h1 className="mx-auto max-w-2xl text-balance text-4xl font-semibold tracking-[-0.045em] sm:text-6xl">
               {t('sloganPart1')}
               <span className="text-primary"> {t('sloganPart2')}</span>
             </h1>
-            <p className="mt-6 max-w-xl text-balance text-base leading-7 text-muted-foreground sm:text-lg">
+            <p className="mx-auto mt-6 max-w-xl text-balance text-base leading-7 text-muted-foreground sm:text-lg">
               {t('subTitle')}
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
               {user ? <StartButton size="lg" /> : <SignInButton size="lg">{t('getStarted')}</SignInButton>}
               <LinkButton href="#architecture" variant="outline" size="lg">
                 {t('seeHowItWorks')}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </LinkButton>
             </div>
-            <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-xs text-muted-foreground">
+            <div className="mt-8 flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground">
               {[t('selfHosted'), t('realtime'), t('agentReady')].map((item) => (
                 <span key={item} className="inline-flex items-center gap-1.5">
                   <Check className="h-3.5 w-3.5 text-success" />
@@ -100,7 +100,7 @@ export default async function HomePage() {
       </section>
 
       <section id="capabilities" className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
-        <div className="mb-10 max-w-2xl">
+        <div className="mx-auto mb-10 max-w-2xl text-center">
           <p className="mb-3 font-mono text-xs uppercase tracking-[0.18em] text-primary">01 / {t('capabilities')}</p>
           <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">{t('title2')}</h2>
           <p className="mt-4 leading-7 text-muted-foreground">{t('desc2')}</p>
@@ -109,10 +109,10 @@ export default async function HomePage() {
           {capabilities.map(({ icon: Icon, title, description }, index) => (
             <article
               key={title}
-              className="group bg-card p-6 transition-colors hover:bg-secondary/70"
+              className="group bg-card p-6 text-center transition-colors hover:bg-secondary/70"
               style={{ animationDelay: `${index * 70}ms` }}
             >
-              <div className="mb-8 flex h-9 w-9 items-center justify-center rounded-md border border-border bg-secondary text-primary">
+              <div className="mx-auto mb-8 flex h-9 w-9 items-center justify-center rounded-md border border-border bg-secondary text-primary">
                 <Icon className="h-4 w-4" />
               </div>
               <h3 className="font-medium">{t(title)}</h3>
@@ -124,7 +124,7 @@ export default async function HomePage() {
 
       <section id="architecture" className="border-y border-border bg-card/45">
         <div className="mx-auto grid max-w-7xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[0.75fr_1.25fr] lg:items-center">
-          <div>
+          <div className="text-center">
             <p className="mb-3 font-mono text-xs uppercase tracking-[0.18em] text-primary">02 / {t('architecture')}</p>
             <h2 className="text-balance text-3xl font-semibold tracking-tight sm:text-4xl">{t('title4')}</h2>
             <p className="mt-4 leading-7 text-muted-foreground">{t('architectureDesc')}</p>
@@ -141,8 +141,8 @@ export default async function HomePage() {
         <div className="surface relative overflow-hidden p-8 sm:p-12">
           <div className="doc-grid absolute inset-0 opacity-30" />
           <div className="relative grid gap-8 lg:grid-cols-[1fr_auto] lg:items-end">
-            <div className="max-w-2xl">
-              <div className="mb-5 flex items-center gap-2 text-primary">
+            <div className="max-w-2xl text-center">
+              <div className="mb-5 flex items-center justify-center gap-2 text-primary">
                 <ShieldCheck className="h-5 w-5" />
                 <span className="font-mono text-xs uppercase tracking-[0.18em]">{t('trustBoundary')}</span>
               </div>
@@ -262,8 +262,8 @@ function PreviewMeta({ icon: Icon, label }: { icon: typeof Users; label: string 
 
 function ArchitectureCell({ icon: Icon, label, detail }: { icon: typeof FileText; label: string; detail: string }) {
   return (
-    <div className="bg-card p-6">
-      <Icon className="mb-7 h-5 w-5 text-primary" />
+    <div className="bg-card p-6 text-center">
+      <Icon className="mx-auto mb-7 h-5 w-5 text-primary" />
       <p className="font-mono text-sm font-semibold">{label}</p>
       <p className="mt-2 text-sm leading-6 text-muted-foreground">{detail}</p>
     </div>

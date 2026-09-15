@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { getAdminUsers } from '@/lib/admin-data'
 import AdminPagination from '../components/admin-pagination'
@@ -42,7 +43,7 @@ export default async function AdminUsersPage({
   return (
     <section className="space-y-6">
       <div>
-        <h2 className="text-2xl font-semibold">用户管理</h2>
+        <h2 className="doc-interface-heading text-2xl font-semibold">用户管理</h2>
       </div>
 
       <Card>
@@ -52,12 +53,9 @@ export default async function AdminUsersPage({
         <CardContent>
           <form className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto]">
             <Input name="q" placeholder="搜索昵称或邮箱" defaultValue={filters.q} />
-            <button
-              type="submit"
-              className="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground"
-            >
+            <Button type="submit" className="h-10">
               搜索
-            </button>
+            </Button>
           </form>
         </CardContent>
       </Card>
@@ -89,8 +87,8 @@ export default async function AdminUsersPage({
               {items.map((item) => (
                 <TableRow key={item.id}>
                   <TableCell className="font-medium">{item.name || '-'}</TableCell>
-                  <TableCell className="text-slate-600">{item.email || '-'}</TableCell>
-                  <TableCell className="text-slate-600">{formatDate(item.emailVerified)}</TableCell>
+                  <TableCell className="text-muted-foreground">{item.email || '-'}</TableCell>
+                  <TableCell className="text-muted-foreground">{formatDate(item.emailVerified)}</TableCell>
                   <TableCell>{item._count.docs}</TableCell>
                   <TableCell>
                     <Badge variant={item.isAdmin ? 'default' : 'outline'}>{item.isAdmin ? '是' : '否'}</Badge>

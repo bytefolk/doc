@@ -33,7 +33,7 @@ function getVisiblePages(page: number, totalPages: number) {
 
 export default function AdminPagination({ page, totalPages, total, createPageHref }: AdminPaginationProps) {
   if (totalPages <= 1) {
-    return total > 0 ? <div className="text-sm text-slate-500">共 {total} 条</div> : null
+    return total > 0 ? <div className="text-sm text-muted-foreground">共 {total} 条</div> : null
   }
 
   const pages = getVisiblePages(page, totalPages)
@@ -42,7 +42,7 @@ export default function AdminPagination({ page, totalPages, total, createPageHre
 
   return (
     <div className="mt-4 flex flex-col gap-3 border-t pt-4 md:flex-row md:items-center md:justify-between">
-      <div className="text-sm text-slate-500">共 {total} 条</div>
+      <div className="text-sm text-muted-foreground">共 {total} 条</div>
       <Pagination className="mx-0 w-auto justify-start md:justify-end">
         <PaginationContent>
           <PaginationItem>

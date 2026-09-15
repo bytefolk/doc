@@ -48,7 +48,7 @@ export default async function AdminDocsPage({
   return (
     <section className="space-y-6">
       <div>
-        <h2 className="text-2xl font-semibold">文档管理</h2>
+        <h2 className="doc-interface-heading text-2xl font-semibold">文档管理</h2>
       </div>
 
       <Card>
@@ -93,19 +93,19 @@ export default async function AdminDocsPage({
                 return (
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">{item.title}</TableCell>
-                    <TableCell className="text-slate-600">
+                    <TableCell className="text-muted-foreground">
                       {item.user.name || item.user.email || item.user.id}
                     </TableCell>
-                    <TableCell className="w-[11rem] whitespace-nowrap text-slate-600">
+                    <TableCell className="w-[11rem] whitespace-nowrap text-muted-foreground">
                       {formatDate(item.updatedAt)}
                     </TableCell>
                     <TableCell>
                       {item.isDeleted ? (
-                        <span className="inline-flex items-center rounded-full border border-transparent bg-destructive px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap text-destructive-foreground">
+                        <span className="inline-flex items-center justify-center rounded-full border border-transparent bg-danger-soft px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap text-danger-strong">
                           已删除
                         </span>
                       ) : (
-                        <span className="text-sm text-slate-500">正常</span>
+                        <span className="text-sm text-muted-foreground">正常</span>
                       )}
                     </TableCell>
                     <TableCell>
@@ -118,7 +118,7 @@ export default async function AdminDocsPage({
                           isPublished={item.isPublished}
                         />
                       ) : (
-                        <span className="inline-flex items-center rounded-full border border-slate-200 px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap text-slate-500">
+                        <span className="inline-flex items-center rounded-full border border-border px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap text-muted-foreground">
                           未发布
                         </span>
                       )}

@@ -178,7 +178,7 @@ export default function FindReplacePanel(props: IProps) {
   return (
     <div
       className={cn(
-        'absolute right-8 top-12 z-20 w-[420px] rounded-md border bg-background shadow-md',
+        'absolute right-4 sm:right-8 top-12 z-20 w-[420px] max-w-[calc(100%-2rem)] rounded-md border bg-background shadow-md',
         isOpen ? 'block' : 'hidden'
       )}
     >

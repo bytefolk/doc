@@ -13,7 +13,7 @@
 /* placeholder */
 .tiptap {
   p.is-empty::before {
-    color: #adb5bd;
+    color: var(--ui-foreground-muted);
     content: attr(data-placeholder);
     float: left;
     height: 0;
@@ -93,12 +93,12 @@
     }
 
     &:hover img {
-      outline: 3px solid #68cef8;
+      outline: 3px solid var(--ui-focus);
     }
   }
   .ProseMirror-selectednode {
     img {
-      outline: 3px solid #68cef8;
+      outline: 3px solid var(--ui-focus);
     }
   }
 
