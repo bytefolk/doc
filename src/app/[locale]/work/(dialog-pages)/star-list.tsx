@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react'
 import { Star } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { EmptyState } from '@/components/ui/empty-state'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { IDoc } from '@/stores/docs-store'
@@ -39,8 +40,11 @@ export default function StarList() {
 
 function StarListTable() {
   const [loading, setLoading] = useState(true)
+  const [loadFailed, setLoadFailed] = useState(false)
   const [list, setList] = useState<IDoc[]>([])
   const t = useTranslations('favorList')
+
+  const emptyT = useTranslations('emptyStates')
 
   // 搜索
   // eslint-disable-next-line
@@ -48,9 +52,17 @@ function StarListTable() {
     debounce(async (keyword: string) => {
       const url = `/api/doc?isStar=1&keyword=${keyword}`
       setLoading(true)
-      const { data: list } = await get(url)
-      setList(list)
-      setLoading(false)
+      setLoadFailed(false)
+      try {
+        const response = await get(url)
+        if (response.errno !== 0 || !Array.isArray(response.data)) throw new Error('Document list unavailable')
+        setList(response.data)
+      } catch {
+        setList([])
+        setLoadFailed(true)
+      } finally {
+        setLoading(false)
+      }
     }, 500),
     []
   )
@@ -91,21 +103,41 @@ function StarListTable() {
       </div>
       <div className="flex-1 overflow-y-auto">
         {loading && (
-          <div className="h-96">
-            <p className="mt-10 text-center text-muted-foreground">loading...</p>
-          </div>
+          <p role="status" className="mt-10 text-center text-sm text-muted-foreground">
+            {emptyT('loading')}
+          </p>
         )}
-        {!loading && list.length === 0 && (
-          <div className="h-96">
-            <p className="mt-10 text-center text-muted-foreground">{t('notFound')}</p>
-          </div>
+        {loadFailed && (
+          <p role="alert" className="mt-8 text-sm text-danger">
+            {emptyT('loadFailed')}
+          </p>
+        )}
+        {!loading && !loadFailed && list.length === 0 && (
+          <EmptyState
+            icon={<Star />}
+            title={emptyT(keyword.trim() ? 'noResultsTitle' : 'favoritesTitle')}
+            description={emptyT(keyword.trim() ? 'noResultsDescription' : 'favoritesDescription')}
+            action={
+              keyword.trim() ? (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setKeyword('')
+                    searchFn('')
+                  }}
+                >
+                  {emptyT('clearSearch')}
+                </Button>
+              ) : undefined
+            }
+          />
         )}
         {!loading && list.length > 0 && (
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead className="w-auto">{t('docTitle')}</TableHead>
-                <TableHead>{t('docUpdateTime')}</TableHead>
+                <TableHead className="text-right">{t('docUpdateTime')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -168,7 +200,7 @@ function Item(props: ItemProps) {
       <TableCell>
         <p className="overflow-hidden truncate">{doc.title || t('unTitled')}</p>
       </TableCell>
-      <TableCell>{time}</TableCell>
+      <TableCell className="text-right whitespace-nowrap">{time}</TableCell>
     </TableRow>
   )
 }

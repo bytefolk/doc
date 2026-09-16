@@ -38,7 +38,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
             <div className="mx-auto flex min-h-screen max-w-7xl">
               <aside className="hidden w-60 shrink-0 border-r border-border bg-card px-4 py-6 md:block">
                 <div className="mb-8">
-                  <h1 className="doc-interface-heading mt-2 text-xl font-semibold">后台管理</h1>
+                  <h1 className="mt-2 text-xl font-semibold">后台管理</h1>
                 </div>
                 <nav className="space-y-1">
                   {navItems.map((item) => (

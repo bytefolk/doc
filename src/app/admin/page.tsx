@@ -20,20 +20,20 @@ export default async function AdminHomePage() {
   return (
     <section className="space-y-6">
       <div>
-        <h2 className="doc-interface-heading text-2xl font-semibold">概览</h2>
+        <h2 className="text-2xl font-semibold">概览</h2>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {stats.map((item) => (
           <Card key={item.key}>
-            <CardHeader className="items-center justify-center gap-3 pb-3">
+            <CardHeader className="flex-row items-center justify-between gap-3 pb-3">
               <CardTitle className="text-base">{item.label}</CardTitle>
               <div className={`rounded-lg p-2 ${item.iconClassName}`}>
                 <item.icon className="h-4 w-4" />
               </div>
             </CardHeader>
-            <CardContent className="text-center">
-              <p className="text-3xl font-semibold">{values[item.key]}</p>
+            <CardContent>
+              <p className="text-3xl font-semibold tabular-nums">{values[item.key]}</p>
             </CardContent>
           </Card>
         ))}

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import LinkButton from '@/components/link-button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -43,7 +44,7 @@ export default async function AdminUsersPage({
   return (
     <section className="space-y-6">
       <div>
-        <h2 className="doc-interface-heading text-2xl font-semibold">用户管理</h2>
+        <h2 className="text-2xl font-semibold">用户管理</h2>
       </div>
 
       <Card>
@@ -71,7 +72,7 @@ export default async function AdminUsersPage({
                 <TableHead>昵称</TableHead>
                 <TableHead>邮箱</TableHead>
                 <TableHead>邮箱验证时间</TableHead>
-                <TableHead>文档数量</TableHead>
+                <TableHead className="text-right">文档数量</TableHead>
                 <TableHead>是否管理员</TableHead>
                 <TableHead className="text-right">操作</TableHead>
               </TableRow>
@@ -80,7 +81,17 @@ export default async function AdminUsersPage({
               {items.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={6}>
-                    <AdminEmptyState title="暂无匹配用户" />
+                    <AdminEmptyState
+                      title={filters.q ? '暂无匹配用户' : '暂无用户'}
+                      description={filters.q ? '调整筛选条件，或清除筛选查看全部记录。' : '新注册的用户会显示在这里。'}
+                      action={
+                        filters.q ? (
+                          <LinkButton href="/admin/users" variant="outline">
+                            清除筛选
+                          </LinkButton>
+                        ) : undefined
+                      }
+                    />
                   </TableCell>
                 </TableRow>
               )}
@@ -89,7 +100,7 @@ export default async function AdminUsersPage({
                   <TableCell className="font-medium">{item.name || '-'}</TableCell>
                   <TableCell className="text-muted-foreground">{item.email || '-'}</TableCell>
                   <TableCell className="text-muted-foreground">{formatDate(item.emailVerified)}</TableCell>
-                  <TableCell>{item._count.docs}</TableCell>
+                  <TableCell className="text-right tabular-nums">{item._count.docs}</TableCell>
                   <TableCell>
                     <Badge variant={item.isAdmin ? 'default' : 'outline'}>{item.isAdmin ? '是' : '否'}</Badge>
                   </TableCell>

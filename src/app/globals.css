@@ -91,11 +91,6 @@
   color: color-mix(in srgb, var(--ui-ai) 55%, white);
 }
 
-.ui-menu__item {
-  justify-content: center;
-  text-align: center;
-}
-
 .ui-menu__label,
 .ui-menu__shortcut {
   color: var(--ui-foreground-muted);
@@ -188,10 +183,15 @@ a.ui-button--icon {
   padding: 0;
 }
 
-.ui-button.ant-btn,
-a.ui-button {
+:where(.ui-button.ant-btn, a.ui-button) {
   justify-content: center;
   text-align: center;
+}
+
+/* Navigation and menu buttons opt into start alignment through the adapter. */
+.ui-button.ant-btn.justify-start {
+  justify-content: flex-start;
+  text-align: start;
 }
 
 .ui-button.ant-btn:disabled {
@@ -205,10 +205,47 @@ a.ui-button {
   opacity: 1;
 }
 
-.ui-card__title,
-.ui-dialog__title,
-.doc-interface-heading {
+.ui-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ui-space-12) var(--ui-space-6);
   text-align: center;
+}
+
+.ui-empty-state--compact {
+  padding: var(--ui-space-6) var(--ui-space-4);
+}
+
+.ui-empty-state__icon {
+  margin-bottom: var(--ui-space-3);
+  color: var(--ui-foreground-muted);
+}
+
+.ui-empty-state__icon > svg {
+  width: 2rem;
+  height: 2rem;
+}
+
+.ui-empty-state__title {
+  margin: 0;
+  color: var(--ui-foreground);
+  font-size: var(--ui-text-sm);
+  font-weight: 600;
+  line-height: var(--ui-leading-normal);
+}
+
+.ui-empty-state__description {
+  max-width: 28rem;
+  margin: var(--ui-space-2) 0 0;
+  color: var(--ui-foreground-muted);
+  font-size: var(--ui-text-sm);
+  line-height: var(--ui-leading-normal);
+}
+
+.ui-empty-state__action {
+  margin-top: var(--ui-space-4);
 }
 
 @layer components {

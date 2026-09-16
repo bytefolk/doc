@@ -13,7 +13,7 @@ test('creates a token, shows the raw value once, and dismisses it', async () => 
     </NextIntlClientProviderWrapper>
   )
 
-  expect(await screen.findByText('No personal access tokens yet.')).toBeDefined()
+  expect(await screen.findByText('No access tokens yet')).toBeDefined()
   fireEvent.change(screen.getByLabelText('Token name'), {
     target: { value: 'Development laptop' },
   })

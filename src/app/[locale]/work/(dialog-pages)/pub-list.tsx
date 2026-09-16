@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { ExternalLink, Trash2, Copy, CopyCheck } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { EmptyState } from '@/components/ui/empty-state'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { useTranslations } from 'next-intl'
 import { useDialogStore } from '@/stores/dialog-store'
@@ -35,6 +36,7 @@ export default function PubDocList() {
 
 function PubDocListContent() {
   const t = useTranslations('myPubDocList')
+  const emptyT = useTranslations('emptyStates')
 
   const pubDocs = usePubDocsStore((s) => s.pubDocs)
   const updatePubDoc = usePubDocsStore((s) => s.updatePubDoc)
@@ -55,16 +57,26 @@ function PubDocListContent() {
   return (
     <div className="h-96 flex flex-col overflow-y-auto">
       {pubDocs.length === 0 && (
-        <div className="flex items-center justify-center h-full">
-          <p className="text-muted-foreground">{t('notFound')}</p>
-        </div>
+        <EmptyState
+          className="flex-1"
+          icon={<ExternalLink />}
+          title={emptyT('publishedTitle')}
+          description={emptyT('publishedDescription')}
+        />
       )}
       {pubDocs.map((p) => (
-        <div key={p.publishId} className="group flex items-center justify-between px-2 py-2 hover:bg-muted">
-          <div className="flex items-center space-x-2">
+        <div
+          key={p.publishId}
+          className="group flex items-start justify-between gap-3 rounded-md px-2 py-3 hover:bg-muted"
+        >
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
             <ExternalLink className="h-4 w-4" />
-            <span>{p.title}</span>
-            <a href={`/pub/${p.publishId}`} target="_blank" className="underline">
+            <span className="min-w-0 flex-1 truncate text-sm font-medium">{p.title}</span>
+            <a
+              href={`/pub/${p.publishId}`}
+              target="_blank"
+              className="w-full break-all text-xs text-muted-foreground underline"
+            >
               {p.publishId}
             </a>
             <span
@@ -106,7 +118,7 @@ function CopyLinkButton({ publishId }: { publishId: string }) {
   }
 
   return (
-    <Button variant="link" onClick={handleCopyLink} className="invisible group-hover:visible">
+    <Button variant="link" onClick={handleCopyLink} className="h-7 px-0 text-xs">
       {copied ? <CopyCheck className="mr-1 h-4 w-4 text-success" /> : <Copy className="mr-1 h-4 w-4" />}
       {copied ? <span className="text-success">{t('copySuccess')}</span> : <span>{t('copyLink')}</span>}
     </Button>

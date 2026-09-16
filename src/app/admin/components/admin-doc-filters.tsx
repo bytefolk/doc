@@ -72,17 +72,33 @@ export default function AdminDocFilters({ initialQ, initialAuthor, initialDelete
   return (
     <form className="grid gap-3 md:grid-cols-[minmax(0,2fr)_1fr_1fr_1fr_auto_auto]" onSubmit={handleSubmit}>
       <div className="space-y-2">
-        <Label className="block text-center">标题</Label>
-        <Input value={q} onChange={(event) => setQ(event.target.value)} placeholder="搜索标题" />
+        <Label htmlFor="admin-title-filter" className="block text-left">
+          标题
+        </Label>
+        <Input
+          id="admin-title-filter"
+          value={q}
+          onChange={(event) => setQ(event.target.value)}
+          placeholder="搜索标题"
+        />
       </div>
       <div className="space-y-2">
-        <Label className="block text-center">作者</Label>
-        <Input value={author} onChange={(event) => setAuthor(event.target.value)} placeholder="搜索昵称或邮箱" />
+        <Label htmlFor="admin-author-filter" className="block text-left">
+          作者
+        </Label>
+        <Input
+          id="admin-author-filter"
+          value={author}
+          onChange={(event) => setAuthor(event.target.value)}
+          placeholder="搜索昵称或邮箱"
+        />
       </div>
       <div className="space-y-2">
-        <Label className="block text-center">删除状态</Label>
+        <Label htmlFor="admin-deletion-filter" className="block text-left">
+          删除状态
+        </Label>
         <Select value={deleteStatus} onValueChange={(value) => setDeleteStatus(value as AdminDocDeleteStatus)}>
-          <SelectTrigger>
+          <SelectTrigger id="admin-deletion-filter">
             <SelectValue placeholder="全部" />
           </SelectTrigger>
           <SelectContent>
@@ -95,9 +111,11 @@ export default function AdminDocFilters({ initialQ, initialAuthor, initialDelete
         </Select>
       </div>
       <div className="space-y-2">
-        <Label className="block text-center">发布状态</Label>
+        <Label htmlFor="admin-publication-filter" className="block text-left">
+          发布状态
+        </Label>
         <Select value={publishStatus} onValueChange={(value) => setPublishStatus(value as AdminDocPublishStatus)}>
-          <SelectTrigger>
+          <SelectTrigger id="admin-publication-filter">
             <SelectValue placeholder="全部" />
           </SelectTrigger>
           <SelectContent>

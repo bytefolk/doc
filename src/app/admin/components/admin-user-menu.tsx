@@ -39,7 +39,7 @@ export default function AdminUserMenu({ name, email, image }: AdminUserMenuProps
             <AvatarImage src={image || ''} alt={displayName} />
             <AvatarFallback>{fallbackText}</AvatarFallback>
           </Avatar>
-          <span className="flex min-w-0 flex-col items-center text-center">
+          <span className="flex min-w-0 flex-col items-start text-left">
             <span className="max-w-48 truncate text-sm font-medium text-foreground">{displayName}</span>
             {displayEmail ? (
               <span className="max-w-48 truncate text-xs text-muted-foreground">{displayEmail}</span>

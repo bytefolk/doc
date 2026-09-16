@@ -22,6 +22,8 @@ for (const theme of ['light', 'dark']) {
       await expectReadable(submit)
 
       const input = page.getByLabel('Email')
+      await expect(page.locator('label[for="email"]')).toHaveCSS('text-align', /left|start/)
+      await expect(input).toHaveCSS('text-align', /left|start/)
       const surface = await input.evaluate((element) => getComputedStyle(element).backgroundColor)
       expect(surface).not.toBe('rgba(0, 0, 0, 0)')
       if (theme === 'dark') expect(surface).not.toBe('rgb(255, 255, 255)')
@@ -36,6 +38,13 @@ for (const theme of ['light', 'dark']) {
       await signIn.hover()
       await expectReadable(signIn)
       await expectReadable(page.locator('#capabilities .text-primary').first())
+      await expect(page.locator('#capabilities h3').first()).toHaveCSS('text-align', /left|start/)
+      await page.getByRole('button', { name: 'Change theme' }).click()
+      await expect(page.getByRole('menuitem', { name: 'Light', exact: true })).toHaveCSS(
+        'justify-content',
+        /normal|flex-start/
+      )
+      await expect(page.getByRole('menuitem', { name: 'Light', exact: true })).toHaveCSS('text-align', /left|start/)
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true)
     })
   }

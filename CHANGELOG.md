@@ -6,10 +6,16 @@ All notable changes to `doc` are documented here.
 
 ### Fixed
 
+- Use a consistent empty-state composition for workspace, search, favorites, shared/published
+  documents, trash, personal tokens, and admin lists. Distinguish first use from filtered results
+  and loading, with concise guidance and existing actions.
+- Match sign-in guidance to the configured providers and restore the native input ref contract
+  for workspace search and editor focus/selection.
+
 - Keep shared controls synchronized with the selected light or dark theme, restore the missing
   button appearance on sign-in and pagination links, and pair published-page and admin surfaces
-  with semantic foreground colors. Center control labels and interface headings while preserving
-  document and chat content alignment.
+  with semantic foreground colors. Align navigation, menus, form labels, and interface headings
+  with their content; keep action labels centered and comparable numeric columns right-aligned.
 - Keep publication status labels and Mermaid diagrams readable in both themes, and fit editor
   toolbars, popovers, and version history within narrow viewports. Correct the nested Prisma mock
   typing so the production build validates the existing mutation tests.

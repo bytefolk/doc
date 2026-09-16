@@ -10,7 +10,7 @@ export default function Wrapper({
   menuType?: string
 }>) {
   const initClassName =
-    'inline-flex max-w-[calc(100vw-2rem)] flex-wrap items-center justify-center rounded-md border border-border bg-surface-raised p-1 shadow-md'
+    'inline-flex max-w-[calc(100vw-2rem)] flex-wrap items-center justify-start rounded-md border border-border bg-surface-raised p-1 shadow-md'
 
   const conditionalClasses = menuType === 'table-menu' ? '' : 'gap-1'
 

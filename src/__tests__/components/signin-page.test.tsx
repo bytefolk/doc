@@ -48,7 +48,24 @@ describe('sign-in provider selection', () => {
 
     expect(await screen.findByRole('button', { name: 'Continue with Email' })).toBeTruthy()
     expect(screen.queryByRole('button', { name: 'Continue with Github' })).toBeNull()
+    expect(screen.getByText('Sign in with a secure link sent to your email.')).toBeTruthy()
     expect(document.querySelector('.ui-card')).toBeTruthy()
+  })
+
+  it('describes both sign-in methods only when both are configured', async () => {
+    authMocks.getProviders.mockResolvedValue({ nodemailer: emailProvider, github: { id: 'github' } })
+    renderPage()
+    expect(await screen.findByRole('button', { name: 'Continue with Github' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Continue with Email' })).toBeTruthy()
+    expect(screen.getByText('Sign in with GitHub or email.')).toBeTruthy()
+  })
+
+  it('describes GitHub when email sign-in is not configured', async () => {
+    authMocks.getProviders.mockResolvedValue({ github: { id: 'github' } })
+    renderPage()
+    expect(await screen.findByRole('button', { name: 'Continue with Github' })).toBeTruthy()
+    expect(screen.getByText('Sign in with your GitHub account.')).toBeTruthy()
+    expect(screen.queryByRole('button', { name: 'Continue with Email' })).toBeNull()
   })
 
   it('prefers Resend when both email providers are available', async () => {
@@ -105,5 +122,6 @@ describe('sign-in provider selection', () => {
     expect((await screen.findByRole('alert')).textContent).toContain('No sign-in method is configured')
     expect(screen.queryByRole('button', { name: 'Continue with Email' })).toBeNull()
     expect(screen.queryByRole('button', { name: 'Continue with Github' })).toBeNull()
+    expect(screen.getByText('Sign in to your workspace.')).toBeTruthy()
   })
 })

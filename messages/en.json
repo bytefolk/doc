@@ -121,7 +121,7 @@
   },
   "signin": {
     "title": "Welcome back",
-    "subTitle": "Enter your email to get a magic link sent to your inbox",
+    "subTitle": "Sign in with GitHub or email.",
     "withGithub": "Continue with Github",
     "others": "OR CONTINUE WITH",
     "email": "Email",
@@ -131,7 +131,10 @@
     "signInFailed": "Sign-in failed. Please try again.",
     "withEmail": "Continue with Email",
     "loading": "Loading sign-in options…",
-    "unavailable": "No sign-in method is configured. Ask the instance operator to configure one."
+    "unavailable": "No sign-in method is configured. Ask the instance operator to configure one.",
+    "emailSubTitle": "Sign in with a secure link sent to your email.",
+    "githubSubTitle": "Sign in with your GitHub account.",
+    "signInSubtitle": "Sign in to your workspace."
   },
   "verifyRequest": {
     "title": "Check your email",
@@ -435,5 +438,26 @@
     "restoreSuccess": "Version restored successfully.",
     "restoreFailed": "Failed to restore this version.",
     "snapshotMissing": "Current snapshot is unavailable."
+  },
+  "emptyStates": {
+    "documentsTitle": "Create your first document",
+    "documentsDescription": "Start writing, then organize and share your work from here.",
+    "favoritesTitle": "No favorites yet",
+    "favoritesDescription": "Star a document to keep it close at hand.",
+    "sharedTitle": "No shared documents yet",
+    "sharedDescription": "Open a document and use Share to invite a collaborator.",
+    "publishedTitle": "No published documents yet",
+    "publishedDescription": "Open a document and use Publish to create a public reading link.",
+    "trashTitle": "Trash is empty",
+    "trashDescription": "Deleted documents appear here so you can restore them.",
+    "searchPromptTitle": "Find a document",
+    "searchPromptDescription": "Enter a title or keyword to search your documents.",
+    "noResultsTitle": "No matching documents",
+    "noResultsDescription": "Try another keyword or clear your search.",
+    "clearSearch": "Clear search",
+    "tokensTitle": "No access tokens yet",
+    "tokensDescription": "Use the form above to create a token with only the access you need.",
+    "loading": "Loading...",
+    "loadFailed": "Could not load documents. Close and reopen this panel to try again."
   }
 }

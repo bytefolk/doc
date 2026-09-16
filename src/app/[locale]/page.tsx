@@ -109,10 +109,10 @@ export default async function HomePage() {
           {capabilities.map(({ icon: Icon, title, description }, index) => (
             <article
               key={title}
-              className="group bg-card p-6 text-center transition-colors hover:bg-secondary/70"
+              className="group bg-card p-6 text-left transition-colors hover:bg-secondary/70"
               style={{ animationDelay: `${index * 70}ms` }}
             >
-              <div className="mx-auto mb-8 flex h-9 w-9 items-center justify-center rounded-md border border-border bg-secondary text-primary">
+              <div className="mb-8 flex h-9 w-9 items-center justify-center rounded-md border border-border bg-secondary text-primary">
                 <Icon className="h-4 w-4" />
               </div>
               <h3 className="font-medium">{t(title)}</h3>
@@ -262,8 +262,8 @@ function PreviewMeta({ icon: Icon, label }: { icon: typeof Users; label: string 
 
 function ArchitectureCell({ icon: Icon, label, detail }: { icon: typeof FileText; label: string; detail: string }) {
   return (
-    <div className="bg-card p-6 text-center">
-      <Icon className="mx-auto mb-7 h-5 w-5 text-primary" />
+    <div className="bg-card p-6 text-left">
+      <Icon className="mb-7 h-5 w-5 text-primary" />
       <p className="font-mono text-sm font-semibold">{label}</p>
       <p className="mt-2 text-sm leading-6 text-muted-foreground">{detail}</p>
     </div>

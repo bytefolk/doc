@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import LinkButton from '@/components/link-button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { getAdminDocs } from '@/lib/admin-data'
@@ -48,7 +49,7 @@ export default async function AdminDocsPage({
   return (
     <section className="space-y-6">
       <div>
-        <h2 className="doc-interface-heading text-2xl font-semibold">文档管理</h2>
+        <h2 className="text-2xl font-semibold">文档管理</h2>
       </div>
 
       <Card>
@@ -85,7 +86,28 @@ export default async function AdminDocsPage({
               {items.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={6}>
-                    <AdminEmptyState title="暂无匹配文档" />
+                    <AdminEmptyState
+                      title={
+                        filters.q || filters.author || filters.deleteStatus !== 'all' || filters.publishStatus !== 'all'
+                          ? '暂无匹配文档'
+                          : '暂无文档'
+                      }
+                      description={
+                        filters.q || filters.author || filters.deleteStatus !== 'all' || filters.publishStatus !== 'all'
+                          ? '调整筛选条件，或清除筛选查看全部记录。'
+                          : '用户创建的文档会显示在这里。'
+                      }
+                      action={
+                        filters.q ||
+                        filters.author ||
+                        filters.deleteStatus !== 'all' ||
+                        filters.publishStatus !== 'all' ? (
+                          <LinkButton href="/admin/docs" variant="outline">
+                            清除筛选
+                          </LinkButton>
+                        ) : undefined
+                      }
+                    />
                   </TableCell>
                 </TableRow>
               )}

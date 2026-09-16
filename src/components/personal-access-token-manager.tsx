@@ -4,6 +4,7 @@ import { FormEvent, useCallback, useEffect, useState } from 'react'
 import { Check, Copy, KeyRound, Plus, ShieldX } from 'lucide-react'
 import { useLocale, useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
+import { EmptyState } from '@/components/ui/empty-state'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -129,6 +130,7 @@ export default function PersonalAccessTokenManager() {
     }
   }
 
+  const emptyT = useTranslations('emptyStates')
   const dateFormatter = new Intl.DateTimeFormat(locale, {
     dateStyle: 'medium',
     timeStyle: 'short',
@@ -227,7 +229,14 @@ export default function PersonalAccessTokenManager() {
         <div className="space-y-3">
           <h2 className="font-medium">{t('existing')}</h2>
           {loading && <p className="text-sm text-muted-foreground">{t('loading')}</p>}
-          {!loading && tokens.length === 0 && <p className="text-sm text-muted-foreground">{t('empty')}</p>}
+          {!loading && !error && tokens.length === 0 && (
+            <EmptyState
+              compact
+              icon={<KeyRound />}
+              title={emptyT('tokensTitle')}
+              description={emptyT('tokensDescription')}
+            />
+          )}
           {tokens.map((token) => {
             const expired = new Date(token.expiresAt).getTime() <= Date.now()
             const status = token.revokedAt ? 'revoked' : expired ? 'expired' : 'active'

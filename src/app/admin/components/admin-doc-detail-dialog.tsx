@@ -92,7 +92,7 @@ export default function AdminDocDetailDialog({ doc }: Props) {
           <Field label="状态说明" value={doc.latestPubDoc?.statusReason || '暂无额外说明'} />
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 border-t border-border pt-4">
+        <div className="flex flex-wrap items-center justify-end gap-3 border-t border-border pt-4">
           {doc.latestPubDoc?.publishId && (
             <Link
               href={`/pub/${doc.latestPubDoc.publishId}`}
