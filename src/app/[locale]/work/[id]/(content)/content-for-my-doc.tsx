@@ -19,6 +19,10 @@ import { getRandomElement } from '@/lib/utils'
 import { flushCurrentDocVersionByBeacon, flushDocVersionById } from '@/lib/doc-version/client'
 import AutoGrowingTitle from '@/components/auto-growing-title'
 
+// Track whether we've written LAST_DOC_ID for this page session.
+// Prevents in-session navigation from overwriting the entry point.
+let hasRecordedEntryDoc = false
+
 export default function ContentForMyDoc() {
   const docs = useDocsStore((s) => s.docs)
   const id = useDocsStore((s) => s.curDocId)
@@ -27,9 +31,14 @@ export default function ContentForMyDoc() {
   const updateDocTitle = useDocsStore((s) => s.updateDocTitle)
   const updateDocIcon = useDocsStore((s) => s.updateDocIcon)
 
-  // record last doc id
+  // Record entry doc id only once per page session.
+  // This ensures the "Get Started" button returns users to where they entered,
+  // not to the last doc they browsed to before closing.
   useEffect(() => {
-    localStorage.setItem(LAST_DOC_ID_KEY, id) // 保存最后一次打开的文档 id
+    if (!hasRecordedEntryDoc) {
+      localStorage.setItem(LAST_DOC_ID_KEY, id)
+      hasRecordedEntryDoc = true
+    }
   }, [id])
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Ellipsis } from 'lucide-react'
+import { ArrowLeft, Ellipsis } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Button } from '@/components/ui/button'
 import Logo from '@/components/logo-component'
@@ -39,6 +39,15 @@ export default function TopBar() {
       className="max-[1023px]:pl-14 max-[480px]:pr-2"
       breadcrumbs={
         <div className="inline-flex items-center gap-3">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label={t('goBack')}
+            onClick={() => window.history.back()}
+          >
+            <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+          </Button>
           <Logo />
           <div className="max-[479px]:hidden">
             <DocUpdateStatus id={id} />
