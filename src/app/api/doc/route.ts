@@ -210,6 +210,15 @@ export async function GET(request: NextRequest) {
   // 搜索关键字
   const keyword = searchParams.get('keyword') || null
 
+  // 时间范围过滤
+  const afterParam = searchParams.get('after')
+  const beforeParam = searchParams.get('before')
+  const afterDate = afterParam ? new Date(afterParam) : null
+  const beforeDate = beforeParam ? new Date(beforeParam) : null
+
+  // 排序
+  const sortParam = searchParams.get('sort') || 'updated_desc'
+
   // where
   const whereOpt: any = {
     isDeleted: false, // 默认
@@ -229,10 +238,22 @@ export async function GET(request: NextRequest) {
     }
   }
   if (keyword != null) {
-    whereOpt.title = {
-      contains: keyword,
+    whereOpt.OR = [{ title: { contains: keyword } }, { content: { contains: keyword, mode: 'insensitive' } }]
+  }
+  if (afterDate || beforeDate) {
+    whereOpt.updatedAt = {
+      ...(afterDate && !isNaN(afterDate.getTime()) ? { gt: afterDate } : {}),
+      ...(beforeDate && !isNaN(beforeDate.getTime()) ? { lt: beforeDate } : {}),
     }
   }
+
+  const orderByMap: Record<string, any> = {
+    updated_desc: { updatedAt: 'desc' },
+    updated_asc: { updatedAt: 'asc' },
+    created_desc: { createdAt: 'desc' },
+    created_asc: { createdAt: 'asc' },
+  }
+  const orderBy = orderByMap[sortParam] || orderByMap.updated_desc
 
   const list = await db.doc.findMany({
     select: {
@@ -247,9 +268,7 @@ export async function GET(request: NextRequest) {
       userId: user.id || '',
       ...whereOpt,
     },
-    orderBy: {
-      updatedAt: 'desc',
-    },
+    orderBy,
   })
 
   return Response.json(genSuccessData(list || []))

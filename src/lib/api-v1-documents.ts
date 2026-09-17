@@ -11,6 +11,8 @@ import { EMPTY_TIPTAP_DOCUMENT, encodeTiptapDocument } from '@/lib/tiptap-codec'
 
 const DEFAULT_LIST_LIMIT = 50
 const MAX_LIST_LIMIT = 100
+const VALID_SORT_VALUES = ['updated_desc', 'updated_asc', 'created_desc', 'created_asc'] as const
+type SortValue = (typeof VALID_SORT_VALUES)[number]
 
 const titleSchema = z
   .string()
@@ -121,6 +123,37 @@ function parseListLimit(value: string | null) {
   return limit
 }
 
+function parseOptionalDate(value: string | null, name: string): Date | null {
+  if (value == null) return null
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) {
+    throw new ApiV1Error(400, 'invalid_query', `${name} must be an ISO 8601 date`)
+  }
+  return date
+}
+
+function parseSort(value: string | null): SortValue {
+  if (value == null) return 'updated_desc'
+  if (!VALID_SORT_VALUES.includes(value as SortValue)) {
+    throw new ApiV1Error(400, 'invalid_query', `sort must be one of: ${VALID_SORT_VALUES.join(', ')}`)
+  }
+  return value as SortValue
+}
+
+function getOrderBy(sort: SortValue) {
+  switch (sort) {
+    case 'updated_asc':
+      return [{ updatedAt: 'asc' }, { id: 'asc' }] as const
+    case 'created_desc':
+      return [{ createdAt: 'desc' }, { id: 'desc' }] as const
+    case 'created_asc':
+      return [{ createdAt: 'asc' }, { id: 'asc' }] as const
+    case 'updated_desc':
+    default:
+      return [{ updatedAt: 'desc' }, { id: 'desc' }] as const
+  }
+}
+
 export function apiDocumentEtag(document: Pick<DocumentMetadata, 'id' | 'updatedAt'>) {
   const revision = createHash('sha256')
     .update(`${document.id}:${document.updatedAt.toISOString()}`)
@@ -163,11 +196,30 @@ export async function listApiDocuments(userId: string, searchParams: URLSearchPa
   const query = searchParams.get('query')?.trim() || ''
   if (query.length > 200) throw new ApiV1Error(400, 'invalid_query', 'query must not exceed 200 characters')
 
+  const after = parseOptionalDate(searchParams.get('after'), 'after')
+  const before = parseOptionalDate(searchParams.get('before'), 'before')
+  const sort = parseSort(searchParams.get('sort'))
+
   const where: Prisma.DocWhereInput = {
     userId,
     isDeleted: trash,
     ...(starred === undefined ? {} : { isStar: starred }),
-    ...(query ? { title: { contains: query, mode: 'insensitive' } } : {}),
+    ...(query
+      ? {
+          OR: [
+            { title: { contains: query, mode: 'insensitive' } },
+            { content: { contains: query, mode: 'insensitive' } },
+          ],
+        }
+      : {}),
+    ...(after || before
+      ? {
+          updatedAt: {
+            ...(after ? { gt: after } : {}),
+            ...(before ? { lt: before } : {}),
+          },
+        }
+      : {}),
   }
 
   const cursorValue = searchParams.get('cursor')
@@ -181,10 +233,12 @@ export async function listApiDocuments(userId: string, searchParams: URLSearchPa
     ]
   }
 
+  const orderBy = getOrderBy(sort)
+
   const rows = await db.doc.findMany({
     where,
     select: documentMetadataSelect,
-    orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+    orderBy,
     take: limit + 1,
   })
   const hasMore = rows.length > limit

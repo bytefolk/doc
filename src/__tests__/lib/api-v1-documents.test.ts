@@ -184,12 +184,78 @@ describe('v1 document service', () => {
           userId: 'user-1',
           isDeleted: false,
           isStar: false,
-          title: { contains: 'Example', mode: 'insensitive' },
+          OR: [
+            { title: { contains: 'Example', mode: 'insensitive' } },
+            { content: { contains: 'Example', mode: 'insensitive' } },
+          ],
         }),
         orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
         take: 2,
       })
     )
+  })
+
+  test('searches document content when query does not match title', async () => {
+    mocks.findMany.mockResolvedValue([])
+
+    await listApiDocuments('user-1', new URLSearchParams({ query: 'bodykeyword' }))
+
+    expect(mocks.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          OR: [
+            { title: { contains: 'bodykeyword', mode: 'insensitive' } },
+            { content: { contains: 'bodykeyword', mode: 'insensitive' } },
+          ],
+        }),
+      })
+    )
+  })
+
+  test('filters by time range with after and before params', async () => {
+    mocks.findMany.mockResolvedValue([])
+
+    await listApiDocuments(
+      'user-1',
+      new URLSearchParams({ after: '2026-09-01T00:00:00.000Z', before: '2026-09-17T00:00:00.000Z' })
+    )
+
+    expect(mocks.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          updatedAt: {
+            gt: new Date('2026-09-01T00:00:00.000Z'),
+            lt: new Date('2026-09-17T00:00:00.000Z'),
+          },
+        }),
+      })
+    )
+  })
+
+  test('sorts by created_asc when requested', async () => {
+    mocks.findMany.mockResolvedValue([])
+
+    await listApiDocuments('user-1', new URLSearchParams({ sort: 'created_asc' }))
+
+    expect(mocks.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+      })
+    )
+  })
+
+  test('rejects invalid after date', async () => {
+    await expect(listApiDocuments('user-1', new URLSearchParams({ after: 'not-a-date' }))).rejects.toMatchObject({
+      status: 400,
+      code: 'invalid_query',
+    })
+  })
+
+  test('rejects invalid sort value', async () => {
+    await expect(listApiDocuments('user-1', new URLSearchParams({ sort: 'invalid' }))).rejects.toMatchObject({
+      status: 400,
+      code: 'invalid_query',
+    })
   })
 
   test('hides inaccessible documents and permits explicit read shares', async () => {
