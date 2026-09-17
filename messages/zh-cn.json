@@ -131,7 +131,10 @@
     "signInFailed": "登录失败，请重试。",
     "withEmail": "使用邮箱登录",
     "loading": "正在加载登录方式…",
-    "unavailable": "当前未配置可用的登录方式，请联系实例管理员。"
+    "unavailable": "当前未配置可用的登录方式，请联系实例管理员。",
+    "emailSubTitle": "通过邮件中的安全链接登录",
+    "githubSubTitle": "使用 GitHub 账号登录",
+    "signInSubtitle": "登录你的文档工作台"
   },
   "verifyRequest": {
     "title": "检查你的邮件",
@@ -435,5 +438,26 @@
     "restoreSuccess": "已恢复到所选版本。",
     "restoreFailed": "恢复版本失败，请稍后重试。",
     "snapshotMissing": "当前文档快照不可用，暂时无法恢复。"
+  },
+  "emptyStates": {
+    "documentsTitle": "创建你的第一篇文档",
+    "documentsDescription": "从这里开始写作，再整理和分享你的内容。",
+    "favoritesTitle": "还没有收藏文档",
+    "favoritesDescription": "为常用文档加星，即可在这里快速找到。",
+    "sharedTitle": "还没有共享文档",
+    "sharedDescription": "打开一篇文档，使用“分享”邀请协作者。",
+    "publishedTitle": "还没有发布文档",
+    "publishedDescription": "打开一篇文档，使用“发布”创建公开阅读链接。",
+    "trashTitle": "回收站为空",
+    "trashDescription": "删除的文档会显示在这里，方便你恢复。",
+    "searchPromptTitle": "查找文档",
+    "searchPromptDescription": "输入标题或关键词，搜索你的文档。",
+    "noResultsTitle": "没有匹配的文档",
+    "noResultsDescription": "试试其他关键词，或清除当前搜索。",
+    "clearSearch": "清除搜索",
+    "tokensTitle": "还没有访问令牌",
+    "tokensDescription": "在上方表单中创建令牌，并选择所需的最小权限。",
+    "loading": "加载中…",
+    "loadFailed": "文档加载失败，请关闭面板后重试。"
   }
 }

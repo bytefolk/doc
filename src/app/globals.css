@@ -61,6 +61,193 @@
   }
 }
 
+/* Keep these dependency-generated classes outside Tailwind's purgeable layers. */
+/* Accent text needs a different tone from the filled button background. */
+[data-theme='light'] :is(.text-primary, .text-info) {
+  color: color-mix(in srgb, var(--ui-primary) 80%, black);
+}
+
+[data-theme='dark'] :is(.text-primary, .text-info) {
+  color: color-mix(in srgb, var(--ui-primary) 65%, white);
+}
+
+.text-success {
+  color: var(--ui-success-strong);
+}
+
+.text-warning {
+  color: var(--ui-warning-strong);
+}
+
+:is(.text-danger, .text-destructive) {
+  color: var(--ui-danger-strong);
+}
+
+[data-theme='light'] :is(.text-ai, .text-ai-strong) {
+  color: var(--ui-ai-strong);
+}
+
+[data-theme='dark'] :is(.text-ai, .text-ai-strong) {
+  color: color-mix(in srgb, var(--ui-ai) 55%, white);
+}
+
+.ui-menu__label,
+.ui-menu__shortcut {
+  color: var(--ui-foreground-muted);
+}
+
+/* Legacy anchor adapters do not receive Ant Design's runtime button styles. */
+a.ui-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ui-space-2);
+  min-height: 2rem;
+  padding: 0.25rem 0.9375rem;
+  border: 1px solid transparent;
+  border-radius: var(--ui-radius-md);
+  font-size: var(--ui-text-sm);
+  line-height: var(--ui-leading-normal);
+  font-weight: 500;
+  text-decoration: none;
+  transition:
+    background-color 150ms,
+    border-color 150ms,
+    color 150ms;
+}
+
+.ui-button--primary {
+  --doc-action-background: color-mix(in srgb, var(--ui-primary) 80%, black);
+  --doc-action-hover: color-mix(in srgb, var(--ui-primary) 70%, black);
+  --doc-action-foreground: var(--ui-primary-foreground);
+}
+
+.ui-button--ai {
+  --doc-action-background: color-mix(in srgb, var(--ui-ai) 80%, black);
+  --doc-action-hover: color-mix(in srgb, var(--ui-ai) 70%, black);
+  --doc-action-foreground: var(--ui-ai-foreground);
+}
+
+.ui-button--danger {
+  --doc-action-background: color-mix(in srgb, var(--ui-danger-strong) 80%, black);
+  --doc-action-hover: color-mix(in srgb, var(--ui-danger-strong) 70%, black);
+  --doc-action-foreground: var(--ui-primary-foreground);
+}
+
+a.ui-button:is(.ui-button--primary, .ui-button--ai, .ui-button--danger),
+.ui-button.ant-btn:is(.ui-button--primary, .ui-button--ai, .ui-button--danger):not(:disabled):not(.ant-btn-disabled) {
+  border-color: var(--doc-action-background);
+  background: var(--doc-action-background);
+  color: var(--doc-action-foreground);
+}
+
+a.ui-button:is(.ui-button--primary, .ui-button--ai, .ui-button--danger):hover,
+.ui-button.ant-btn:is(.ui-button--primary, .ui-button--ai, .ui-button--danger):not(:disabled):not(
+    .ant-btn-disabled
+  ):hover {
+  border-color: var(--doc-action-hover);
+  background: var(--doc-action-hover);
+  color: var(--doc-action-foreground);
+}
+
+a.ui-button--secondary {
+  border-color: var(--ui-border);
+  background: var(--ui-surface);
+  color: var(--ui-foreground);
+}
+
+a.ui-button--secondary:hover,
+a.ui-button--ghost:hover {
+  border-color: var(--ui-border-strong);
+  background: var(--ui-surface-inset);
+  color: var(--ui-foreground);
+}
+
+a.ui-button--ghost {
+  background: transparent;
+  color: var(--ui-foreground);
+}
+
+a.ui-button--sm {
+  min-height: 1.5rem;
+  padding: 0 0.4375rem;
+}
+
+a.ui-button--lg {
+  min-height: 2.5rem;
+  font-size: var(--ui-text-base);
+}
+
+a.ui-button--icon {
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+}
+
+:where(.ui-button.ant-btn, a.ui-button) {
+  justify-content: center;
+  text-align: center;
+}
+
+/* Navigation and menu buttons opt into start alignment through the adapter. */
+.ui-button.ant-btn.justify-start {
+  justify-content: flex-start;
+  text-align: start;
+}
+
+.ui-button.ant-btn:disabled {
+  border-color: var(--ui-border);
+  background: var(--ui-surface-inset);
+  color: var(--ui-foreground-muted);
+}
+
+.ui-input.ant-input::placeholder {
+  color: var(--ui-foreground-muted);
+  opacity: 1;
+}
+
+.ui-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ui-space-12) var(--ui-space-6);
+  text-align: center;
+}
+
+.ui-empty-state--compact {
+  padding: var(--ui-space-6) var(--ui-space-4);
+}
+
+.ui-empty-state__icon {
+  margin-bottom: var(--ui-space-3);
+  color: var(--ui-foreground-muted);
+}
+
+.ui-empty-state__icon > svg {
+  width: 2rem;
+  height: 2rem;
+}
+
+.ui-empty-state__title {
+  margin: 0;
+  color: var(--ui-foreground);
+  font-size: var(--ui-text-sm);
+  font-weight: 600;
+  line-height: var(--ui-leading-normal);
+}
+
+.ui-empty-state__description {
+  max-width: 28rem;
+  margin: var(--ui-space-2) 0 0;
+  color: var(--ui-foreground-muted);
+  font-size: var(--ui-text-sm);
+  line-height: var(--ui-leading-normal);
+}
+
+.ui-empty-state__action {
+  margin-top: var(--ui-space-4);
+}
+
 @layer components {
   .surface {
     @apply rounded-lg border border-border bg-card;

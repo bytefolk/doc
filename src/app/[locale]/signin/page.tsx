@@ -101,7 +101,17 @@ export default function SignInPage() {
         <CardHeader className="items-center pb-2 text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">doc workspace</p>
           <CardTitle className="text-2xl">{t('title')}</CardTitle>
-          <CardDescription>{t('subTitle')}</CardDescription>
+          <CardDescription>
+            {t(
+              hasGitHub && hasEmail
+                ? 'subTitle'
+                : hasEmail
+                  ? 'emailSubTitle'
+                  : hasGitHub
+                    ? 'githubSubTitle'
+                    : 'signInSubtitle'
+            )}
+          </CardDescription>
         </CardHeader>
 
         <CardContent className="space-y-6">
@@ -132,7 +142,7 @@ export default function SignInPage() {
           {hasEmail && (
             <form className="space-y-4" noValidate onSubmit={handleEmailSignIn}>
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-foreground-muted">
+                <Label htmlFor="email" className="block text-left text-sm font-medium text-foreground-muted">
                   {t('email')}
                 </Label>
                 <Input

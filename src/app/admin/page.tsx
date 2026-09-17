@@ -8,10 +8,10 @@ export const metadata: Metadata = {
 }
 
 const stats = [
-  { key: 'docCount', label: '文档总数', icon: FileText, iconClassName: 'bg-blue-50 text-blue-600' },
-  { key: 'publishedCount', label: '已发布文档', icon: Globe, iconClassName: 'bg-emerald-50 text-emerald-600' },
-  { key: 'userCount', label: '用户总数', icon: Users, iconClassName: 'bg-amber-50 text-amber-600' },
-  { key: 'adminCount', label: '管理员人数', icon: ShieldCheck, iconClassName: 'bg-violet-50 text-violet-600' },
+  { key: 'docCount', label: '文档总数', icon: FileText, iconClassName: 'bg-info-soft text-info' },
+  { key: 'publishedCount', label: '已发布文档', icon: Globe, iconClassName: 'bg-success-soft text-success-strong' },
+  { key: 'userCount', label: '用户总数', icon: Users, iconClassName: 'bg-warning-soft text-warning-strong' },
+  { key: 'adminCount', label: '管理员人数', icon: ShieldCheck, iconClassName: 'bg-ai-soft text-ai-strong' },
 ] as const
 
 export default async function AdminHomePage() {
@@ -26,14 +26,14 @@ export default async function AdminHomePage() {
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {stats.map((item) => (
           <Card key={item.key}>
-            <CardHeader className="flex flex-row items-center justify-between pb-3">
+            <CardHeader className="flex-row items-center justify-between gap-3 pb-3">
               <CardTitle className="text-base">{item.label}</CardTitle>
               <div className={`rounded-lg p-2 ${item.iconClassName}`}>
                 <item.icon className="h-4 w-4" />
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-semibold">{values[item.key]}</p>
+              <p className="text-3xl font-semibold tabular-nums">{values[item.key]}</p>
             </CardContent>
           </Card>
         ))}

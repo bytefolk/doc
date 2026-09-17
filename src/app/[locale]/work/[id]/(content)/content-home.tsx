@@ -1,10 +1,12 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslations, useLocale } from 'next-intl'
 import { File, Plus, Search, Star, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { EmptyState } from '@/components/ui/empty-state'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { CONTENT_WIDTH, WORK_CONTENT_CONTAINER_ID } from '@/constants'
 import { useDialogStore } from '@/stores/dialog-store'
@@ -16,11 +18,25 @@ import { nav } from '../@directory/util'
 
 export default function ContentHome() {
   const t = useTranslations('contentHome')
+  const emptyT = useTranslations('emptyStates')
+  const docs = useDocsStore((s) => s.docs)
+  const loading = useDocsStore((s) => s.loading)
+  const shared = useShareStore((s) => s.myShareRelations)
+  const isEmpty = docs.length === 0 && shared.length === 0
 
   // set web page title
   useEffect(() => {
     document.title = t('title')
   }, [t])
+
+  if (loading) {
+    return (
+      <div role="status" aria-label={emptyT('loading')} className="space-y-4 p-8">
+        <Skeleton className="h-8 w-48" />
+        <Skeleton className="h-40 w-full" />
+      </div>
+    )
+  }
 
   return (
     <div
@@ -32,14 +48,23 @@ export default function ContentHome() {
         <h1 className="text-3xl font-bold mb-4">{t('title')}</h1>
         <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
           <SearchInput />
-          <NewButton />
+          {!isEmpty && <NewButton />}
         </div>
       </header>
-      <div className="space-y-8">
-        <RecentDocsList />
-        <FavoriteDocsList />
-        <SharedDocsList />
-      </div>
+      {isEmpty ? (
+        <EmptyState
+          icon={<File />}
+          title={emptyT('documentsTitle')}
+          description={emptyT('documentsDescription')}
+          action={<NewButton />}
+        />
+      ) : (
+        <div className="space-y-8">
+          <RecentDocsList />
+          <FavoriteDocsList />
+          <SharedDocsList />
+        </div>
+      )}
     </div>
   )
 }
@@ -49,26 +74,14 @@ function SearchInput() {
 
   // open search dialog when input focus
   const { setSearchDialogOpen } = useDialogStore()
-  const inputRef = useRef<HTMLInputElement>(null)
-  useEffect(() => {
-    const elem = inputRef.current
-    if (!elem) return
-    function fn() {
-      setSearchDialogOpen(true)
-    }
-    elem.addEventListener('focus', fn)
-    return () => {
-      elem.removeEventListener('focus', fn)
-    }
-  }, [inputRef, setSearchDialogOpen])
 
   return (
     <div className="relative flex-grow cursor-pointer">
-      <Search className="absolute left-3 top-2.5 h-4 w-4 text-foreground-subtle" />
+      <Search className="pointer-events-none absolute left-3 top-2.5 z-10 h-4 w-4 text-foreground-subtle" />
       <Input
         placeholder={t('searchPlaceholder')}
         className="w-full cursor-pointer pl-9 hover:border-border-strong"
-        ref={inputRef}
+        onFocus={() => setSearchDialogOpen(true)}
       />
     </div>
   )
@@ -90,6 +103,7 @@ function RecentDocsList() {
   const t = useTranslations('contentHome')
   const locale = useLocale()
 
+  const emptyT = useTranslations('emptyStates')
   const { docs } = useDocsStore()
   const [recentDocs, setRecentDocs] = useState<IDoc[]>([])
   useEffect(() => {
@@ -107,7 +121,14 @@ function RecentDocsList() {
   return (
     <section>
       <h2 className="text-xl font-semibold mb-4">{t('recentDocs')}</h2>
-      {recentDocs.length === 0 && <NotFound />}
+      {recentDocs.length === 0 && (
+        <EmptyState
+          compact
+          icon={<File />}
+          title={emptyT('documentsTitle')}
+          description={emptyT('documentsDescription')}
+        />
+      )}
       {recentDocs.length > 0 && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {recentDocs.map((doc) => (
@@ -144,6 +165,8 @@ function FavoriteDocsList() {
   const t = useTranslations('contentHome')
   const locale = useLocale()
 
+  const emptyT = useTranslations('emptyStates')
+
   // open favorite dialog
   const { setFavoriteDialogOpen } = useDialogStore()
 
@@ -172,7 +195,14 @@ function FavoriteDocsList() {
           </Button>
         </div>
       </div>
-      {favorDocs.length === 0 && <NotFound />}
+      {favorDocs.length === 0 && (
+        <EmptyState
+          compact
+          icon={<Star />}
+          title={emptyT('favoritesTitle')}
+          description={emptyT('favoritesDescription')}
+        />
+      )}
       {favorDocs.length > 0 && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {favorDocs.map((doc) => (
@@ -209,6 +239,8 @@ function SharedDocsList() {
   const t = useTranslations('contentHome')
   const locale = useLocale()
 
+  const emptyT = useTranslations('emptyStates')
+
   // open shared dialog
   const { setSharedDialogOpen } = useDialogStore()
 
@@ -243,7 +275,9 @@ function SharedDocsList() {
           </Button>
         </div>
       </div>
-      {docs.length === 0 && <NotFound />}
+      {docs.length === 0 && (
+        <EmptyState compact icon={<Users />} title={emptyT('sharedTitle')} description={emptyT('sharedDescription')} />
+      )}
       {docs.length > 0 && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {docs.map((doc) => (
@@ -274,9 +308,4 @@ function SharedDocsList() {
       )}
     </section>
   )
-}
-
-function NotFound() {
-  const t = useTranslations('contentHome')
-  return <div className="p-8 text-center text-muted-foreground">{t('notFound')}</div>
 }

@@ -5,6 +5,7 @@ import { Search as SearchIcon, File, Trash2, FileSearch } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { EmptyState } from '@/components/ui/empty-state'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import debounce from 'lodash.debounce'
 import { get } from '@/lib/ajax'
@@ -37,6 +38,7 @@ export default function Search() {
 
 function SearchPanel() {
   const t = useTranslations('search')
+  const emptyT = useTranslations('emptyStates')
 
   // input elem
   const inputRef = useRef<HTMLInputElement>(null)
@@ -49,6 +51,7 @@ function SearchPanel() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newKeyword = e.target.value
     setLoading(true)
+    setLoadFailed(false)
     // 重置选择文档的状态
     setCurrentIndex(-1)
     setKeyword(newKeyword)
@@ -65,17 +68,25 @@ function SearchPanel() {
       }
 
       const url = `/api/doc?keyword=${keyword}`
-      const { data: list } = await get(url)
-      setList(list)
-      setLoading(false)
+      try {
+        const response = await get(url)
+        if (response.errno !== 0 || !Array.isArray(response.data)) throw new Error('Document list unavailable')
+        setList(response.data)
+      } catch {
+        setList([])
+        setLoadFailed(true)
+      } finally {
+        setLoading(false)
+      }
     }, 500),
     []
   )
 
   // search result
   const [loading, setLoading] = useState(false)
+  const [loadFailed, setLoadFailed] = useState(false)
   const [list, setList] = useState<IDoc[]>([])
-  const notFound = !loading && list.length === 0 && keyword.trim().length > 0
+  const notFound = !loading && !loadFailed && list.length === 0 && keyword.trim().length > 0
 
   // item click
   function handleClick(doc: IDoc) {
@@ -100,13 +111,43 @@ function SearchPanel() {
         />
       </div>
       <div className="flex-1 overflow-y-auto">
-        {keyword.trim().length === 0 && (
-          <div className="text-muted-foreground opacity-50 flex items-center justify-center h-60">
-            <FileSearch className="w-16 h-16" />
-          </div>
+        {!loading && !loadFailed && keyword.trim().length === 0 && (
+          <EmptyState
+            icon={<FileSearch />}
+            title={emptyT('searchPromptTitle')}
+            description={emptyT('searchPromptDescription')}
+          />
         )}
-        {loading && <p className="text-muted-foreground text-center mt-8">loading...</p>}
-        {notFound && <p className="text-muted-foreground text-center mt-8">{t('notFound')}</p>}
+        {loading && (
+          <p role="status" className="text-muted-foreground text-center mt-8">
+            {emptyT('loading')}
+          </p>
+        )}
+        {loadFailed && (
+          <p role="alert" className="mt-8 text-sm text-danger">
+            {emptyT('loadFailed')}
+          </p>
+        )}
+        {notFound && (
+          <EmptyState
+            icon={<FileSearch />}
+            title={emptyT('noResultsTitle')}
+            description={emptyT('noResultsDescription')}
+            action={
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setKeyword('')
+                  setList([])
+                  setCurrentIndex(-1)
+                  inputRef.current?.focus()
+                }}
+              >
+                {emptyT('clearSearch')}
+              </Button>
+            }
+          />
+        )}
         {!loading && list.length > 0 && (
           <div className="mt-4">
             {list.map((doc: IDoc, docIndex: number) => {

@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { History } from 'lucide-react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { EmptyState } from '@/components/ui/empty-state'
 import { useToast } from '@/components/ui/use-toast'
 import { fetchDocVersionDetail, fetchDocVersions } from '@/lib/doc-version/api'
 import DiffBlockRenderer from '@/components/doc-version/diff-block-renderer'
@@ -37,6 +38,7 @@ export default function VersionDialog(props: { id: string }) {
   const userInfo = useUserStore((s) => s.userInfo)
 
   const [loading, setLoading] = useState(false)
+  const [loadFailed, setLoadFailed] = useState(false)
   const [versions, setVersions] = useState<IDocVersionListItem[]>([])
   const [detailLoading, setDetailLoading] = useState(false)
   const [restoring, setRestoring] = useState(false)
@@ -49,6 +51,7 @@ export default function VersionDialog(props: { id: string }) {
 
     let mounted = true
     setLoading(true)
+    setLoadFailed(false)
     setVersions([])
     detailRequestKeyRef.current = ''
     setSelectedVersionId('')
@@ -67,6 +70,7 @@ export default function VersionDialog(props: { id: string }) {
       .catch((ex) => {
         if (!mounted) return
         console.error('Fetch doc versions error', ex)
+        setLoadFailed(true)
         setVersions([])
         detailRequestKeyRef.current = ''
         setSelectedVersionId('')
@@ -171,7 +175,7 @@ export default function VersionDialog(props: { id: string }) {
     contentBlocks,
   })
   const currentUserName = userInfo?.name || userInfo?.email || t('currentUser')
-  const isVersionListEmpty = !loading && versions.length === 0
+  const isVersionListEmpty = !loading && !loadFailed && versions.length === 0
 
   async function handleRestore() {
     if (!selectedVersionId) return
@@ -218,62 +222,56 @@ export default function VersionDialog(props: { id: string }) {
         style={{ maxWidth: `${VERSION_DIALOG_MAX_WIDTH}px` }}
       >
         <DialogHeader>
-          <DialogTitle className="flex items-center">
+          <DialogTitle className="flex items-center justify-start">
             <History className="size-4 shrink-0 mr-1" />
             {t('entry')}
           </DialogTitle>
           <DialogDescription>{t('dialogDescription')}</DialogDescription>
         </DialogHeader>
-        <div className="grid flex-1 min-h-0 grid-cols-[280px_1fr] gap-4">
-          <div className="border rounded-md overflow-y-auto p-2">
-            {loading && <p className="text-sm text-muted-foreground">{t('loading')}</p>}
-            {isVersionListEmpty && (
-              <div className="flex h-full min-h-40 items-center justify-center px-4 text-center text-sm text-muted-foreground">
-                {t('noVersions')}
-              </div>
-            )}
-            {!loading &&
-              versions.map((version) => (
-                <button
-                  key={version.id}
-                  className="w-full text-left rounded-md p-2 hover:bg-muted data-[active=true]:bg-muted"
-                  onClick={() => setSelectedVersionId(version.id)}
-                  aria-label={version.createdAt}
-                  data-active={selectedVersionId === version.id}
-                  type="button"
-                >
-                  <p className="text-sm text-muted-foreground">{version.createdAt}</p>
-                  <p className="text-xs font-medium">{currentUserName}</p>
-                </button>
-              ))}
-          </div>
-          <div className="border rounded-md bg-background p-4 flex flex-col min-h-0">
-            <div className="h-full min-h-40 overflow-y-auto rounded-md bg-background px-6 py-5 text-foreground">
-              {isVersionListEmpty && (
-                <div className="flex h-full min-h-40 flex-col items-center justify-center gap-3 px-4 text-center text-muted-foreground">
-                  <History className="size-10 opacity-40" />
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-foreground">{t('noVersions')}</p>
-                    <p className="text-sm text-muted-foreground">{t('noVersionsDesc')}</p>
+        {loadFailed ? (
+          <p role="alert" className="py-8 text-sm text-danger">
+            {t('loadFailed')}
+          </p>
+        ) : isVersionListEmpty ? (
+          <EmptyState className="flex-1" icon={<History />} title={t('noVersions')} description={t('noVersionsDesc')} />
+        ) : (
+          <div className="grid flex-1 min-h-0 grid-cols-1 grid-rows-[minmax(6rem,0.7fr)_minmax(0,1fr)] gap-4 sm:grid-cols-[280px_minmax(0,1fr)] sm:grid-rows-1">
+            <div className="min-w-0 border rounded-md overflow-y-auto p-2">
+              {loading && <p className="text-sm text-muted-foreground">{t('loading')}</p>}
+              {!loading &&
+                versions.map((version) => (
+                  <button
+                    key={version.id}
+                    className="w-full text-left rounded-md p-2 text-foreground hover:bg-muted data-[active=true]:bg-muted"
+                    onClick={() => setSelectedVersionId(version.id)}
+                    aria-label={version.createdAt}
+                    data-active={selectedVersionId === version.id}
+                    type="button"
+                  >
+                    <p className="text-sm text-muted-foreground">{version.createdAt}</p>
+                    <p className="text-xs font-medium">{currentUserName}</p>
+                  </button>
+                ))}
+            </div>
+            <div className="min-w-0 border rounded-md bg-background p-3 sm:p-4 flex flex-col min-h-0">
+              <div className="h-full min-h-0 overflow-auto rounded-md bg-background px-3 py-4 sm:px-6 sm:py-5 text-foreground">
+                {detailLoading && t('loading')}
+                {!detailLoading && selectedVersionDetail && (
+                  <div data-testid="doc-version-preview-content" className="mx-auto w-full max-w-[840px] space-y-4">
+                    {previewBlocks.map((block, index) => (
+                      <DiffBlockRenderer key={`${block.kind}-${index}`} block={block} />
+                    ))}
                   </div>
-                </div>
-              )}
-              {detailLoading && t('loading')}
-              {!isVersionListEmpty && !detailLoading && selectedVersionDetail && (
-                <div data-testid="doc-version-preview-content" className="mx-auto w-full max-w-[840px] space-y-4">
-                  {previewBlocks.map((block, index) => (
-                    <DiffBlockRenderer key={`${block.kind}-${index}`} block={block} />
-                  ))}
-                </div>
-              )}
-            </div>
-            <div className="pt-4 text-right">
-              <Button disabled={!selectedVersionId || restoring} onClick={handleRestore}>
-                {restoring ? t('restoring') : t('restore')}
-              </Button>
+                )}
+              </div>
+              <div className="pt-4 text-right">
+                <Button disabled={!selectedVersionId || restoring} onClick={handleRestore}>
+                  {restoring ? t('restoring') : t('restore')}
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </DialogContent>
     </Dialog>
   )

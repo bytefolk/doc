@@ -41,8 +41,8 @@ function formatDate(date: Date) {
 function Field({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div>
-      <p className="mb-1 text-sm text-slate-500">{label}</p>
-      <p className="font-medium text-slate-900">{value}</p>
+      <p className="mb-1 text-sm text-muted-foreground">{label}</p>
+      <p className="font-medium text-foreground">{value}</p>
     </div>
   )
 }
@@ -66,11 +66,11 @@ export default function AdminDocDetailDialog({ doc }: Props) {
           <Field label="创建时间" value={formatDate(doc.createdAt)} />
           <Field label="更新时间" value={formatDate(doc.updatedAt)} />
           <div>
-            <p className="mb-1 text-sm text-slate-500">删除状态</p>
+            <p className="mb-1 text-sm text-muted-foreground">删除状态</p>
             <Badge variant={doc.isDeleted ? 'destructive' : 'secondary'}>{doc.isDeleted ? '已删除' : '正常'}</Badge>
           </div>
           <div>
-            <p className="mb-1 text-sm text-slate-500">发布状态</p>
+            <p className="mb-1 text-sm text-muted-foreground">发布状态</p>
             {doc.latestPubDoc ? (
               <AdminPubStatusSelect
                 publishId={doc.latestPubDoc.publishId}
@@ -80,7 +80,7 @@ export default function AdminDocDetailDialog({ doc }: Props) {
                 isPublished={doc.isPublished}
               />
             ) : (
-              <span className="inline-flex items-center rounded-full border border-slate-200 px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap text-slate-500">
+              <span className="inline-flex items-center rounded-full border border-border px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap text-muted-foreground">
                 未发布
               </span>
             )}
@@ -92,7 +92,7 @@ export default function AdminDocDetailDialog({ doc }: Props) {
           <Field label="状态说明" value={doc.latestPubDoc?.statusReason || '暂无额外说明'} />
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 border-t border-slate-100 pt-4">
+        <div className="flex flex-wrap items-center justify-end gap-3 border-t border-border pt-4">
           {doc.latestPubDoc?.publishId && (
             <Link
               href={`/pub/${doc.latestPubDoc.publishId}`}

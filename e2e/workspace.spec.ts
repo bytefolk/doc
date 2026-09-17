@@ -80,11 +80,22 @@ test('authenticated workspace remains usable, persistent, responsive, and locali
   await navigationButton.click()
   const navigationDialog = page.getByRole('dialog', { name: 'Document navigation' })
   await expect(navigationDialog).toBeVisible()
+  await expect(navigationDialog.getByRole('button', { name: 'Search', exact: true })).toHaveCSS(
+    'justify-content',
+    'flex-start'
+  )
   await navigationDialog.getByRole('button', { name: 'Search' }).click()
   const searchDialog = page.getByRole('dialog', { name: 'Search' })
   await expect(searchDialog).toBeVisible()
   const searchInput = searchDialog.locator('input')
   await expect(searchInput).toBeFocused()
+  await expect(searchDialog.locator('.ui-dialog__title')).toHaveCSS('text-align', /left|start/)
+  await expect(searchDialog.getByRole('heading', { name: 'Find a document' })).toBeVisible()
+  await searchInput.fill('no-match-for-semantic-empty-state')
+  await expect(searchDialog.getByRole('heading', { name: 'No matching documents' })).toBeVisible()
+  await searchDialog.getByRole('button', { name: 'Clear search' }).click()
+  await expect(searchInput).toHaveValue('')
+  await expect(searchDialog.getByRole('heading', { name: 'Find a document' })).toBeVisible()
   await page.keyboard.press('Tab')
   expect(await searchDialog.evaluate((dialog) => dialog.contains(document.activeElement))).toBe(true)
   await page.keyboard.press('Escape')

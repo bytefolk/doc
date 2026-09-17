@@ -109,7 +109,7 @@ function TopBarHandlers(props: { id: string; disabled?: boolean }) {
             <Ellipsis aria-hidden="true" className="h-4 w-4" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-32 p-1">
+        <PopoverContent align="end" className="w-52 p-1">
           <TopBarHandlerItems id={id} onVersionEntry={() => setOpen(false)} />
         </PopoverContent>
       </Popover>

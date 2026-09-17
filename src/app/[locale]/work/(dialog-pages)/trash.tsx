@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { EmptyState } from '@/components/ui/empty-state'
 import { useToast } from '@/components/ui/use-toast'
 import {
   Dialog,
@@ -47,22 +48,25 @@ function TrashTable() {
   const { toast } = useToast()
   const t = useTranslations('trash')
   const locale = useLocale()
+  const emptyT = useTranslations('emptyStates')
 
   const [loading, setLoading] = useState(true)
+  const [loadFailed, setLoadFailed] = useState(false)
   const [list, setList] = useState<IDoc[]>([])
 
   // 加载数据
   const load = useCallback(async () => {
     const url = `/api/doc?isDeleted=1`
-    const { data: list } = await get(url)
-    return list
+    const response = await get(url)
+    if (response.errno !== 0 || !Array.isArray(response.data)) throw new Error('Document list unavailable')
+    return response.data as IDoc[]
   }, [])
 
   useEffect(() => {
-    load().then((l) => {
-      setList(l)
-      setLoading(false)
-    })
+    load()
+      .then(setList)
+      .catch(() => setLoadFailed(true))
+      .finally(() => setLoading(false))
   }, [load])
 
   // 搜索关键字
@@ -104,19 +108,35 @@ function TrashTable() {
     setList(list.filter((d) => !ids.includes(d.id)))
   }
 
+  const matchingDocs = list.filter((doc) => doc.title.includes(keyword))
   let content: JSX.Element
 
   if (loading) {
     content = (
-      <div className="h-96">
-        <p className="mt-10 text-center text-muted-foreground">loading...</p>
-      </div>
+      <p role="status" className="mt-10 text-center text-sm text-muted-foreground">
+        {emptyT('loading')}
+      </p>
     )
-  } else if (!loading && list.length === 0) {
+  } else if (loadFailed) {
     content = (
-      <div className="h-96">
-        <p className="mt-10 text-center text-muted-foreground">{t('notFound')}</p>
-      </div>
+      <p role="alert" className="mt-8 text-sm text-danger">
+        {emptyT('loadFailed')}
+      </p>
+    )
+  } else if (matchingDocs.length === 0) {
+    content = (
+      <EmptyState
+        icon={<Trash2 />}
+        title={emptyT(keyword.trim() ? 'noResultsTitle' : 'trashTitle')}
+        description={emptyT(keyword.trim() ? 'noResultsDescription' : 'trashDescription')}
+        action={
+          keyword.trim() ? (
+            <Button variant="outline" onClick={() => setKeyword('')}>
+              {emptyT('clearSearch')}
+            </Button>
+          ) : undefined
+        }
+      />
     )
   } else {
     content = (
@@ -124,31 +144,31 @@ function TrashTable() {
         <TableHeader>
           <TableRow>
             <TableHead className="w-auto">{t('docTitle')}</TableHead>
-            <TableHead className="w-24">{t('docDelTime')}</TableHead>
+            <TableHead className="w-24 text-right">{t('docDelTime')}</TableHead>
             <TableHead className="text-right w-24">{t('operation')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {list
-            .filter((i) => i.title.includes(keyword))
-            .map((doc) => (
-              <TableRow key={doc.id} className="group">
-                <TableCell>
-                  <p className="overflow-hidden truncate">{doc.title || t('unTitled')}</p>
-                </TableCell>
-                <TableCell>{timeAgo(doc.updatedAt?.toString() || '', locale === 'zh-cn')}</TableCell>
-                <TableCell className="text-right">
-                  <div className="inline-flex space-x-1 invisible group-hover:visible">
-                    <Button variant="outline" size="sm" className="px-2 h-7" onClick={() => restore(doc.id)}>
-                      {t('restore')}
-                    </Button>
-                    <Button variant="destructive" size="sm" className="px-2 h-7" onClick={() => del(doc.id)}>
-                      {t('delete')}
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
+          {matchingDocs.map((doc) => (
+            <TableRow key={doc.id} className="group">
+              <TableCell>
+                <p className="overflow-hidden truncate">{doc.title || t('unTitled')}</p>
+              </TableCell>
+              <TableCell className="text-right whitespace-nowrap">
+                {timeAgo(doc.updatedAt?.toString() || '', locale === 'zh-cn')}
+              </TableCell>
+              <TableCell className="text-right">
+                <div className="inline-flex space-x-1 invisible group-hover:visible">
+                  <Button variant="outline" size="sm" className="px-2 h-7" onClick={() => restore(doc.id)}>
+                    {t('restore')}
+                  </Button>
+                  <Button variant="destructive" size="sm" className="px-2 h-7" onClick={() => del(doc.id)}>
+                    {t('delete')}
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
         </TableBody>
       </Table>
     )

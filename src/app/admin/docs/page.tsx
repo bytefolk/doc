@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import LinkButton from '@/components/link-button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { getAdminDocs } from '@/lib/admin-data'
@@ -85,7 +86,28 @@ export default async function AdminDocsPage({
               {items.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={6}>
-                    <AdminEmptyState title="暂无匹配文档" />
+                    <AdminEmptyState
+                      title={
+                        filters.q || filters.author || filters.deleteStatus !== 'all' || filters.publishStatus !== 'all'
+                          ? '暂无匹配文档'
+                          : '暂无文档'
+                      }
+                      description={
+                        filters.q || filters.author || filters.deleteStatus !== 'all' || filters.publishStatus !== 'all'
+                          ? '调整筛选条件，或清除筛选查看全部记录。'
+                          : '用户创建的文档会显示在这里。'
+                      }
+                      action={
+                        filters.q ||
+                        filters.author ||
+                        filters.deleteStatus !== 'all' ||
+                        filters.publishStatus !== 'all' ? (
+                          <LinkButton href="/admin/docs" variant="outline">
+                            清除筛选
+                          </LinkButton>
+                        ) : undefined
+                      }
+                    />
                   </TableCell>
                 </TableRow>
               )}
@@ -93,19 +115,19 @@ export default async function AdminDocsPage({
                 return (
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">{item.title}</TableCell>
-                    <TableCell className="text-slate-600">
+                    <TableCell className="text-muted-foreground">
                       {item.user.name || item.user.email || item.user.id}
                     </TableCell>
-                    <TableCell className="w-[11rem] whitespace-nowrap text-slate-600">
+                    <TableCell className="w-[11rem] whitespace-nowrap text-muted-foreground">
                       {formatDate(item.updatedAt)}
                     </TableCell>
                     <TableCell>
                       {item.isDeleted ? (
-                        <span className="inline-flex items-center rounded-full border border-transparent bg-destructive px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap text-destructive-foreground">
+                        <span className="inline-flex items-center justify-center rounded-full border border-transparent bg-danger-soft px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap text-danger-strong">
                           已删除
                         </span>
                       ) : (
-                        <span className="text-sm text-slate-500">正常</span>
+                        <span className="text-sm text-muted-foreground">正常</span>
                       )}
                     </TableCell>
                     <TableCell>
@@ -118,7 +140,7 @@ export default async function AdminDocsPage({
                           isPublished={item.isPublished}
                         />
                       ) : (
-                        <span className="inline-flex items-center rounded-full border border-slate-200 px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap text-slate-500">
+                        <span className="inline-flex items-center rounded-full border border-border px-2.5 py-0.5 text-xs font-semibold whitespace-nowrap text-muted-foreground">
                           未发布
                         </span>
                       )}

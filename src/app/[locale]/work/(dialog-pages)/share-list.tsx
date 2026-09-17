@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { FileOutput, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { EmptyState } from '@/components/ui/empty-state'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { useShareStore, IShareRelationDoc } from '@/stores/share-store'
 import { useTranslations } from 'next-intl'
@@ -30,7 +31,7 @@ export default function ShareList() {
 }
 
 function ShareListContent() {
-  const t = useTranslations('MyShareList')
+  const emptyT = useTranslations('emptyStates')
 
   // get docs
   const myShareRelations = useShareStore((s) => s.myShareRelations)
@@ -71,9 +72,12 @@ function ShareListContent() {
           </div>
         )}
         {docs.length === 0 && (
-          <div className="h-96">
-            <p className="mt-10 text-center text-muted-foreground">{t('notFound')}</p>
-          </div>
+          <EmptyState
+            className="flex-1"
+            icon={<FileOutput />}
+            title={emptyT('sharedTitle')}
+            description={emptyT('sharedDescription')}
+          />
         )}
       </div>
     </div>

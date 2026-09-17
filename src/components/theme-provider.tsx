@@ -3,8 +3,9 @@
 import * as React from 'react'
 import { ThemeProvider as NextThemesProvider, useTheme } from 'next-themes'
 import { type ThemeProviderProps } from 'next-themes/dist/types'
+import { DSProvider } from '@fullstack-ai-infra/ui'
 
-function SharedThemeAttribute() {
+function SharedTheme({ children }: { children: React.ReactNode }) {
   const { resolvedTheme } = useTheme()
 
   React.useEffect(() => {
@@ -13,14 +14,13 @@ function SharedThemeAttribute() {
     }
   }, [resolvedTheme])
 
-  return null
+  return <DSProvider mode={resolvedTheme === 'dark' ? 'dark' : 'light'}>{children}</DSProvider>
 }
 
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
   return (
     <NextThemesProvider {...props}>
-      <SharedThemeAttribute />
-      {children}
+      <SharedTheme>{children}</SharedTheme>
     </NextThemesProvider>
   )
 }
