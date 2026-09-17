@@ -1,23 +1,37 @@
 import { db } from '@/db/db'
 import { genSuccessData, genErrorData } from '@/app/api/utils/gen-res-data'
 
-export async function PATCH(request: Request, { params }: { params: { publishId: string } }) {
+export async function PATCH(_request: Request, { params }: { params: { publishId: string } }) {
   const { publishId } = params // `publishId` is publish url suffix
-  return Response.json(genSuccessData())
 
-  // try {
-  //   const p = await db.pubDoc.update({
-  //     where: {
-  //       publishId,
-  //     },
-  //     data: {
-  //       thumbUpCount: {
-  //         decrement: 1, // Decrement the thumb up count by 1
-  //       },
-  //     },
-  //   })
-  //   return Response.json(genSuccessData(p))
-  // } catch (ex: any) {
-  //   return Response.json(genErrorData(ex.message))
-  // }
+  try {
+    // Clamp at zero so duplicate cancellation cannot store a negative count.
+    // Identity is still browser-local (localStorage); this endpoint is
+    // idempotent with respect to a zero count, not with respect to a user.
+    await db.pubDoc.updateMany({
+      where: {
+        publishId,
+        thumbUpCount: {
+          gt: 0,
+        },
+      },
+      data: {
+        thumbUpCount: {
+          decrement: 1,
+        },
+      },
+    })
+    const publication = await db.pubDoc.findUnique({
+      where: {
+        publishId,
+      },
+    })
+    if (!publication) {
+      return Response.json(genErrorData('Publication not found'))
+    }
+    return Response.json(genSuccessData(publication))
+  } catch (error) {
+    console.error(error)
+    return Response.json(genErrorData('Unable to update like count'))
+  }
 }

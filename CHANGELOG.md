@@ -6,6 +6,12 @@ All notable changes to `doc` are documented here.
 
 ### Fixed
 
+- Persist cancelling a like on a published document. The decrease endpoint now writes a
+  nonnegative `thumbUpCount` and returns the stored value; a missing publication is an error
+  rather than a false success. Duplicate cancellation against a zero count is a no-op. If the
+  request fails, the published-page button restores the previous count and liked state. Like
+  identity remains browser-local (`localStorage`); this change does not introduce server-side
+  per-user like records.
 - Replace hardcoded `timeAgo` strings with `next-intl` translation keys and return ISO-8601
   `createdAt` from the version API so clients can format timestamps with `Intl.DateTimeFormat`.
   Remove unused `useTimeAgo` hook export and use real `messages/zh-cn.json` in `dt.test.ts`
