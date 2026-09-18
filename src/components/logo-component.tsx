@@ -1,5 +1,5 @@
 import { useTranslations } from 'next-intl'
-import { Link } from '@/i18n/routing'
+import Link from 'next/link'
 import { cn } from '@/lib/utils'
 
 export default function Logo(props: { size?: 'small' | 'large' }) {
