@@ -9,6 +9,7 @@ import { getNextSortOrderForParent } from '@/lib/doc-sort-order'
 import { JsonBodyError, readJsonBody } from '@/lib/read-json-body'
 import { ApiV1Error } from '@/lib/api-v1'
 import { EMPTY_TIPTAP_DOCUMENT, encodeTiptapDocument } from '@/lib/tiptap-codec'
+import { parseOptionalDate, parseSort, buildSearchWhere, buildDateWhere, getOrderBy, SortValue } from '@/lib/doc-query'
 
 const MAX_CREATE_REQUEST_BYTES = 1024 * 1024
 
@@ -211,13 +212,28 @@ export async function GET(request: NextRequest) {
   const keyword = searchParams.get('keyword') || null
 
   // 时间范围过滤
-  const afterParam = searchParams.get('after')
-  const beforeParam = searchParams.get('before')
-  const afterDate = afterParam ? new Date(afterParam) : null
-  const beforeDate = beforeParam ? new Date(beforeParam) : null
+  let afterDate: Date | null = null
+  let beforeDate: Date | null = null
+  try {
+    afterDate = parseOptionalDate(searchParams.get('after'), 'after')
+    beforeDate = parseOptionalDate(searchParams.get('before'), 'before')
+  } catch (error) {
+    if (error instanceof ApiV1Error) {
+      return Response.json(genErrorData(error.message), { status: error.status })
+    }
+    throw error
+  }
 
   // 排序
-  const sortParam = searchParams.get('sort') || 'updated_desc'
+  let sort: SortValue
+  try {
+    sort = parseSort(searchParams.get('sort'))
+  } catch (error) {
+    if (error instanceof ApiV1Error) {
+      return Response.json(genErrorData(error.message), { status: error.status })
+    }
+    throw error
+  }
 
   // where
   const whereOpt: any = {
@@ -238,22 +254,13 @@ export async function GET(request: NextRequest) {
     }
   }
   if (keyword != null) {
-    whereOpt.OR = [{ title: { contains: keyword } }, { content: { contains: keyword, mode: 'insensitive' } }]
+    Object.assign(whereOpt, buildSearchWhere(keyword))
   }
   if (afterDate || beforeDate) {
-    whereOpt.updatedAt = {
-      ...(afterDate && !isNaN(afterDate.getTime()) ? { gt: afterDate } : {}),
-      ...(beforeDate && !isNaN(beforeDate.getTime()) ? { lt: beforeDate } : {}),
-    }
+    Object.assign(whereOpt, buildDateWhere(afterDate, beforeDate))
   }
 
-  const orderByMap: Record<string, any> = {
-    updated_desc: { updatedAt: 'desc' },
-    updated_asc: { updatedAt: 'asc' },
-    created_desc: { createdAt: 'desc' },
-    created_asc: { createdAt: 'asc' },
-  }
-  const orderBy = orderByMap[sortParam] || orderByMap.updated_desc
+  const orderBy = getOrderBy(sort)
 
   const list = await db.doc.findMany({
     select: {

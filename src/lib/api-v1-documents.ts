@@ -8,11 +8,10 @@ import { db } from '@/db/db'
 import { ApiV1Error } from '@/lib/api-v1'
 import { getNextSortOrderForParent } from '@/lib/doc-sort-order'
 import { EMPTY_TIPTAP_DOCUMENT, encodeTiptapDocument } from '@/lib/tiptap-codec'
+import { parseOptionalDate, parseSort, buildSearchWhere, buildDateWhere, getOrderBy, SortValue } from '@/lib/doc-query'
 
 const DEFAULT_LIST_LIMIT = 50
 const MAX_LIST_LIMIT = 100
-const VALID_SORT_VALUES = ['updated_desc', 'updated_asc', 'created_desc', 'created_asc'] as const
-type SortValue = (typeof VALID_SORT_VALUES)[number]
 
 const titleSchema = z
   .string()
@@ -123,37 +122,6 @@ function parseListLimit(value: string | null) {
   return limit
 }
 
-function parseOptionalDate(value: string | null, name: string): Date | null {
-  if (value == null) return null
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) {
-    throw new ApiV1Error(400, 'invalid_query', `${name} must be an ISO 8601 date`)
-  }
-  return date
-}
-
-function parseSort(value: string | null): SortValue {
-  if (value == null) return 'updated_desc'
-  if (!VALID_SORT_VALUES.includes(value as SortValue)) {
-    throw new ApiV1Error(400, 'invalid_query', `sort must be one of: ${VALID_SORT_VALUES.join(', ')}`)
-  }
-  return value as SortValue
-}
-
-function getOrderBy(sort: SortValue) {
-  switch (sort) {
-    case 'updated_asc':
-      return [{ updatedAt: 'asc' }, { id: 'asc' }] as const
-    case 'created_desc':
-      return [{ createdAt: 'desc' }, { id: 'desc' }] as const
-    case 'created_asc':
-      return [{ createdAt: 'asc' }, { id: 'asc' }] as const
-    case 'updated_desc':
-    default:
-      return [{ updatedAt: 'desc' }, { id: 'desc' }] as const
-  }
-}
-
 export function apiDocumentEtag(document: Pick<DocumentMetadata, 'id' | 'updatedAt'>) {
   const revision = createHash('sha256')
     .update(`${document.id}:${document.updatedAt.toISOString()}`)
@@ -204,26 +172,15 @@ export async function listApiDocuments(userId: string, searchParams: URLSearchPa
     userId,
     isDeleted: trash,
     ...(starred === undefined ? {} : { isStar: starred }),
-    ...(query
-      ? {
-          OR: [
-            { title: { contains: query, mode: 'insensitive' } },
-            { content: { contains: query, mode: 'insensitive' } },
-          ],
-        }
-      : {}),
-    ...(after || before
-      ? {
-          updatedAt: {
-            ...(after ? { gt: after } : {}),
-            ...(before ? { lt: before } : {}),
-          },
-        }
-      : {}),
+    ...buildSearchWhere(query),
+    ...buildDateWhere(after, before),
   }
 
   const cursorValue = searchParams.get('cursor')
   if (cursorValue) {
+    if (sort === 'created_desc' || sort === 'created_asc') {
+      throw new ApiV1Error(400, 'invalid_cursor', 'Cursor pagination is not supported for created_* sort orders')
+    }
     const cursor = decodeCursor(cursorValue)
     const cursorDate = new Date(cursor.updatedAt)
     where.AND = [
