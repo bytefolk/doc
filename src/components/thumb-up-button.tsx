@@ -23,17 +23,29 @@ export default function ThumbUpButton(props: { initialCount: number; publishId: 
   const [thumbUpCount, setThumbUpCount] = useState(initialCount || 0)
   const handleThumbUp = async () => {
     if (loading) return // Prevent multiple clicks
+    const previousCount = thumbUpCount
+    const previousLiked = isLiked
     if (isLiked) {
       if (thumbUpCount <= 0) return // Prevent decrementing below zero
       setThumbUpCount(thumbUpCount - 1)
       setIsLiked(false)
-      localStorage.removeItem(STORE_KEY) // Remove publishId from localStorage
-      await patchData(`/api/pub/thumb-up-decrease/${publishId}`) // Decrease thumb up count in the backend
+      localStorage.removeItem(STORE_KEY)
+      const ok = await patchData(`/api/pub/thumb-up-decrease/${publishId}`)
+      if (!ok) {
+        setThumbUpCount(previousCount)
+        setIsLiked(true)
+        localStorage.setItem(STORE_KEY, 'true')
+      }
     } else {
       setThumbUpCount(thumbUpCount + 1)
       setIsLiked(true)
-      localStorage.setItem(STORE_KEY, 'true') // store publishId in localStorage
-      await patchData(`/api/pub/thumb-up/${publishId}`) // Increase thumb up count in the backend
+      localStorage.setItem(STORE_KEY, 'true')
+      const ok = await patchData(`/api/pub/thumb-up/${publishId}`)
+      if (!ok) {
+        setThumbUpCount(previousCount)
+        setIsLiked(previousLiked)
+        localStorage.removeItem(STORE_KEY)
+      }
     }
   }
 
@@ -44,10 +56,10 @@ export default function ThumbUpButton(props: { initialCount: number; publishId: 
       if (response.errno !== 0) {
         throw new Error('Network response was not ok')
       }
-      const data = response.data
-      return data
+      return true
     } catch (error) {
       console.error('Error:', error)
+      return false
     } finally {
       setLoading(false)
     }
