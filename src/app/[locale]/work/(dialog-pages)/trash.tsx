@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, type ReactNode } from 'react'
 import { Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -109,7 +109,7 @@ function TrashTable() {
   }
 
   const matchingDocs = list.filter((doc) => doc.title.includes(keyword))
-  let content: JSX.Element
+  let content: ReactNode
 
   if (loading) {
     content = (
