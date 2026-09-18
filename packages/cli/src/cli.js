@@ -293,8 +293,9 @@ function formatCapabilitiesText() {
 function formatDoctorText(result) {
   const lines = result.checks.map((item) => {
     const marker = item.status === 'pass' ? '✓' : item.status === 'warn' ? '!' : '✗'
+    const code = item.code ? ` [${item.code}]` : ''
     const guidance = item.guidance ? `\n    ${item.guidance}` : ''
-    return `${marker} ${item.label}: ${item.detail}${guidance}`
+    return `${marker} ${item.label}: ${item.detail}${code}${guidance}`
   })
   lines.push(result.ok ? 'doctor: healthy' : 'doctor: action required')
   return lines.join('\n')

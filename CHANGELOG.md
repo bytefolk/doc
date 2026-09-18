@@ -4,8 +4,28 @@ All notable changes to `doc` are documented here.
 
 ## [Unreleased]
 
+### Added
+
+- Local-only Mailpit guidance on email sign-in. Loopback Mailpit can open the newest
+  magic link; the emailed link remains the authority and production never enables this.
+- In-app back navigation and ancestor breadcrumbs for chromeless workspace containers,
+  plus a Reset entry point action that is not overwritten by in-session document switches.
+- Document list search over title or body with `matchField`, plus `after` / `before` /
+  `sort` / `type` / `minSize` / `maxSize` on `GET /api/v1/documents` and `GET /api/doc`.
+
+### Changed
+
+- Migrate the web app from Next.js 14 to 16 and React 19. Replace `next lint` with
+  standalone ESLint, add the `@directory` default boundary, hoist CSS `@import`s,
+  keep `ali-oss`/`urllib` external, and await App Router `params`.
+
 ### Fixed
 
+- Persist cancelling a like on a published document. The decrease endpoint now writes a
+  nonnegative `thumbUpCount` and returns the stored value; a missing publication is an error
+  rather than a false success. Duplicate cancellation against a zero count is a no-op. Like
+  identity remains browser-local (`localStorage`); this change does not introduce server-side
+  per-user like records.
 - Replace hardcoded `timeAgo` strings with `next-intl` translation keys and return ISO-8601
   `createdAt` from the version API so clients can format timestamps with `Intl.DateTimeFormat`.
   Remove unused `useTimeAgo` hook export and use real `messages/zh-cn.json` in `dt.test.ts`

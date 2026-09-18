@@ -9,6 +9,14 @@ import { getNextSortOrderForParent } from '@/lib/doc-sort-order'
 import { JsonBodyError, readJsonBody } from '@/lib/read-json-body'
 import { ApiV1Error } from '@/lib/api-v1'
 import { EMPTY_TIPTAP_DOCUMENT, encodeTiptapDocument } from '@/lib/tiptap-codec'
+import {
+  documentQueryWhere,
+  documentSortOrder,
+  documentUpdatedAtWhere,
+  matchFieldFor,
+  parseDocumentSort,
+  parseIsoDateParam,
+} from '@/lib/document-search'
 
 const MAX_CREATE_REQUEST_BYTES = 1024 * 1024
 
@@ -208,7 +216,20 @@ export async function GET(request: NextRequest) {
   if (isStarParam === '1') isStarFlag = true
 
   // 搜索关键字
-  const keyword = searchParams.get('keyword') || null
+  const keyword = (searchParams.get('keyword') || '').trim()
+  let after: Date | undefined
+  let before: Date | undefined
+  let sort
+  try {
+    after = parseIsoDateParam(searchParams.get('after'), 'after')
+    before = parseIsoDateParam(searchParams.get('before'), 'before')
+    sort = parseDocumentSort(searchParams.get('sort'))
+  } catch (error) {
+    if (error instanceof ApiV1Error) {
+      return Response.json(genErrorData(error.message), { status: error.status })
+    }
+    throw error
+  }
 
   // where
   const whereOpt: any = {
@@ -228,10 +249,13 @@ export async function GET(request: NextRequest) {
       whereOpt.isStar = false
     }
   }
-  if (keyword != null) {
-    whereOpt.title = {
-      contains: keyword,
-    }
+  const queryWhere = documentQueryWhere(keyword)
+  if (queryWhere) {
+    Object.assign(whereOpt, queryWhere)
+  }
+  const updatedAt = documentUpdatedAtWhere(after, before)
+  if (updatedAt) {
+    whereOpt.updatedAt = updatedAt
   }
 
   const list = await db.doc.findMany({
@@ -242,17 +266,23 @@ export async function GET(request: NextRequest) {
       isDeleted: true,
       createdAt: true,
       updatedAt: true,
+      content: true,
     },
     where: {
       userId: user.id || '',
       ...whereOpt,
     },
-    orderBy: {
-      updatedAt: 'desc',
-    },
+    orderBy: documentSortOrder(sort),
   })
 
-  return Response.json(genSuccessData(list || []))
+  return Response.json(
+    genSuccessData(
+      (list || []).map(({ content, ...doc }) => ({
+        ...doc,
+        matchField: matchFieldFor(doc.title, content || '', keyword),
+      }))
+    )
+  )
 }
 
 // 删除多个 docs

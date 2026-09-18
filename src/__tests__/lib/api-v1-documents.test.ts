@@ -184,12 +184,61 @@ describe('v1 document service', () => {
           userId: 'user-1',
           isDeleted: false,
           isStar: false,
-          title: { contains: 'Example', mode: 'insensitive' },
+          OR: [
+            { title: { contains: 'Example', mode: 'insensitive' } },
+            { content: { contains: 'Example', mode: 'insensitive' } },
+          ],
         }),
         orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
         take: 2,
       })
     )
+  })
+
+  test('matches body content and returns matchField', async () => {
+    mocks.findMany.mockResolvedValue([
+      {
+        ...metadata,
+        title: 'Notes',
+        content: JSON.stringify({
+          type: 'doc',
+          content: [{ type: 'paragraph', content: [{ type: 'text', text: 'needle in body' }] }],
+        }),
+      },
+    ])
+
+    const result = await listApiDocuments('user-1', new URLSearchParams({ query: 'needle' }))
+
+    expect(result.documents[0]).toMatchObject({
+      id: 'doc-1',
+      matchField: 'content',
+      mimeType: 'application/tiptap',
+    })
+  })
+
+  test('filters by updated-at range and sort', async () => {
+    mocks.findMany.mockResolvedValue([metadata])
+    await listApiDocuments(
+      'user-1',
+      new URLSearchParams({ after: '2026-09-01', before: '2026-09-17', sort: 'created_asc' })
+    )
+    expect(mocks.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          updatedAt: {
+            gte: new Date('2026-09-01'),
+            lte: new Date('2026-09-17'),
+          },
+        }),
+        orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+      })
+    )
+  })
+
+  test('returns no rows for non-tiptap type filters', async () => {
+    const result = await listApiDocuments('user-1', new URLSearchParams({ type: 'markdown' }))
+    expect(result).toEqual({ documents: [], nextCursor: null })
+    expect(mocks.findMany).not.toHaveBeenCalled()
   })
 
   test('hides inaccessible documents and permits explicit read shares', async () => {

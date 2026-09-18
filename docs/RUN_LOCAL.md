@@ -59,7 +59,9 @@ identity provider instead of Mailpit.
 Complete the first-document loop:
 
 1. Open <http://localhost:3100> and enter any valid email address.
-2. Open Mailpit at <http://localhost:8025> and follow the magic link in the newest message.
+2. On the verify page, use **Open Mailpit** or **Open the latest sign-in link** when local assist
+   is enabled (loopback Mailpit only). The magic link remains the sign-in authority. You can still
+   open Mailpit at <http://localhost:8025> manually.
 3. Create a document, edit its content, and wait for the saved state.
 4. Refresh the page and verify that the content remains.
 5. Run `npm run doc -- doctor --live`; Web, collaboration, authentication, SMTP, and local Mailpit
