@@ -6,9 +6,9 @@ All notable changes to `doc` are documented here.
 
 ### Added
 
-- Local-only Mailpit guidance on email sign-in: outside production the sign-in
-  and verify-request pages link to loopback Mailpit and can open the newest
-  magic link. The emailed link remains the authority; production and
+- Local-only Mailpit guidance after email sign-in: outside production the
+  verify-request page links to loopback Mailpit and can open the newest magic
+  link. The emailed link remains the authority; production and
   `DOC_LOCAL_AUTH_HINT=0` never enable this path.
 
 ### Fixed
