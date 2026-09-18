@@ -1,5 +1,3 @@
-import { useTranslations } from 'next-intl'
-
 type TimeAgoT = (key: string, params?: Record<string, number>) => string
 
 export function timeAgo(timeString: string, t: TimeAgoT, current = new Date()): string {
@@ -22,11 +20,6 @@ export function timeAgo(timeString: string, t: TimeAgoT, current = new Date()): 
   if (minutes > 0) return t('minutesAgo', { count: minutes })
   if (seconds > 0) return t('secondsAgo', { count: seconds })
   return t('justNow')
-}
-
-export function useTimeAgo(timeString: string): string {
-  const t = useTranslations('timeAgo')
-  return timeAgo(timeString, t)
 }
 
 export function isOneWeekAgo(dt: Date, now = new Date()) {

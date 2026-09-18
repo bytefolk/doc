@@ -1,17 +1,9 @@
 import { expect, test } from 'vitest'
 import { timeAgo, isOneWeekAgo, isSameMonth } from '@/lib/dt'
+import zhMessages from '../../../messages/zh-cn.json'
 
 const zhT = (key: string, params?: Record<string, number>) => {
-  const map: Record<string, string> = {
-    yearsAgo: '{count} 年前',
-    monthsAgo: '{count} 个月前',
-    daysAgo: '{count} 天前',
-    hoursAgo: '{count} 小时前',
-    minutesAgo: '{count} 分钟前',
-    secondsAgo: '{count} 秒前',
-    justNow: '刚刚',
-  }
-  let result = map[key] ?? key
+  let result = (zhMessages.timeAgo as Record<string, string>)[key] ?? key
   if (params) {
     for (const [k, v] of Object.entries(params)) {
       result = result.replace(`{${k}}`, String(v))

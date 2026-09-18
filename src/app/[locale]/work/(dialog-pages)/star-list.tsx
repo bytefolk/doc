@@ -185,7 +185,6 @@ function Item(props: ItemProps) {
     })
   }, [isCurrent])
 
-  // 缓存一下更新时间，防止键盘上下键选择的时候，由于父组件重新渲染，导致更新时间频繁重复渲染
   const time = useMemo(() => {
     return timeAgo(doc.updatedAt?.toString() || '', timeAgoT)
   }, [doc.updatedAt, timeAgoT])
