@@ -26,10 +26,7 @@ export function parseSort(value: string | null): SortValue {
 export function buildSearchWhere(query: string): Prisma.DocWhereInput {
   if (!query) return {}
   return {
-    OR: [
-      { title: { contains: query, mode: 'insensitive' } },
-      { content: { contains: query, mode: 'insensitive' } },
-    ],
+    OR: [{ title: { contains: query, mode: 'insensitive' } }, { content: { contains: query, mode: 'insensitive' } }],
   }
 }
 
