@@ -9,7 +9,8 @@
     "documentActions": "文档操作",
     "moreDocumentActions": "更多文档操作",
     "changeLanguage": "切换语言，当前为 {locale}",
-    "closeDialog": "关闭对话框"
+    "closeDialog": "关闭对话框",
+    "goBack": "返回上一页"
   },
   "metadata": {
     "title": "doc — 自托管协作文档基础设施",

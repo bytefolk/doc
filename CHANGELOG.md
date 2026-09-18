@@ -6,6 +6,9 @@ All notable changes to `doc` are documented here.
 
 ### Fixed
 
+- Add an in-app back button to the TopBar that appears only after the first in-app navigation,
+  and scope the entry-document flag to `sessionStorage` so it survives SPA navigation but resets
+  on full page reload (#66).
 - Replace hardcoded `timeAgo` strings with `next-intl` translation keys and return ISO-8601
   `createdAt` from the version API so clients can format timestamps with `Intl.DateTimeFormat`.
   Remove unused `useTimeAgo` hook export and use real `messages/zh-cn.json` in `dt.test.ts`

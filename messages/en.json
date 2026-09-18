@@ -9,7 +9,8 @@
     "documentActions": "Document actions",
     "moreDocumentActions": "More document actions",
     "changeLanguage": "Change language, current {locale}",
-    "closeDialog": "Close dialog"
+    "closeDialog": "Close dialog",
+    "goBack": "Go back"
   },
   "metadata": {
     "title": "doc — self-hosted collaborative document infrastructure",
