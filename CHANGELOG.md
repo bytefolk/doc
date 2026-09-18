@@ -6,6 +6,12 @@ All notable changes to `doc` are documented here.
 
 ### Fixed
 
+- Persist cancelling a like on a published document. The decrease endpoint now writes a
+  nonnegative `thumbUpCount` and returns the stored value; a missing publication is an error
+  rather than a false success. Duplicate cancellation against a zero count is a no-op. If the
+  request fails, the published-page button restores the previous count and liked state. Like
+  identity remains browser-local (`localStorage`); this change does not introduce server-side
+  per-user like records.
 - Add an in-app back button to the TopBar that appears only after the first in-app navigation,
   and scope the entry-document flag to `sessionStorage` so it survives SPA navigation but resets
   on full page reload (#66).
