@@ -13,7 +13,7 @@ COPY vendor/ ./vendor/
 COPY packages/cli/package.json ./packages/cli/package.json
 COPY services/collaboration/package.json ./services/collaboration/package.json
 RUN \
-  if [ -f package-lock.json ]; then HUSKY=0 npm ci; \
+  if [ -f package-lock.json ]; then HUSKY=0 npm ci --legacy-peer-deps; \
   else echo "Lockfile not found." && exit 1; \
   fi
 
