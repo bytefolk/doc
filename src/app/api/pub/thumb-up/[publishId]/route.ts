@@ -1,8 +1,9 @@
 import { db } from '@/db/db'
 import { genSuccessData, genErrorData } from '@/app/api/utils/gen-res-data'
+import { resolveRouteParams, type RouteParams } from '@/lib/route-params'
 
-export async function PATCH(request: Request, { params }: { params: { publishId: string } }) {
-  const { publishId } = params // `publishId` is publish url suffix
+export async function PATCH(request: Request, { params }: { params: RouteParams<{ publishId: string }> }) {
+  const { publishId } = await resolveRouteParams(params) // `publishId` is publish url suffix
 
   try {
     const p = await db.pubDoc.update({

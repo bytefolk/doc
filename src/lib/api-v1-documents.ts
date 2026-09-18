@@ -8,6 +8,22 @@ import { db } from '@/db/db'
 import { ApiV1Error } from '@/lib/api-v1'
 import { getNextSortOrderForParent } from '@/lib/doc-sort-order'
 import { EMPTY_TIPTAP_DOCUMENT, encodeTiptapDocument } from '@/lib/tiptap-codec'
+import {
+  DEFAULT_DOCUMENT_SORT,
+  TIPTAP_MIME_TYPE,
+  contentByteSize,
+  documentQueryWhere,
+  documentSortOrder,
+  documentUpdatedAtWhere,
+  inferredDocType,
+  matchFieldFor,
+  parseByteSizeParam,
+  parseDocumentSort,
+  parseDocumentType,
+  parseIsoDateParam,
+  passesSizeFilter,
+  type MatchField,
+} from '@/lib/document-search'
 
 const DEFAULT_LIST_LIMIT = 50
 const MAX_LIST_LIMIT = 100
@@ -129,7 +145,11 @@ export function apiDocumentEtag(document: Pick<DocumentMetadata, 'id' | 'updated
   return `"doc:${document.id}:${revision}"`
 }
 
-function toMetadataDto(document: DocumentMetadata, access: DocumentAccess = 'owner') {
+function toMetadataDto(
+  document: DocumentMetadata,
+  access: DocumentAccess = 'owner',
+  extras: { matchField?: MatchField; mimeType?: string; size?: number } = {}
+) {
   return {
     id: document.id,
     title: document.title,
@@ -140,6 +160,9 @@ function toMetadataDto(document: DocumentMetadata, access: DocumentAccess = 'own
     access,
     createdAt: document.createdAt.toISOString(),
     updatedAt: document.updatedAt.toISOString(),
+    ...(extras.matchField ? { matchField: extras.matchField } : {}),
+    mimeType: extras.mimeType ?? TIPTAP_MIME_TYPE,
+    ...(extras.size === undefined ? {} : { size: extras.size }),
   }
 }
 
@@ -162,16 +185,31 @@ export async function listApiDocuments(userId: string, searchParams: URLSearchPa
   const trash = parseBooleanQuery(searchParams.get('trash'), 'trash') || false
   const query = searchParams.get('query')?.trim() || ''
   if (query.length > 200) throw new ApiV1Error(400, 'invalid_query', 'query must not exceed 200 characters')
+  const after = parseIsoDateParam(searchParams.get('after'), 'after')
+  const before = parseIsoDateParam(searchParams.get('before'), 'before')
+  const sort = parseDocumentSort(searchParams.get('sort'))
+  const type = parseDocumentType(searchParams.get('type'))
+  const minSize = parseByteSizeParam(searchParams.get('minSize'), 'minSize')
+  const maxSize = parseByteSizeParam(searchParams.get('maxSize'), 'maxSize')
+  if (type && type !== inferredDocType()) {
+    return { documents: [], nextCursor: null }
+  }
 
+  const updatedAt = documentUpdatedAtWhere(after, before)
+  const queryWhere = documentQueryWhere(query)
   const where: Prisma.DocWhereInput = {
     userId,
     isDeleted: trash,
     ...(starred === undefined ? {} : { isStar: starred }),
-    ...(query ? { title: { contains: query, mode: 'insensitive' } } : {}),
+    ...(updatedAt ? { updatedAt } : {}),
+    ...(queryWhere ? queryWhere : {}),
   }
 
   const cursorValue = searchParams.get('cursor')
   if (cursorValue) {
+    if (sort !== DEFAULT_DOCUMENT_SORT) {
+      throw new ApiV1Error(400, 'invalid_query', 'cursor cannot be combined with a non-default sort')
+    }
     const cursor = decodeCursor(cursorValue)
     const cursorDate = new Date(cursor.updatedAt)
     where.AND = [
@@ -181,18 +219,28 @@ export async function listApiDocuments(userId: string, searchParams: URLSearchPa
     ]
   }
 
+  const needsContent = Boolean(query) || minSize !== undefined || maxSize !== undefined
   const rows = await db.doc.findMany({
     where,
-    select: documentMetadataSelect,
-    orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+    select: needsContent ? { ...documentMetadataSelect, content: true } : documentMetadataSelect,
+    orderBy: documentSortOrder(sort),
     take: limit + 1,
   })
-  const hasMore = rows.length > limit
-  const documents = rows.slice(0, limit)
+  const sized = rows.filter((row) =>
+    'content' in row && typeof row.content === 'string' ? passesSizeFilter(row.content, minSize, maxSize) : true
+  )
+  const hasMore = sized.length > limit
+  const documents = sized.slice(0, limit)
   const last = documents.at(-1)
 
   return {
-    documents: documents.map((document) => toMetadataDto(document)),
+    documents: documents.map((document) => {
+      const content = 'content' in document && typeof document.content === 'string' ? document.content : ''
+      return toMetadataDto(document, 'owner', {
+        matchField: matchFieldFor(document.title, content, query),
+        size: content ? contentByteSize(content) : undefined,
+      })
+    }),
     nextCursor:
       hasMore && last
         ? encodeCursor({

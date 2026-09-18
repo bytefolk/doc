@@ -7,6 +7,9 @@ export const WORK_CONTENT_CONTAINER_ID = 'work-content-container'
 export const WORK_CONTENT_PANEL_ID = 'work-content-panel'
 export const DOC_TITLE_INPUT_ID = 'DOC_TITLE_INPUT_ID'
 export const LAST_DOC_ID_KEY = 'LAST_DOC_ID'
+export const ENTRY_DOC_ID_KEY = 'ENTRY_DOC_ID'
+export const DOC_NAV_DEPTH_KEY = 'DOC_NAV_DEPTH'
+export const DOC_NAV_DEPTH_EVENT = 'doc-nav-depth'
 
 export const DEFAULT_NEW_DOC_TITLE = '欢迎使用 doc'
 export const DEFAULT_NEW_DOC_CONTENT =

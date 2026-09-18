@@ -74,12 +74,16 @@ The response contains `authenticated`, `userId`, and the token's `scopes`.
 ### List documents
 
 ```http
-GET /api/v1/documents?limit=50&cursor=...&query=...&starred=true&trash=false
+GET /api/v1/documents?limit=50&cursor=...&query=...&starred=true&trash=false&after=2026-09-01&before=2026-09-17&sort=updated_desc&type=tiptap&minSize=0&maxSize=100000
 ```
 
 The list contains documents owned by the token's user. `limit` defaults to `50` and must be from
 `1` to `100`. Follow `meta.nextCursor` until it is `null`; cursors are opaque. `starred` and
-`trash` accept only `true` or `false`. `query` is limited to 200 characters.
+`trash` accept only `true` or `false`. `query` is limited to 200 characters and matches title or
+document body. Matching rows include `matchField` (`title`, `content`, or `both`). `after` /
+`before` filter `updatedAt`. `sort` is `updated_asc`, `updated_desc`, `created_asc`, or
+`created_desc`. `type` currently accepts `tiptap` (all existing documents). `minSize` / `maxSize`
+filter stored content bytes. `cursor` cannot be combined with a non-default sort.
 
 ```json
 {
