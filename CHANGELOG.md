@@ -39,6 +39,12 @@ All notable changes to `doc` are documented here.
 
 ### Added
 
+- Extend document search to content body and add time-range and sort filters (#68): both
+  `GET /api/doc?keyword=` and `GET /api/v1/documents?query=` now match title OR content
+  (case-insensitive). New `after` / `before` (ISO 8601) filter by `updatedAt`; `sort` accepts
+  `updated_desc` (default), `updated_asc`, `created_desc`, `created_asc`. Shared query parser
+  (`src/lib/doc-query.ts`) keeps the two routes consistent; invalid dates/sort return 400.
+
 - Adoption of the shared `@fullstack-ai-infra/ui` design system for the first document
   workflow: workspace shell (responsive sidebar with compact mode), editor chrome, and
   landing/sign-in surfaces consume shared tokens and components; adds a Playwright
