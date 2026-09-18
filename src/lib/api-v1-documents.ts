@@ -8,6 +8,7 @@ import { db } from '@/db/db'
 import { ApiV1Error } from '@/lib/api-v1'
 import { getNextSortOrderForParent } from '@/lib/doc-sort-order'
 import { EMPTY_TIPTAP_DOCUMENT, encodeTiptapDocument } from '@/lib/tiptap-codec'
+import { parseOptionalDate, parseSort, buildSearchWhere, buildDateWhere, getOrderBy, SortValue } from '@/lib/doc-query'
 
 const DEFAULT_LIST_LIMIT = 50
 const MAX_LIST_LIMIT = 100
@@ -163,15 +164,23 @@ export async function listApiDocuments(userId: string, searchParams: URLSearchPa
   const query = searchParams.get('query')?.trim() || ''
   if (query.length > 200) throw new ApiV1Error(400, 'invalid_query', 'query must not exceed 200 characters')
 
+  const after = parseOptionalDate(searchParams.get('after'), 'after')
+  const before = parseOptionalDate(searchParams.get('before'), 'before')
+  const sort = parseSort(searchParams.get('sort'))
+
   const where: Prisma.DocWhereInput = {
     userId,
     isDeleted: trash,
     ...(starred === undefined ? {} : { isStar: starred }),
-    ...(query ? { title: { contains: query, mode: 'insensitive' } } : {}),
+    ...buildSearchWhere(query),
+    ...buildDateWhere(after, before),
   }
 
   const cursorValue = searchParams.get('cursor')
   if (cursorValue) {
+    if (sort === 'created_desc' || sort === 'created_asc') {
+      throw new ApiV1Error(400, 'invalid_cursor', 'Cursor pagination is not supported for created_* sort orders')
+    }
     const cursor = decodeCursor(cursorValue)
     const cursorDate = new Date(cursor.updatedAt)
     where.AND = [
@@ -181,10 +190,12 @@ export async function listApiDocuments(userId: string, searchParams: URLSearchPa
     ]
   }
 
+  const orderBy = getOrderBy(sort)
+
   const rows = await db.doc.findMany({
     where,
     select: documentMetadataSelect,
-    orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+    orderBy,
     take: limit + 1,
   })
   const hasMore = rows.length > limit
