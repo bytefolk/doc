@@ -1,26 +1,37 @@
 import { expect, test } from 'vitest'
 import { timeAgo, isOneWeekAgo, isSameMonth } from '@/lib/dt'
+import zhMessages from '../../../messages/zh-cn.json'
+
+const zhT = (key: string, params?: Record<string, number>) => {
+  let result = (zhMessages.timeAgo as Record<string, string>)[key] ?? key
+  if (params) {
+    for (const [k, v] of Object.entries(params)) {
+      result = result.replace(`{${k}}`, String(v))
+    }
+  }
+  return result
+}
 
 test('dt timeAgo function', () => {
-  const res1 = timeAgo('2023-1-1', true, new Date('2025-2-2'))
+  const res1 = timeAgo('2023-1-1', zhT, new Date('2025-2-2'))
   expect(res1).toBe('2 年前')
 
-  const res2 = timeAgo('2024-10-1', true, new Date('2025-2-2'))
+  const res2 = timeAgo('2024-10-1', zhT, new Date('2025-2-2'))
   expect(res2).toBe('4 个月前')
 
-  const res3 = timeAgo('2025-1-10', true, new Date('2025-2-2'))
+  const res3 = timeAgo('2025-1-10', zhT, new Date('2025-2-2'))
   expect(res3).toBe('23 天前')
 
-  const res4 = timeAgo('2025-2-2 7:05:00', true, new Date('2025-2-2 10:10:00'))
+  const res4 = timeAgo('2025-2-2 7:05:00', zhT, new Date('2025-2-2 10:10:00'))
   expect(res4).toBe('3 小时前')
 
-  const res5 = timeAgo('2025-2-2 10:05:00', true, new Date('2025-2-2 10:10:00'))
+  const res5 = timeAgo('2025-2-2 10:05:00', zhT, new Date('2025-2-2 10:10:00'))
   expect(res5).toBe('5 分钟前')
 
-  const res6 = timeAgo('2025-2-2 10:09:10', true, new Date('2025-2-2 10:10:00'))
+  const res6 = timeAgo('2025-2-2 10:09:10', zhT, new Date('2025-2-2 10:10:00'))
   expect(res6).toBe('50 秒前')
 
-  const res7 = timeAgo('2025-2-2 10:10:10', true, new Date('2025-2-2 10:10:00'))
+  const res7 = timeAgo('2025-2-2 10:10:10', zhT, new Date('2025-2-2 10:10:00'))
   expect(res7).toBe('刚刚')
 })
 

@@ -439,6 +439,15 @@
     "restoreFailed": "恢复版本失败，请稍后重试。",
     "snapshotMissing": "当前文档快照不可用，暂时无法恢复。"
   },
+  "timeAgo": {
+    "yearsAgo": "{count} 年前",
+    "monthsAgo": "{count} 个月前",
+    "daysAgo": "{count} 天前",
+    "hoursAgo": "{count} 小时前",
+    "minutesAgo": "{count} 分钟前",
+    "secondsAgo": "{count} 秒前",
+    "justNow": "刚刚"
+  },
   "emptyStates": {
     "documentsTitle": "创建你的第一篇文档",
     "documentsDescription": "从这里开始写作，再整理和分享你的内容。",

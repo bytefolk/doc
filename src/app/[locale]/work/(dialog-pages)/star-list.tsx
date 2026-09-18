@@ -14,7 +14,7 @@ import scrollIntoView from 'scroll-into-view-if-needed'
 import debounce from 'lodash.debounce'
 import useDialogListKeyPress from './hooks/useDialogListKeyPress'
 import { cn } from '@/lib/utils'
-import { useTranslations, useLocale } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { useDialogStore } from '@/stores/dialog-store'
 
 export default function StarList() {
@@ -173,7 +173,7 @@ function Item(props: ItemProps) {
   const isCurrent = currentIndex === docIndex
   const tableRowRef = useRef<HTMLTableRowElement>(null)
   const t = useTranslations('favorList')
-  const locale = useLocale()
+  const timeAgoT = useTranslations('timeAgo')
 
   useEffect(() => {
     if (!isCurrent) return
@@ -185,10 +185,9 @@ function Item(props: ItemProps) {
     })
   }, [isCurrent])
 
-  // 缓存一下更新时间，防止键盘上下键选择的时候，由于父组件重新渲染，导致更新时间频繁重复渲染
   const time = useMemo(() => {
-    return timeAgo(doc.updatedAt?.toString() || '', locale === 'zh-cn')
-  }, [doc.updatedAt, locale])
+    return timeAgo(doc.updatedAt?.toString() || '', timeAgoT)
+  }, [doc.updatedAt, timeAgoT])
 
   return (
     <TableRow

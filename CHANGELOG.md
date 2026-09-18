@@ -6,6 +6,10 @@ All notable changes to `doc` are documented here.
 
 ### Fixed
 
+- Replace hardcoded `timeAgo` strings with `next-intl` translation keys and return ISO-8601
+  `createdAt` from the version API so clients can format timestamps with `Intl.DateTimeFormat`.
+  Remove unused `useTimeAgo` hook export and use real `messages/zh-cn.json` in `dt.test.ts`
+  to prevent test/translation drift.
 - Use a consistent empty-state composition for workspace, search, favorites, shared/published
   documents, trash, personal tokens, and admin lists. Distinguish first use from filtered results
   and loading, with concise guidance and existing actions.

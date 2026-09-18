@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useTranslations, useLocale } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { File, Plus, Search, Star, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -101,7 +101,7 @@ function NewButton() {
 
 function RecentDocsList() {
   const t = useTranslations('contentHome')
-  const locale = useLocale()
+  const timeAgoT = useTranslations('timeAgo')
 
   const emptyT = useTranslations('emptyStates')
   const { docs } = useDocsStore()
@@ -150,7 +150,7 @@ function RecentDocsList() {
               </CardHeader>
               <CardContent>
                 <CardDescription className="truncate">
-                  {timeAgo(doc.updatedAt?.toString() || '', locale === 'zh-cn')}
+                  {timeAgo(doc.updatedAt?.toString() || '', timeAgoT)}
                 </CardDescription>
               </CardContent>
             </Card>
@@ -163,7 +163,7 @@ function RecentDocsList() {
 
 function FavoriteDocsList() {
   const t = useTranslations('contentHome')
-  const locale = useLocale()
+  const timeAgoT = useTranslations('timeAgo')
 
   const emptyT = useTranslations('emptyStates')
 
@@ -224,7 +224,7 @@ function FavoriteDocsList() {
               </CardHeader>
               <CardContent>
                 <CardDescription className="truncate">
-                  {timeAgo(doc.updatedAt?.toString() || '', locale === 'zh-cn')}
+                  {timeAgo(doc.updatedAt?.toString() || '', timeAgoT)}
                 </CardDescription>
               </CardContent>
             </Card>
@@ -237,7 +237,7 @@ function FavoriteDocsList() {
 
 function SharedDocsList() {
   const t = useTranslations('contentHome')
-  const locale = useLocale()
+  const timeAgoT = useTranslations('timeAgo')
 
   const emptyT = useTranslations('emptyStates')
 
@@ -299,7 +299,7 @@ function SharedDocsList() {
               </CardHeader>
               <CardContent>
                 <CardDescription className="truncate">
-                  {timeAgo(doc.updatedAt?.toString() || '', locale === 'zh-cn')}
+                  {timeAgo(doc.updatedAt?.toString() || '', timeAgoT)}
                 </CardDescription>
               </CardContent>
             </Card>

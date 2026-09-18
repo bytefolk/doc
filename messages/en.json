@@ -439,6 +439,15 @@
     "restoreFailed": "Failed to restore this version.",
     "snapshotMissing": "Current snapshot is unavailable."
   },
+  "timeAgo": {
+    "yearsAgo": "{count} years ago",
+    "monthsAgo": "{count} months ago",
+    "daysAgo": "{count} days ago",
+    "hoursAgo": "{count} hours ago",
+    "minutesAgo": "{count} minutes ago",
+    "secondsAgo": "{count} seconds ago",
+    "justNow": "just now"
+  },
   "emptyStates": {
     "documentsTitle": "Create your first document",
     "documentsDescription": "Start writing, then organize and share your work from here.",

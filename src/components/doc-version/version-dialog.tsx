@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useTranslations } from 'next-intl'
+import { useTranslations, useLocale } from 'next-intl'
 import { History } from 'lucide-react'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -29,6 +29,7 @@ const VERSION_DIALOG_MAX_WIDTH =
 export default function VersionDialog(props: { id: string }) {
   const { id } = props
   const t = useTranslations('docVersion')
+  const locale = useLocale()
   const { toast } = useToast()
   const open = useDocVersionStore((s) => s.open)
   const setOpen = useDocVersionStore((s) => s.setOpen)
@@ -177,6 +178,21 @@ export default function VersionDialog(props: { id: string }) {
   const currentUserName = userInfo?.name || userInfo?.email || t('currentUser')
   const isVersionListEmpty = !loading && !loadFailed && versions.length === 0
 
+  const formatVersionTime = (iso: string) => {
+    try {
+      return new Date(iso).toLocaleString(locale, {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+      })
+    } catch {
+      return iso
+    }
+  }
+
   async function handleRestore() {
     if (!selectedVersionId) return
 
@@ -244,11 +260,11 @@ export default function VersionDialog(props: { id: string }) {
                     key={version.id}
                     className="w-full text-left rounded-md p-2 text-foreground hover:bg-muted data-[active=true]:bg-muted"
                     onClick={() => setSelectedVersionId(version.id)}
-                    aria-label={version.createdAt}
+                    aria-label={formatVersionTime(version.createdAt)}
                     data-active={selectedVersionId === version.id}
                     type="button"
                   >
-                    <p className="text-sm text-muted-foreground">{version.createdAt}</p>
+                    <p className="text-sm text-muted-foreground">{formatVersionTime(version.createdAt)}</p>
                     <p className="text-xs font-medium">{currentUserName}</p>
                   </button>
                 ))}
