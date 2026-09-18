@@ -9,6 +9,7 @@ import { getNextSortOrderForParent } from '@/lib/doc-sort-order'
 import { JsonBodyError, readJsonBody } from '@/lib/read-json-body'
 import { ApiV1Error } from '@/lib/api-v1'
 import { EMPTY_TIPTAP_DOCUMENT, encodeTiptapDocument } from '@/lib/tiptap-codec'
+import { parseOptionalDate, parseSort, buildSearchWhere, buildDateWhere, getOrderBy, SortValue } from '@/lib/doc-query'
 
 const MAX_CREATE_REQUEST_BYTES = 1024 * 1024
 
@@ -210,6 +211,30 @@ export async function GET(request: NextRequest) {
   // 搜索关键字
   const keyword = searchParams.get('keyword') || null
 
+  // 时间范围过滤
+  let afterDate: Date | null = null
+  let beforeDate: Date | null = null
+  try {
+    afterDate = parseOptionalDate(searchParams.get('after'), 'after')
+    beforeDate = parseOptionalDate(searchParams.get('before'), 'before')
+  } catch (error) {
+    if (error instanceof ApiV1Error) {
+      return Response.json(genErrorData(error.message), { status: error.status })
+    }
+    throw error
+  }
+
+  // 排序
+  let sort: SortValue
+  try {
+    sort = parseSort(searchParams.get('sort'))
+  } catch (error) {
+    if (error instanceof ApiV1Error) {
+      return Response.json(genErrorData(error.message), { status: error.status })
+    }
+    throw error
+  }
+
   // where
   const whereOpt: any = {
     isDeleted: false, // 默认
@@ -229,10 +254,13 @@ export async function GET(request: NextRequest) {
     }
   }
   if (keyword != null) {
-    whereOpt.title = {
-      contains: keyword,
-    }
+    Object.assign(whereOpt, buildSearchWhere(keyword))
   }
+  if (afterDate || beforeDate) {
+    Object.assign(whereOpt, buildDateWhere(afterDate, beforeDate))
+  }
+
+  const orderBy = getOrderBy(sort)
 
   const list = await db.doc.findMany({
     select: {
@@ -247,9 +275,7 @@ export async function GET(request: NextRequest) {
       userId: user.id || '',
       ...whereOpt,
     },
-    orderBy: {
-      updatedAt: 'desc',
-    },
+    orderBy,
   })
 
   return Response.json(genSuccessData(list || []))
