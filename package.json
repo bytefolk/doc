@@ -123,6 +123,7 @@
     "ua-parser-js": "^1.0.37",
     "ws": "^8.18.0",
     "y-indexeddb": "^9.0.12",
+    "y-prosemirror": "^1.2.1",
     "yjs": "^13.6.18",
     "zod": "^3.25.76",
     "zustand": "^4.5.5"
@@ -135,6 +136,7 @@
     "@commitlint/config-conventional": "^19.1.0",
     "@playwright/test": "^1.58.2",
     "@tailwindcss/typography": "^0.5.12",
+    "@testing-library/dom": "^10.0.0",
     "@testing-library/react": "^16.1.0",
     "@types/ali-oss": "^6.16.11",
     "@types/crypto-js": "^4.2.2",

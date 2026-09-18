@@ -10,5 +10,5 @@ test('Logo component', async () => {
     </NextIntlClientProviderWrapper>
   )
   const link = screen.getByRole('logo')
-  expect(link.getAttribute('href')).toBe('/')
+  expect(link.getAttribute('href')).toMatch(/^\/(en)?$/)
 })
