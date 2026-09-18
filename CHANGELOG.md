@@ -4,8 +4,20 @@ All notable changes to `doc` are documented here.
 
 ## [Unreleased]
 
+### Added
+
+- Document search now matches both title and content, with optional `after`/`before` time range
+  filters and `sort` ordering (`updated_desc`, `updated_asc`, `created_desc`, `created_asc`).
+  Both the internal `/api/doc` and v1 `/api/v1/documents` endpoints share the same query parser
+  and validation logic.
+
 ### Fixed
 
+- Remove unused `useTimeAgo` hook export and use real `messages/zh-cn.json` in `dt.test.ts`
+  to prevent test/translation drift.
+- Replace module-level `hasRecordedEntryDoc` with `sessionStorage` to properly scope the
+  entry-doc flag to the page session. The back button now only appears after in-app navigation,
+  avoiding confusion on direct page load.
 - Use a consistent empty-state composition for workspace, search, favorites, shared/published
   documents, trash, personal tokens, and admin lists. Distinguish first use from filtered results
   and loading, with concise guidance and existing actions.
