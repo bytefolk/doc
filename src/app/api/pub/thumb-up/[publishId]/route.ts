@@ -1,6 +1,10 @@
 import { db } from '@/db/db'
-import { genSuccessData, genErrorData, genUnAuthData } from '@/app/api/utils/gen-res-data'
+import { genSuccessData, genErrorData } from '@/app/api/utils/gen-res-data'
 import { resolveViewerId } from '@/lib/viewer-id'
+
+function isUniqueViolation(error: unknown): boolean {
+  return typeof error === 'object' && error !== null && 'code' in error && (error as { code: unknown }).code === 'P2002'
+}
 
 export async function GET(_request: Request, { params }: { params: { publishId: string } }) {
   const { publishId } = params
@@ -25,29 +29,26 @@ export async function PATCH(_request: Request, { params }: { params: { publishId
 
   try {
     const { viewerId } = await resolveViewerId()
-    const pubDoc = await db.pubDoc.findUnique({ where: { publishId }, select: { id: true } })
+    const pubDoc = await db.pubDoc.findUnique({ where: { publishId }, select: { id: true, thumbUpCount: true } })
     if (!pubDoc) return Response.json(genErrorData('not found'))
 
-    const existing = await db.pubDocLike.findUnique({
-      where: { viewerId_pubDocId: { viewerId, pubDocId: pubDoc.id } },
-    })
-    if (existing) {
+    try {
+      const updated = await db.$transaction(async (tx) => {
+        await tx.pubDocLike.create({
+          data: { viewerId, pubDocId: pubDoc.id },
+        })
+        return tx.pubDoc.update({
+          where: { publishId },
+          data: { thumbUpCount: { increment: 1 } },
+          select: { thumbUpCount: true },
+        })
+      })
+      return Response.json(genSuccessData({ liked: true, count: updated.thumbUpCount }))
+    } catch (error) {
+      if (!isUniqueViolation(error)) throw error
       const current = await db.pubDoc.findUnique({ where: { publishId }, select: { thumbUpCount: true } })
-      return Response.json(genSuccessData({ liked: true, count: current!.thumbUpCount }))
+      return Response.json(genSuccessData({ liked: true, count: current?.thumbUpCount ?? pubDoc.thumbUpCount }))
     }
-
-    const [updated] = await db.$transaction([
-      db.pubDoc.update({
-        where: { publishId },
-        data: { thumbUpCount: { increment: 1 } },
-        select: { thumbUpCount: true },
-      }),
-      db.pubDocLike.create({
-        data: { viewerId, pubDocId: pubDoc.id },
-      }),
-    ])
-
-    return Response.json(genSuccessData({ liked: true, count: updated.thumbUpCount }))
   } catch (ex: any) {
     return Response.json(genErrorData(ex.message))
   }

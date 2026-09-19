@@ -5,6 +5,12 @@ import { auth } from 'auth'
 const COOKIE_NAME = 'viewer_id'
 const COOKIE_MAX_AGE = 60 * 60 * 24 * 365
 
+/**
+ * Viewer identity for published-document likes (#72).
+ * Signed-in users are `user:{id}`. Anonymous visitors get an httpOnly UUID
+ * cookie: it is a documented opaque token, not a signed capability, and it
+ * only scopes like rows for this browser profile.
+ */
 export async function resolveViewerId(): Promise<{ viewerId: string; setCookie: boolean }> {
   const session = await auth()
   if (session?.user?.id) {

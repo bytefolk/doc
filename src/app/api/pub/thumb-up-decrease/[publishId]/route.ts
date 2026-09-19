@@ -10,21 +10,23 @@ export async function PATCH(_request: Request, { params }: { params: { publishId
     const pubDoc = await db.pubDoc.findUnique({ where: { publishId }, select: { id: true, thumbUpCount: true } })
     if (!pubDoc) return Response.json(genErrorData('not found'))
 
-    const deleted = await db.pubDocLike.deleteMany({
-      where: { viewerId, pubDocId: pubDoc.id },
+    const result = await db.$transaction(async (tx) => {
+      const deleted = await tx.pubDocLike.deleteMany({
+        where: { viewerId, pubDocId: pubDoc.id },
+      })
+      if (deleted.count === 0) {
+        const current = await tx.pubDoc.findUnique({ where: { publishId }, select: { thumbUpCount: true } })
+        return { liked: false as const, count: current?.thumbUpCount ?? pubDoc.thumbUpCount }
+      }
+      await tx.pubDoc.updateMany({
+        where: { publishId, thumbUpCount: { gt: 0 } },
+        data: { thumbUpCount: { decrement: 1 } },
+      })
+      const current = await tx.pubDoc.findUnique({ where: { publishId }, select: { thumbUpCount: true } })
+      return { liked: false as const, count: current?.thumbUpCount ?? 0 }
     })
 
-    if (deleted.count === 0) {
-      return Response.json(genSuccessData({ liked: false, count: pubDoc.thumbUpCount }))
-    }
-
-    const newCount = Math.max(0, pubDoc.thumbUpCount - 1)
-    await db.pubDoc.update({
-      where: { publishId },
-      data: { thumbUpCount: newCount },
-    })
-
-    return Response.json(genSuccessData({ liked: false, count: newCount }))
+    return Response.json(genSuccessData(result))
   } catch (ex: any) {
     return Response.json(genErrorData(ex.message))
   }
