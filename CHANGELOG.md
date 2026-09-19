@@ -4,6 +4,13 @@ All notable changes to `doc` are documented here.
 
 ## [Unreleased]
 
+### Added
+
+- Add `docs/DISTRIBUTION.md`: the three distribution doors (local single-player, gated
+  ByteFolk-hosted SaaS, guided self-hosting), their identity, cost, and compliance
+  boundaries, the authentication consistency principle across deployments, and the
+  guidance surfaces in `doc init`, README, and `doc doctor`.
+
 ### Fixed
 
 - Persist like identity per viewer using a server-side `PubDocLike` table and cookie-based
