@@ -19,8 +19,13 @@ The `query` parameter searches both document title and body content with OR sema
 is returned if the keyword appears in either field.
 
 ```http
-GET /api/v1/documents?query=deployment+procedure
+GET /api/v1/documents?query=deployment%20procedure
 ```
+
+`query` is a **single substring**, not a list of OR terms. `deployment%20procedure` (a space)
+matches documents whose title or body contains the 21-character string `deployment procedure`.
+It does not match a document that has `deployment` in the title and `procedure` only in the
+body as two separate words. `+` in the query string is a space, not a boolean operator.
 
 The search is case-insensitive and uses substring matching (`ILIKE`-style). For host apps that
 need to show where the match was found, there is currently no `matchField` indicator in the API
@@ -50,7 +55,7 @@ Control ordering with the `sort` parameter:
 # Most recently created first
 GET /api/v1/documents?sort=created_desc
 
-# Alphabetical by update time (oldest first)
+# Least recently updated first
 GET /api/v1/documents?sort=updated_asc
 ```
 
