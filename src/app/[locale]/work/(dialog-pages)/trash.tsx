@@ -19,7 +19,7 @@ import { IDoc } from '@/stores/docs-store'
 import { timeAgo } from '@/lib/dt'
 import { getDescendantsIds } from '../[id]/@directory/util'
 import { get, post, del as ajaxDelete } from '@/lib/ajax'
-import { useTranslations, useLocale } from 'next-intl'
+import { useTranslations } from 'next-intl'
 import { useDialogStore } from '@/stores/dialog-store'
 
 export default function Trash() {
@@ -47,7 +47,7 @@ export default function Trash() {
 function TrashTable() {
   const { toast } = useToast()
   const t = useTranslations('trash')
-  const locale = useLocale()
+  const timeAgoT = useTranslations('timeAgo')
   const emptyT = useTranslations('emptyStates')
 
   const [loading, setLoading] = useState(true)
@@ -155,7 +155,7 @@ function TrashTable() {
                 <p className="overflow-hidden truncate">{doc.title || t('unTitled')}</p>
               </TableCell>
               <TableCell className="text-right whitespace-nowrap">
-                {timeAgo(doc.updatedAt?.toString() || '', locale === 'zh-cn')}
+                {timeAgo(doc.updatedAt?.toString() || '', timeAgoT)}
               </TableCell>
               <TableCell className="text-right">
                 <div className="inline-flex space-x-1 invisible group-hover:visible">

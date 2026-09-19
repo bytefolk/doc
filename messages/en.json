@@ -9,7 +9,8 @@
     "documentActions": "Document actions",
     "moreDocumentActions": "More document actions",
     "changeLanguage": "Change language, current {locale}",
-    "closeDialog": "Close dialog"
+    "closeDialog": "Close dialog",
+    "goBack": "Go back"
   },
   "metadata": {
     "title": "doc — self-hosted collaborative document infrastructure",
@@ -441,6 +442,15 @@
     "restoreSuccess": "Version restored successfully.",
     "restoreFailed": "Failed to restore this version.",
     "snapshotMissing": "Current snapshot is unavailable."
+  },
+  "timeAgo": {
+    "yearsAgo": "{count} years ago",
+    "monthsAgo": "{count} months ago",
+    "daysAgo": "{count} days ago",
+    "hoursAgo": "{count} hours ago",
+    "minutesAgo": "{count} minutes ago",
+    "secondsAgo": "{count} seconds ago",
+    "justNow": "just now"
   },
   "emptyStates": {
     "documentsTitle": "Create your first document",

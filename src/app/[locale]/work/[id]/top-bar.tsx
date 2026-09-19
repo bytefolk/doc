@@ -1,7 +1,7 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import { Ellipsis } from 'lucide-react'
+import { useMemo, useState, useEffect } from 'react'
+import { ArrowLeft, Ellipsis } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Button } from '@/components/ui/button'
 import Logo from '@/components/logo-component'
@@ -24,6 +24,8 @@ import { useUserStore } from '@/stores/user-store'
 import { Topbar } from '@fullstack-ai-infra/ui'
 import { useTranslations } from 'next-intl'
 import { useCompactWorkspace } from '@/hooks/use-compact-workspace'
+import emitter from '@/lib/emitter'
+import { EVENT_KEY_NAV_DOC } from '@/constants'
 
 export default function TopBar() {
   const t = useTranslations('common')
@@ -33,12 +35,33 @@ export default function TopBar() {
   const doc = useMemo(() => docs.find((d) => d.id === id), [docs, id])
   const userInfo = useUserStore((s) => s.userInfo)
 
+  // Track whether there's in-app navigation history for the back button.
+  const [hasHistory, setHasHistory] = useState(false)
+  useEffect(() => {
+    const onNav = () => setHasHistory(true)
+    emitter.on(EVENT_KEY_NAV_DOC, onNav)
+    return () => {
+      emitter.off(EVENT_KEY_NAV_DOC, onNav)
+    }
+  }, [])
+
   return (
     <Topbar
       aria-label={t('documentToolbar')}
       className="max-[1023px]:pl-14 max-[480px]:pr-2"
       breadcrumbs={
         <div className="inline-flex items-center gap-3">
+          {hasHistory && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label={t('goBack')}
+              onClick={() => window.history.back()}
+            >
+              <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+            </Button>
+          )}
           <Logo />
           <div className="max-[479px]:hidden">
             <DocUpdateStatus id={id} />

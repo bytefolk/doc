@@ -27,9 +27,13 @@ export default function ContentForMyDoc() {
   const updateDocTitle = useDocsStore((s) => s.updateDocTitle)
   const updateDocIcon = useDocsStore((s) => s.updateDocIcon)
 
-  // record last doc id
+  // Record entry doc id only once per page session.
+  // Uses sessionStorage to survive SPA navigation but reset on full page reload.
   useEffect(() => {
-    localStorage.setItem(LAST_DOC_ID_KEY, id) // 保存最后一次打开的文档 id
+    if (!sessionStorage.getItem('hasRecordedEntryDoc')) {
+      localStorage.setItem(LAST_DOC_ID_KEY, id)
+      sessionStorage.setItem('hasRecordedEntryDoc', 'true')
+    }
   }, [id])
 
   useEffect(() => {

@@ -9,7 +9,8 @@
     "documentActions": "文档操作",
     "moreDocumentActions": "更多文档操作",
     "changeLanguage": "切换语言，当前为 {locale}",
-    "closeDialog": "关闭对话框"
+    "closeDialog": "关闭对话框",
+    "goBack": "返回上一页"
   },
   "metadata": {
     "title": "doc — 自托管协作文档基础设施",
@@ -441,6 +442,15 @@
     "restoreSuccess": "已恢复到所选版本。",
     "restoreFailed": "恢复版本失败，请稍后重试。",
     "snapshotMissing": "当前文档快照不可用，暂时无法恢复。"
+  },
+  "timeAgo": {
+    "yearsAgo": "{count} 年前",
+    "monthsAgo": "{count} 个月前",
+    "daysAgo": "{count} 天前",
+    "hoursAgo": "{count} 小时前",
+    "minutesAgo": "{count} 分钟前",
+    "secondsAgo": "{count} 秒前",
+    "justNow": "刚刚"
   },
   "emptyStates": {
     "documentsTitle": "创建你的第一篇文档",
