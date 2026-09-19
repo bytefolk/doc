@@ -81,15 +81,15 @@ Primary implementation paths:
 
 ## Identity, governance, and product surface
 
-| Capability             | Status       | Current implementation                                                                                                   |
-| ---------------------- | ------------ | ------------------------------------------------------------------------------------------------------------------------ |
-| Authentication         | available    | GitHub OAuth, email sign-in, and scoped personal access tokens with expiry, revocation, and one-time secret display      |
-| Document API v1        | available    | Bearer-only token inspection, owner listing, authorized reads, canonical creation, and ETag-guarded metadata updates     |
-| Document authorization | experimental | Browser routes, API v1, publication, and collaboration entry points enforce persisted ownership and READ/WRITE relations |
-| User settings          | available    | User name and avatar                                                                                                     |
-| Admin governance       | available    | Overview, user/admin management, document filtering, restore/delete, and publication moderation                          |
-| Localization and theme | available    | Chinese/English plus dark, light, and system themes                                                                      |
-| Object storage         | experimental | Uploads use the current Ali OSS client; a provider-neutral S3 interface is not implemented                               |
+| Capability             | Status       | Current implementation                                                                                                                                                     |
+| ---------------------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Authentication         | available    | GitHub OAuth, email sign-in, and scoped personal access tokens with expiry, revocation, and one-time secret display                                                        |
+| Document API v1        | available    | Bearer-only token inspection, owner listing with content search, time range filters, sort options, authorized reads, canonical creation, and ETag-guarded metadata updates |
+| Document authorization | experimental | Browser routes, API v1, publication, and collaboration entry points enforce persisted ownership and READ/WRITE relations                                                   |
+| User settings          | available    | User name and avatar                                                                                                                                                       |
+| Admin governance       | available    | Overview, user/admin management, document filtering, restore/delete, and publication moderation                                                                            |
+| Localization and theme | available    | Chinese/English plus dark, light, and system themes                                                                                                                        |
+| Object storage         | experimental | Uploads use the current Ali OSS client; a provider-neutral S3 interface is not implemented                                                                                 |
 
 Primary implementation paths:
 

@@ -51,6 +51,7 @@ All notable changes to `doc` are documented here.
   (case-insensitive). New `after` / `before` (ISO 8601) filter by `updatedAt`; `sort` accepts
   `updated_desc` (default), `updated_asc`, `created_desc`, `created_asc`. Shared query parser
   (`src/lib/doc-query.ts`) keeps the two routes consistent; invalid dates/sort return 400.
+- Document host-app integration guide for search, time range, and sort params (#73).
 
 - Adoption of the shared `@fullstack-ai-infra/ui` design system for the first document
   workflow: workspace shell (responsive sidebar with compact mode), editor chrome, and
