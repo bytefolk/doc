@@ -3,6 +3,7 @@ import type { QueryResultRow } from 'pg'
 import { pgClient, reconnect } from './client.js'
 import { errorMessage } from '../lib/error.js'
 import { sendEmail } from '../lib/mailer.js'
+import { extractPlainTextFromJson } from '../lib/tiptap-text-extractor.js'
 
 export interface StoredDocumentRow extends QueryResultRow {
   content: string | null
@@ -21,8 +22,9 @@ export interface MonitorDocumentRow extends QueryResultRow {
  */
 export async function updateDocJsonStr(id: string, jsonStr: string): Promise<number> {
   try {
-    const sql = `update "Doc" set content = $1, "updatedAt" = $2 where id = $3`
-    const values = [jsonStr, new Date(), id]
+    const contentSearch = extractPlainTextFromJson(jsonStr)
+    const sql = `update "Doc" set content = $1, "contentSearch" = $2, "updatedAt" = $3 where id = $4`
+    const values = [jsonStr, contentSearch || null, new Date(), id]
     const result = await pgClient.query(sql, values)
     return result.rowCount ?? 0
   } catch (error) {
@@ -69,8 +71,9 @@ export async function updateDocBinary(id: string, binary: Uint8Array): Promise<n
 // 同时更新正文二进制和 JSON 镜像，保证恢复后的状态一致。
 export async function updateDocBinaryAndJson(id: string, binary: Uint8Array, jsonStr: string): Promise<number> {
   try {
-    const sql = `update "Doc" set "contentBinary" = $1, content = $2, "updatedAt" = $3 where id = $4`
-    const values = [binary, jsonStr, new Date(), id]
+    const contentSearch = extractPlainTextFromJson(jsonStr)
+    const sql = `update "Doc" set "contentBinary" = $1, content = $2, "contentSearch" = $3, "updatedAt" = $4 where id = $5`
+    const values = [binary, jsonStr, contentSearch || null, new Date(), id]
     const result = await pgClient.query(sql, values)
     return result.rowCount ?? 0
   } catch (error) {

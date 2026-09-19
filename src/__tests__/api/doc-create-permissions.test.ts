@@ -131,6 +131,7 @@ describe('POST /api/doc permissions', () => {
         title: 'Source copy',
         content: '{"type":"doc"}',
         contentBinary: Buffer.from('binary'),
+        contentSearch: null,
         parentId: null,
         sortOrder: 1024,
         userId: 'owner',

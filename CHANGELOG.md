@@ -46,6 +46,12 @@ All notable changes to `doc` are documented here.
 
 ### Added
 
+- PostgreSQL full-text search with tsvector/GIN index and `matchField` provenance (#71): both
+  `GET /api/doc?keyword=` and `GET /api/v1/documents?query=` now report `matchField`
+  (`title` | `content` | `both`) so host UIs can highlight where a hit was found. A plain-text
+  extraction of TipTap `content` is persisted in `contentSearch` and indexed via a trigger-maintained
+  `search_vector` tsvector column with `websearch_to_tsquery()`. The existing `contains` fallback
+  remains active for SQLite and unmigrated environments.
 - Extend document search to content body and add time-range and sort filters (#68): both
   `GET /api/doc?keyword=` and `GET /api/v1/documents?query=` now match title OR content
   (case-insensitive). New `after` / `before` (ISO 8601) filter by `updatedAt`; `sort` accepts

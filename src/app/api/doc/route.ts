@@ -10,6 +10,8 @@ import { JsonBodyError, readJsonBody } from '@/lib/read-json-body'
 import { ApiV1Error } from '@/lib/api-v1'
 import { EMPTY_TIPTAP_DOCUMENT, encodeTiptapDocument } from '@/lib/tiptap-codec'
 import { parseOptionalDate, parseSort, buildSearchWhere, buildDateWhere, getOrderBy, SortValue } from '@/lib/doc-query'
+import { fullTextSearch, computeMatchField, type MatchField } from '@/lib/doc-search'
+import { extractPlainText } from '@/lib/tiptap-text-extractor'
 
 const MAX_CREATE_REQUEST_BYTES = 1024 * 1024
 
@@ -124,6 +126,8 @@ export async function POST(request: Request) {
     }
   }
 
+  const contentSearch = extractPlainText(JSON.parse(content))
+
   if (parentId) {
     const parent = await db.doc.findFirst({
       where: {
@@ -147,6 +151,7 @@ export async function POST(request: Request) {
         title,
         content,
         contentBinary,
+        contentSearch: contentSearch || null,
         parentId,
         sortOrder,
         userId: user.id!,
@@ -262,6 +267,22 @@ export async function GET(request: NextRequest) {
 
   const orderBy = getOrderBy(sort)
 
+  let searchHits: Map<string, MatchField> | null = null
+  if (keyword != null) {
+    const hits = await fullTextSearch(user.id || '', keyword, {
+      isDeleted: whereOpt.isDeleted,
+      isStar: whereOpt.isStar,
+    })
+    // Empty array means tsquery ran and missed (typical for zh-cn against
+    // english config). Fall back to the #69 contains OR so we do not emit
+    // `id: { in: [] }` and wipe the result set.
+    if (hits && hits.length > 0) {
+      searchHits = new Map(hits.map((h) => [h.id, h.matchField]))
+      whereOpt.id = { in: hits.map((h) => h.id) }
+      delete whereOpt.OR
+    }
+  }
+
   const list = await db.doc.findMany({
     select: {
       id: true,
@@ -270,6 +291,7 @@ export async function GET(request: NextRequest) {
       isDeleted: true,
       createdAt: true,
       updatedAt: true,
+      contentSearch: true,
     },
     where: {
       userId: user.id || '',
@@ -278,7 +300,23 @@ export async function GET(request: NextRequest) {
     orderBy,
   })
 
-  return Response.json(genSuccessData(list || []))
+  const result = list.map((doc) => {
+    const base = {
+      id: doc.id,
+      title: doc.title,
+      parentId: doc.parentId,
+      isDeleted: doc.isDeleted,
+      createdAt: doc.createdAt,
+      updatedAt: doc.updatedAt,
+    }
+    if (keyword == null) return base
+    const matchField = searchHits
+      ? (searchHits.get(doc.id) ?? 'content')
+      : computeMatchField(doc.title, doc.contentSearch, keyword.toLowerCase())
+    return { ...base, matchField }
+  })
+
+  return Response.json(genSuccessData(result || []))
 }
 
 // 删除多个 docs

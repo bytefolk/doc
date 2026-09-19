@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   findMany: vi.fn(),
   updateMany: vi.fn(),
   nextSortOrder: vi.fn(),
+  fullTextSearch: vi.fn(),
 }))
 
 vi.mock('server-only', () => ({}))
@@ -26,6 +27,10 @@ vi.mock('@/db/db', () => ({
 vi.mock('@/lib/doc-sort-order', () => ({
   getNextSortOrderForParent: mocks.nextSortOrder,
 }))
+vi.mock('@/lib/doc-search', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/doc-search')>()
+  return { ...actual, fullTextSearch: mocks.fullTextSearch }
+})
 
 import { ApiV1Error } from '@/lib/api-v1'
 import {
@@ -159,6 +164,10 @@ describe('TipTap API codec', () => {
 })
 
 describe('v1 document service', () => {
+  beforeEach(() => {
+    mocks.fullTextSearch.mockResolvedValue(null)
+  })
+
   test('lists only the principal documents with stable pagination', async () => {
     mocks.findMany.mockResolvedValue([
       metadata,
@@ -210,6 +219,31 @@ describe('v1 document service', () => {
         }),
       })
     )
+  })
+
+  test('falls back to contains when full-text search returns no hits', async () => {
+    mocks.fullTextSearch.mockResolvedValue([])
+    mocks.findMany.mockResolvedValue([])
+
+    await listApiDocuments('user-1', new URLSearchParams({ query: '中文关键词' }))
+
+    const where = mocks.findMany.mock.calls[0][0].where
+    expect(where.id).toBeUndefined()
+    expect(where.OR).toEqual([
+      { title: { contains: '中文关键词', mode: 'insensitive' } },
+      { content: { contains: '中文关键词', mode: 'insensitive' } },
+    ])
+  })
+
+  test('restricts ids when full-text search returns hits', async () => {
+    mocks.fullTextSearch.mockResolvedValue([{ id: 'doc-1', matchField: 'title' }])
+    mocks.findMany.mockResolvedValue([])
+
+    await listApiDocuments('user-1', new URLSearchParams({ query: 'Example' }))
+
+    const where = mocks.findMany.mock.calls[0][0].where
+    expect(where.id).toEqual({ in: ['doc-1'] })
+    expect(where.OR).toBeUndefined()
   })
 
   test('filters by time range with after and before params', async () => {
