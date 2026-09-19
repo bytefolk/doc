@@ -14,7 +14,8 @@
 保留稳定的 API 与可追溯修改边界。
 
 项目的北极星、边界与验收场景见 [GOAL.md](GOAL.md)，当前实现契约见
-[SPEC.md](SPEC.md)。
+[SPEC.md](SPEC.md)。分发形态与三扇门（本地单人 / ByteFolk 托管 SaaS / 引导式自部署）
+见 [docs/DISTRIBUTION.md](docs/DISTRIBUTION.md)。
 
 > [!WARNING]
 > `doc` 仍处于 experimental 阶段。接口、数据模型和部署方式可能变化，请勿把它
