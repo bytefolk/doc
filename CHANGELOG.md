@@ -4,6 +4,13 @@ All notable changes to `doc` are documented here.
 
 ## [Unreleased]
 
+### Added
+
+- Local-only Mailpit guidance after email sign-in: outside production the
+  verify-request page links to loopback Mailpit and can open the newest magic
+  link. The emailed link remains the authority; production and
+  `DOC_LOCAL_AUTH_HINT=0` never enable this path.
+
 ### Fixed
 
 - Add an in-app back button to the TopBar that appears only after the first in-app navigation,
