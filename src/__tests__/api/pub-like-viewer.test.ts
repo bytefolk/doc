@@ -50,7 +50,7 @@ describe('published like GET/PATCH', () => {
           create: mocks.likeCreate,
           deleteMany: mocks.likeDeleteMany,
         },
-      }),
+      })
     )
   })
 
