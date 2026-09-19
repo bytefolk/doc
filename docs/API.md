@@ -74,12 +74,53 @@ The response contains `authenticated`, `userId`, and the token's `scopes`.
 ### List documents
 
 ```http
-GET /api/v1/documents?limit=50&cursor=...&query=...&starred=true&trash=false
+GET /api/v1/documents?limit=50&cursor=...&query=...&starred=true&trash=false&after=...&before=...&sort=...
 ```
 
 The list contains documents owned by the token's user. `limit` defaults to `50` and must be from
 `1` to `100`. Follow `meta.nextCursor` until it is `null`; cursors are opaque. `starred` and
 `trash` accept only `true` or `false`. `query` is limited to 200 characters.
+
+#### Search
+
+`query` searches both document **title** and **content** (case-insensitive). A document matches
+when either field contains the keyword. The search uses `OR` semantics — a match in the title,
+the body, or both all return the document.
+
+#### Time range filters
+
+- `after` — return documents updated strictly after this ISO 8601 date (e.g. `2026-09-01` or
+  `2026-09-01T00:00:00.000Z`).
+- `before` — return documents updated strictly before this ISO 8601 date.
+
+Both are optional and can be combined. Invalid dates return `400 invalid_query`.
+
+#### Sort
+
+`sort` controls result ordering. Accepted values:
+
+| Value          | Order                                 |
+| -------------- | ------------------------------------- |
+| `updated_desc` | Most recently updated first (default) |
+| `updated_asc`  | Least recently updated first          |
+| `created_desc` | Newest created first                  |
+| `created_asc`  | Oldest created first                  |
+
+Invalid values return `400 invalid_query`. Cursor pagination (`cursor` param) is only compatible
+with `updated_*` sort orders; combining `cursor` with `created_*` returns `400 invalid_cursor`.
+
+#### Examples
+
+```http
+# Search content and title for "runbook", updated in September 2026
+GET /api/v1/documents?query=runbook&after=2026-09-01&before=2026-09-30
+
+# Oldest documents first
+GET /api/v1/documents?sort=created_asc
+
+# Recently updated documents matching "deployment"
+GET /api/v1/documents?query=deployment&sort=updated_desc
+```
 
 ```json
 {
