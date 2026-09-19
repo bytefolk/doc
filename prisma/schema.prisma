@@ -200,6 +200,19 @@ model PubDoc {
   user            User         @relation(fields: [userId], references: [id], name: "pubDocs")
   doc             Doc          @relation(fields: [docId], references: [id], onDelete: Cascade)
   thumbUpCount    Int          @default(0)
+  likes           PubDocLike[]
+}
+
+model PubDocLike {
+  id        String   @id @default(cuid())
+  viewerId  String
+  pubDocId  String
+  createdAt DateTime @default(now())
+
+  pubDoc PubDoc @relation(fields: [pubDocId], references: [id], onDelete: Cascade)
+
+  @@unique([viewerId, pubDocId])
+  @@index([pubDocId])
 }
 
 model AuditLog {
