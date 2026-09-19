@@ -6,6 +6,9 @@ All notable changes to `doc` are documented here.
 
 ### Fixed
 
+- Persist like identity per viewer using a server-side `PubDocLike` table and cookie-based
+  anonymous viewer token. Duplicate likes from the same viewer are now idempotent, cancel
+  only succeeds if that viewer holds a like, and counts survive reload across devices.
 - Add an in-app back button to the TopBar that appears only after the first in-app navigation,
   and scope the entry-document flag to `sessionStorage` so it survives SPA navigation but resets
   on full page reload (#66).

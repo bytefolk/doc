@@ -1,53 +1,56 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { ThumbsUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { patch } from '@/lib/ajax'
+import { get, patch } from '@/lib/ajax'
 
 export default function ThumbUpButton(props: { initialCount: number; publishId: string }) {
-  const { initialCount, publishId } = props // Default count if not provided
-  const STORE_KEY = useMemo(() => `thumbUp-${publishId}`, [publishId])
+  const { initialCount, publishId } = props
 
   const [loading, setLoading] = useState(true)
   const [isLiked, setIsLiked] = useState(false)
-  useEffect(() => {
-    // Check if the user has already liked this publishId
-    const liked = localStorage.getItem(STORE_KEY)
-    if (liked) {
-      setIsLiked(true)
-    }
-    setLoading(false)
-  }, [STORE_KEY])
-
   const [thumbUpCount, setThumbUpCount] = useState(initialCount || 0)
-  const handleThumbUp = async () => {
-    if (loading) return // Prevent multiple clicks
-    if (isLiked) {
-      if (thumbUpCount <= 0) return // Prevent decrementing below zero
-      setThumbUpCount(thumbUpCount - 1)
-      setIsLiked(false)
-      localStorage.removeItem(STORE_KEY) // Remove publishId from localStorage
-      await patchData(`/api/pub/thumb-up-decrease/${publishId}`) // Decrease thumb up count in the backend
-    } else {
-      setThumbUpCount(thumbUpCount + 1)
-      setIsLiked(true)
-      localStorage.setItem(STORE_KEY, 'true') // store publishId in localStorage
-      await patchData(`/api/pub/thumb-up/${publishId}`) // Increase thumb up count in the backend
-    }
-  }
 
-  async function patchData(url: string) {
+  useEffect(() => {
+    get(`/api/pub/thumb-up/${publishId}`)
+      .then((res) => {
+        if (res.errno === 0 && res.data) {
+          setIsLiked(res.data.liked)
+          setThumbUpCount(res.data.count)
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false))
+  }, [publishId])
+
+  const handleThumbUp = async () => {
+    if (loading) return
+    const prevLiked = isLiked
+    const prevCount = thumbUpCount
+
+    if (isLiked) {
+      setIsLiked(false)
+      setThumbUpCount(Math.max(0, thumbUpCount - 1))
+    } else {
+      setIsLiked(true)
+      setThumbUpCount(thumbUpCount + 1)
+    }
+
     setLoading(true)
     try {
-      const response = await patch(url, {})
-      if (response.errno !== 0) {
-        throw new Error('Network response was not ok')
+      const url = isLiked ? `/api/pub/thumb-up-decrease/${publishId}` : `/api/pub/thumb-up/${publishId}`
+      const res = await patch(url, {})
+      if (res.errno === 0 && res.data) {
+        setIsLiked(res.data.liked)
+        setThumbUpCount(res.data.count)
+      } else {
+        setIsLiked(prevLiked)
+        setThumbUpCount(prevCount)
       }
-      const data = response.data
-      return data
-    } catch (error) {
-      console.error('Error:', error)
+    } catch {
+      setIsLiked(prevLiked)
+      setThumbUpCount(prevCount)
     } finally {
       setLoading(false)
     }
