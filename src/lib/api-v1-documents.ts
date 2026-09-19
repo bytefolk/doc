@@ -186,7 +186,10 @@ export async function listApiDocuments(userId: string, searchParams: URLSearchPa
       isDeleted: trash,
       ...(starred === undefined ? {} : { isStar: starred }),
     })
-    if (hits) {
+    // Empty array: tsquery produced zero hits. Keep the contains OR from
+    // buildSearchWhere — otherwise `id: { in: [] }` returns nothing and the
+    // #69 fallback never runs (zh-cn queries against english config).
+    if (hits && hits.length > 0) {
       searchHits = new Map(hits.map((h) => [h.id, h.matchField]))
       where.id = { in: hits.map((h) => h.id) }
       delete where.OR

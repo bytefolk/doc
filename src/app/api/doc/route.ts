@@ -11,6 +11,7 @@ import { ApiV1Error } from '@/lib/api-v1'
 import { EMPTY_TIPTAP_DOCUMENT, encodeTiptapDocument } from '@/lib/tiptap-codec'
 import { parseOptionalDate, parseSort, buildSearchWhere, buildDateWhere, getOrderBy, SortValue } from '@/lib/doc-query'
 import { fullTextSearch, computeMatchField, type MatchField } from '@/lib/doc-search'
+import { extractPlainText } from '@/lib/tiptap-text-extractor'
 
 const MAX_CREATE_REQUEST_BYTES = 1024 * 1024
 
@@ -272,7 +273,10 @@ export async function GET(request: NextRequest) {
       isDeleted: whereOpt.isDeleted,
       isStar: whereOpt.isStar,
     })
-    if (hits) {
+    // Empty array means tsquery ran and missed (typical for zh-cn against
+    // english config). Fall back to the #69 contains OR so we do not emit
+    // `id: { in: [] }` and wipe the result set.
+    if (hits && hits.length > 0) {
       searchHits = new Map(hits.map((h) => [h.id, h.matchField]))
       whereOpt.id = { in: hits.map((h) => h.id) }
       delete whereOpt.OR

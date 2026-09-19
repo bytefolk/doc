@@ -4,7 +4,17 @@ import { db } from '@/db/db'
 
 export type MatchField = 'title' | 'content' | 'both'
 
+/**
+ * Process-lifetime probe of the trigger-maintained `search_vector` column.
+ * The first success or failure sticks until this Node process exits, so a
+ * freshly applied `ensure-search-index.sql` is invisible until restart.
+ * Tests call {@link resetSearchVectorCacheForTests}.
+ */
 let searchVectorAvailable: boolean | null = null
+
+export function resetSearchVectorCacheForTests(): void {
+  searchVectorAvailable = null
+}
 
 export async function hasSearchVector(): Promise<boolean> {
   if (searchVectorAvailable !== null) return searchVectorAvailable
@@ -17,7 +27,8 @@ export async function hasSearchVector(): Promise<boolean> {
     `
     searchVectorAvailable = result[0]?.exists === true
     return searchVectorAvailable
-  } catch {
+  } catch (error) {
+    console.warn('hasSearchVector probe failed; using contains fallback', error)
     searchVectorAvailable = false
     return false
   }
@@ -60,11 +71,16 @@ export async function fullTextSearch(
       id: row.id,
       matchField: computeMatchField(row.title, row.contentSearch, q),
     }))
-  } catch {
+  } catch (error) {
+    console.warn('fullTextSearch failed; falling back to contains', error)
     return null
   }
 }
 
+/**
+ * Substring heuristic on `title` / `contentSearch`, not ts_rank / ts_headline.
+ * Callers use this both for contains fallback rows and to label FTS hits.
+ */
 export function computeMatchField(
   title: string,
   contentSearch: string | null | undefined,

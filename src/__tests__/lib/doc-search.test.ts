@@ -96,4 +96,13 @@ describe('fullTextSearch', () => {
     const result = await freshFullTextSearch('user-1', 'test', { isDeleted: false })
     expect(result).toBeNull()
   })
+
+  test('returns an empty array when tsquery matches nothing (caller must fall back)', async () => {
+    const { fullTextSearch: freshFullTextSearch } = await import('@/lib/doc-search')
+    mocks.queryRaw.mockResolvedValueOnce([{ exists: true }])
+    mocks.queryRawUnsafe.mockResolvedValueOnce([])
+
+    const result = await freshFullTextSearch('user-1', '中文关键词', { isDeleted: false })
+    expect(result).toEqual([])
+  })
 })

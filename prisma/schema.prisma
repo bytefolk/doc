@@ -22,7 +22,11 @@ model Doc {
   title          String
   content        String
   contentBinary  Bytes?
-  contentSearch  String?
+  contentSearch  String? // plain-text extraction of TipTap JSON for search
+  /// Trigger-maintained tsvector. Prisma has no first-class tsvector type; the
+  /// column and GIN index are created by prisma/preflight/ensure-search-index.sql
+  /// and are not read or written through the Prisma client.
+  search_vector  Unsupported("tsvector")?
   isDeleted      Boolean         @default(false)
   isStar         Boolean         @default(false)
   sortOrder      Int
