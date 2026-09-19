@@ -9,6 +9,8 @@ import { ApiV1Error } from '@/lib/api-v1'
 import { getNextSortOrderForParent } from '@/lib/doc-sort-order'
 import { EMPTY_TIPTAP_DOCUMENT, encodeTiptapDocument } from '@/lib/tiptap-codec'
 import { parseOptionalDate, parseSort, buildSearchWhere, buildDateWhere, getOrderBy, SortValue } from '@/lib/doc-query'
+import { extractPlainText } from '@/lib/tiptap-text-extractor'
+import { fullTextSearch, computeMatchField, type MatchField } from '@/lib/doc-search'
 
 const DEFAULT_LIST_LIMIT = 50
 const MAX_LIST_LIMIT = 100
@@ -54,6 +56,7 @@ const documentMetadataSelect = {
   isDeleted: true,
   createdAt: true,
   updatedAt: true,
+  contentSearch: true,
 } satisfies Prisma.DocSelect
 
 type DocumentMetadata = Prisma.DocGetPayload<{ select: typeof documentMetadataSelect }>
@@ -130,7 +133,7 @@ export function apiDocumentEtag(document: Pick<DocumentMetadata, 'id' | 'updated
   return `"doc:${document.id}:${revision}"`
 }
 
-function toMetadataDto(document: DocumentMetadata, access: DocumentAccess = 'owner') {
+function toMetadataDto(document: DocumentMetadata, access: DocumentAccess = 'owner', matchField?: MatchField) {
   return {
     id: document.id,
     title: document.title,
@@ -139,6 +142,7 @@ function toMetadataDto(document: DocumentMetadata, access: DocumentAccess = 'own
     starred: document.isStar,
     deleted: document.isDeleted,
     access,
+    ...(matchField ? { matchField } : {}),
     createdAt: document.createdAt.toISOString(),
     updatedAt: document.updatedAt.toISOString(),
   }
@@ -176,6 +180,19 @@ export async function listApiDocuments(userId: string, searchParams: URLSearchPa
     ...buildDateWhere(after, before),
   }
 
+  let searchHits: Map<string, MatchField> | null = null
+  if (query) {
+    const hits = await fullTextSearch(userId, query, {
+      isDeleted: trash,
+      ...(starred === undefined ? {} : { isStar: starred }),
+    })
+    if (hits) {
+      searchHits = new Map(hits.map((h) => [h.id, h.matchField]))
+      where.id = { in: hits.map((h) => h.id) }
+      delete where.OR
+    }
+  }
+
   const cursorValue = searchParams.get('cursor')
   if (cursorValue) {
     if (sort === 'created_desc' || sort === 'created_asc') {
@@ -203,7 +220,14 @@ export async function listApiDocuments(userId: string, searchParams: URLSearchPa
   const last = documents.at(-1)
 
   return {
-    documents: documents.map((document) => toMetadataDto(document)),
+    documents: documents.map((document) => {
+      const matchField = query
+        ? searchHits
+          ? (searchHits.get(document.id) ?? 'content')
+          : computeMatchField(document.title, document.contentSearch, query.toLowerCase())
+        : undefined
+      return toMetadataDto(document, 'owner', matchField)
+    }),
     nextCursor:
       hasMore && last
         ? encodeCursor({
@@ -279,6 +303,7 @@ export async function createApiDocument(userId: string, input: ReturnType<typeof
 
   const encoded = encodeTiptapDocument(input.content || EMPTY_TIPTAP_DOCUMENT)
   const sortOrder = await getNextSortOrderForParent(userId, parentId)
+  const contentSearch = extractPlainText(encoded.content)
   const document = await db.doc.create({
     data: {
       title: input.title,
@@ -287,6 +312,7 @@ export async function createApiDocument(userId: string, input: ReturnType<typeof
       sortOrder,
       content: encoded.contentJson,
       contentBinary: encoded.contentBinary,
+      contentSearch: contentSearch || null,
       userId,
     },
     select: {
