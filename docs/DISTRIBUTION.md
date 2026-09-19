@@ -63,7 +63,9 @@ SaaS 默认不开。开启条件是需求信号：若干个团队明确表达"�
   部署地址；
 - 一致的是身份映射与协议（GitHub OAuth、邮箱 magic link、未来的 OIDC），不是账号
   库。三扇门共用一套认证代码，客户端不为每扇门重做登录；
-- 开放条目：roleweave 客户端的按部署登录需求尚未开单，登记后与本页互引。
+- 开放条目：roleweave 客户端的按部署登录已开单
+  [bytefolk/roleweave#395](https://github.com/bytefolk/roleweave/issues/395)，实现与本页
+  互引。
 
 ## Guidance surfaces
 
