@@ -220,6 +220,64 @@ describe('v1 document service', () => {
     expect(mocks.updateMany).not.toHaveBeenCalled()
   })
 
+  test('calls loopback Laya from listApiDocuments when enabled and taskSummary is present', async () => {
+    const second = { ...metadata, id: 'doc-2', title: 'Other' }
+    mocks.findMany.mockResolvedValue([metadata, second])
+    const fetchImpl = vi.fn(async () => {
+      return new Response(
+        JSON.stringify({
+          answers: {
+            rank: {
+              type: 'choice',
+              choice: 'doc-2',
+              probabilities: { 'doc-1': 0.2, 'doc-2': 0.8 },
+              confidence: 0.8,
+            },
+          },
+        }),
+        { status: 200, headers: { 'content-type': 'application/json' } }
+      )
+    }) as unknown as typeof fetch
+
+    const result = await listApiDocuments('user-1', new URLSearchParams({ taskSummary: 'deploy notes' }), {
+      env: { DOC_LAYA_ENABLED: '1' },
+      fetchImpl,
+    })
+
+    expect(result.documents.map((document) => document.id)).toEqual(['doc-2', 'doc-1'])
+    expect(result.hostMemory).toEqual({
+      status: 'suggest',
+      candidates: ['doc-1', 'doc-2'],
+      overlayOrder: ['doc-2', 'doc-1'],
+    })
+    expect(fetchImpl).toHaveBeenCalledTimes(1)
+    const [url, init] = (fetchImpl as unknown as ReturnType<typeof vi.fn>).mock.calls[0] as [string, RequestInit]
+    expect(url).toBe('http://127.0.0.1:18081/v1/systemone')
+    expect(init.method).toBe('POST')
+    const headers = init.headers as Record<string, string>
+    expect(headers['content-type']).toBe('application/json')
+    expect(headers.Authorization ?? headers.authorization).toBeUndefined()
+    const body = JSON.parse(String(init.body))
+    expect(body.state).toEqual({ ids: ['doc-1', 'doc-2'] })
+    expect(body.questions.rank.type).toBe('choice')
+    expect(body.state.content).toBeUndefined()
+  })
+
+  test('does not call Laya from listApiDocuments when the flag is off', async () => {
+    mocks.findMany.mockResolvedValue([metadata])
+    const fetchImpl = vi.fn(async () => {
+      throw new Error('laya must not run')
+    }) as unknown as typeof fetch
+
+    const result = await listApiDocuments('user-1', new URLSearchParams({ taskSummary: 'deploy notes' }), {
+      env: {},
+      fetchImpl,
+    })
+
+    expect(result.hostMemory).toEqual({ status: 'needs_provider', candidates: ['doc-1'] })
+    expect(fetchImpl).not.toHaveBeenCalled()
+  })
+
   test('searches document content when query does not match title', async () => {
     mocks.findMany.mockResolvedValue([])
 

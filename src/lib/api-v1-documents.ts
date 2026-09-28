@@ -12,7 +12,13 @@ import { parseOptionalDate, parseSort, buildSearchWhere, buildDateWhere, getOrde
 import { extractPlainText } from '@/lib/tiptap-text-extractor'
 import { fullTextSearch, computeMatchField, type MatchField } from '@/lib/doc-search'
 import { DOCUMENT_ACCESS, resolveDocumentAccess } from '@/lib/document-access'
-import { requestHostMemoryAdvice, type HostMemoryAccess } from '@/lib/host-memory-overlay'
+import { applyOverlayOrder, requestHostMemoryAdvice, type HostMemoryAccess } from '@/lib/host-memory-overlay'
+import { askLaya } from '@/lib/laya/client'
+
+export type ListApiDocumentsDeps = {
+  env?: NodeJS.Dict<string>
+  fetchImpl?: typeof fetch
+}
 
 const DEFAULT_LIST_LIMIT = 50
 const MAX_LIST_LIMIT = 100
@@ -163,7 +169,7 @@ function parseStoredContent(content: string) {
   }
 }
 
-export async function listApiDocuments(userId: string, searchParams: URLSearchParams) {
+export async function listApiDocuments(userId: string, searchParams: URLSearchParams, deps: ListApiDocumentsDeps = {}) {
   const limit = parseListLimit(searchParams.get('limit'))
   const starred = parseBooleanQuery(searchParams.get('starred'), 'starred')
   const trash = parseBooleanQuery(searchParams.get('trash'), 'trash') || false
@@ -238,10 +244,36 @@ export async function listApiDocuments(userId: string, searchParams: URLSearchPa
     )
     return { id: document.id, access: access as HostMemoryAccess }
   })
-  const { ranking: hostMemory } = await requestHostMemoryAdvice(searchParams.get('taskSummary'), overlayCandidates)
+  const env = deps.env ?? process.env
+  const { ranking: hostMemory } = await requestHostMemoryAdvice(searchParams.get('taskSummary'), overlayCandidates, {
+    env,
+    ask: async (payload) => {
+      const ids = Array.isArray(payload.ids) ? payload.ids.filter((id): id is string => typeof id === 'string') : []
+      const answers = await askLaya(
+        {
+          state: { ids },
+          questions: {
+            rank: {
+              type: 'choice',
+              instructions: 'Pick the best matching accessible document id. Advisory. Do not grant access.',
+              criteria: Object.fromEntries(ids.map((id) => [id, `Accessible document ${id}`])),
+            },
+          },
+        },
+        { env, fetchImpl: deps.fetchImpl }
+      )
+      const rank = answers?.rank
+      if (!rank || rank.type !== 'choice' || !ids.includes(rank.selected)) return null
+      const scored = [...ids].sort((left, right) => (rank.probabilities[right] ?? 0) - (rank.probabilities[left] ?? 0))
+      return [rank.selected, ...scored.filter((id) => id !== rank.selected)]
+    },
+  })
+
+  const orderedDocuments =
+    hostMemory.status === 'suggest' ? applyOverlayOrder(documents, hostMemory.overlayOrder) : documents
 
   return {
-    documents: documents.map((document) => {
+    documents: orderedDocuments.map((document) => {
       const matchField = query
         ? searchHits
           ? (searchHits.get(document.id) ?? 'content')
