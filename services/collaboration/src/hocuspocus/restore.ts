@@ -3,6 +3,7 @@ import * as Y from 'yjs'
 
 import { updateDocBinaryAndJson } from '../db/doc.js'
 import { getActiveDocument } from './active-docs.js'
+import { withDocumentMutation } from './document-gate.js'
 
 type XmlChild = Y.XmlElement | Y.XmlText | Y.XmlHook
 type XmlContainer = Y.XmlElement | Y.XmlFragment
@@ -16,7 +17,13 @@ function insertXmlChildren(container: XmlContainer, children: XmlChild[]): void 
 
 export interface RestoreActiveDocumentDeps {
   getActiveDocument?: (docId: string) => Y.Doc | null
-  persistRestoredDocument?: (docId: string, binary: Uint8Array, jsonStr: string) => Promise<number>
+  persistRestoredDocument?: (
+    docId: string,
+    binary: Uint8Array,
+    jsonStr: string,
+    expectedUpdatedAt?: string,
+    expectedLiveFingerprint?: string
+  ) => Promise<number>
 }
 
 export interface RestoredDocument {
@@ -42,6 +49,11 @@ export function createTargetYdocFromBinary(binary: Uint8Array): Y.Doc {
 }
 
 // 将恢复后的 Y.Doc 转成数据库可存储的 JSON 字符串。
+export function liveDocumentFingerprint(doc: Y.Doc | null | undefined): string {
+  if (!doc) return ''
+  return Buffer.from(Y.encodeStateAsUpdate(doc)).toString('base64')
+}
+
 export function serializeYdocToJsonString(ydoc: Y.Doc): string {
   const json = TiptapTransformer.fromYdoc(ydoc, 'default')
   return JSON.stringify(json)
@@ -94,10 +106,23 @@ export function replaceDocumentContent(activeDoc: Y.Doc, targetDoc: Y.Doc): void
 }
 
 // 将恢复后的正文二进制和 JSON 镜像一次性持久化到主库。
-export async function persistRestoredDocument(docId: string, binary: Uint8Array, jsonStr: string): Promise<number> {
-  const rowCount = await updateDocBinaryAndJson(docId, binary, jsonStr)
+export async function persistRestoredDocument(
+  docId: string,
+  binary: Uint8Array,
+  jsonStr: string,
+  expectedUpdatedAt?: string,
+  expectedLiveFingerprint?: string
+): Promise<number> {
+  if (
+    expectedLiveFingerprint !== undefined &&
+    liveDocumentFingerprint(getActiveDocument(docId)) !== expectedLiveFingerprint
+  ) {
+    throw new Error('version_conflict')
+  }
+  const expected = expectedUpdatedAt ? new Date(expectedUpdatedAt) : undefined
+  const rowCount = await updateDocBinaryAndJson(docId, binary, jsonStr, expected)
   if (rowCount <= 0) {
-    throw new Error('Document not found')
+    throw new Error(expectedUpdatedAt ? 'version_conflict' : 'Document not found')
   }
 
   return rowCount
@@ -110,23 +135,54 @@ export async function restoreActiveDocument(
   deps: RestoreActiveDocumentDeps = {}
 ): Promise<RestoredDocument> {
   const getDocument = deps.getActiveDocument || getActiveDocument
-  const persistDocument = deps.persistRestoredDocument || persistRestoredDocument
   const activeDoc = getDocument(docId)
 
   if (!activeDoc) {
     throw new Error('Active document not found')
   }
 
-  const binary = decodeBinaryFromBase64(contentBinaryBase64)
-  const targetDoc = createTargetYdocFromBinary(binary)
-  const targetJsonStr = serializeYdocToJsonString(targetDoc)
+  return applyContentBinary(docId, contentBinaryBase64, deps)
+}
 
-  await persistDocument(docId, binary, targetJsonStr)
-  replaceDocumentContent(activeDoc, targetDoc)
+/**
+ * Persist JSON+Yjs through the collab kernel (`updateDocBinaryAndJson`).
+ * If a live room exists (or appears after persist), also replace the in-memory Y.Doc
+ * so an open editor is not left beside a silently overwritten row.
+ */
+export async function applyContentBinary(
+  docId: string,
+  contentBinaryBase64: string,
+  deps: RestoreActiveDocumentDeps = {},
+  expectedUpdatedAt?: string
+): Promise<RestoredDocument & { appliedToRoom: boolean }> {
+  return withDocumentMutation(docId, async () => {
+    const getDocument = deps.getActiveDocument || getActiveDocument
+    const persistDocument = deps.persistRestoredDocument || persistRestoredDocument
 
-  return {
-    docId,
-    contentBinary: binary,
-    content: targetJsonStr,
-  }
+    const binary = decodeBinaryFromBase64(contentBinaryBase64)
+    const targetDoc = createTargetYdocFromBinary(binary)
+    const targetJsonStr = serializeYdocToJsonString(targetDoc)
+    const liveFingerprint = liveDocumentFingerprint(getDocument(docId))
+
+    const rowCount = await persistDocument(docId, binary, targetJsonStr, expectedUpdatedAt, liveFingerprint)
+    if (rowCount <= 0) {
+      throw new Error(expectedUpdatedAt ? 'version_conflict' : 'Document not found')
+    }
+    // Never 409 after a committed write: that forks the live room from the row.
+    // Fingerprint mismatch must fail inside persist (before SQL). After rowCount>0,
+    // sync the in-memory room to the committed payload. Inbound Yjs apply shares
+    // this gate, so a live edit cannot be admitted during the SQL await.
+
+    const activeDoc = getDocument(docId)
+    if (activeDoc) {
+      replaceDocumentContent(activeDoc, targetDoc)
+    }
+
+    return {
+      docId,
+      contentBinary: binary,
+      content: targetJsonStr,
+      appliedToRoom: Boolean(activeDoc),
+    }
+  })
 }

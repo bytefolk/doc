@@ -2,14 +2,15 @@ import Router from '@koa/router'
 import type Koa from 'koa'
 import { createHash, timingSafeEqual } from 'node:crypto'
 
-import { hasActiveDocument } from '../hocuspocus/active-docs.js'
-import { restoreActiveDocument } from '../hocuspocus/restore.js'
+import { applyContentBinary } from '../hocuspocus/restore.js'
 import { errorMessage } from '../lib/error.js'
+import { notifyWebDocumentChangeBestEffort } from '../lib/notify-web-document-change.js'
 
 export const MAX_ACCESS_REQUEST_BYTES = 4 * 1024
 
 interface RestoreBody {
   contentBinaryBase64: string
+  expectedUpdatedAt?: string
 }
 
 export interface CollabRouterDeps {
@@ -26,8 +27,20 @@ interface AccessRequestContext {
 
 function parseRestoreBody(body: unknown): RestoreBody | null {
   if (body == null || typeof body !== 'object' || Array.isArray(body)) return null
-  const contentBinaryBase64 = (body as Record<string, unknown>).contentBinaryBase64
-  return typeof contentBinaryBase64 === 'string' && contentBinaryBase64.length > 0 ? { contentBinaryBase64 } : null
+  const record = body as Record<string, unknown>
+  const contentBinaryBase64 = record.contentBinaryBase64
+  if (typeof contentBinaryBase64 !== 'string' || contentBinaryBase64.length === 0) return null
+  const expectedUpdatedAt = record.expectedUpdatedAt
+  if (
+    expectedUpdatedAt !== undefined &&
+    (typeof expectedUpdatedAt !== 'string' || Number.isNaN(Date.parse(expectedUpdatedAt)))
+  ) {
+    return null
+  }
+  return {
+    contentBinaryBase64,
+    ...(typeof expectedUpdatedAt === 'string' ? { expectedUpdatedAt } : {}),
+  }
 }
 
 export function isBoundedAccessRequest(ctx: AccessRequestContext): boolean {
@@ -102,13 +115,14 @@ export function createCollabRouter(deps: CollabRouterDeps): Router {
       const body = parseRestoreBody(ctx.request.body)
       if (!docId) throw new Error('docId is required')
       if (body == null) throw new Error('contentBinaryBase64 is required')
-      if (!hasActiveDocument(docId)) throw new Error('Active document not found')
 
-      await restoreActiveDocument(docId, body.contentBinaryBase64)
-      ctx.body = { success: true, data: { docId } }
+      const applied = await applyContentBinary(docId, body.contentBinaryBase64, {}, body.expectedUpdatedAt)
+      await notifyWebDocumentChangeBestEffort(docId)
+      ctx.body = { success: true, data: { docId, appliedToRoom: applied.appliedToRoom } }
     } catch (error) {
-      ctx.status = 400
-      ctx.body = { success: false, msg: errorMessage(error, 'restore failed') }
+      const message = errorMessage(error, 'restore failed')
+      ctx.status = message === 'version_conflict' ? 409 : 400
+      ctx.body = { success: false, msg: message }
     }
   })
 

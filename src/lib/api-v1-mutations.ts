@@ -1,8 +1,9 @@
 import 'server-only'
 
-import { createHash, randomUUID } from 'node:crypto'
 import { db } from '@/db/db'
 import { ApiV1Error } from '@/lib/api-v1'
+import { computeDocEtag } from '@/lib/document-etag'
+import { publishDocumentChange } from '@/lib/document-change-hub'
 import { encodeTiptapDocument } from '@/lib/tiptap-codec'
 import { z } from 'zod'
 
@@ -41,18 +42,17 @@ export interface RestoreResult {
 }
 
 export interface MutationDeps {
-  callCollabMutate?: (docId: string, contentBinaryBase64: string) => Promise<void>
+  callCollabMutate?: (docId: string, contentBinaryBase64: string, expectedUpdatedAt?: string) => Promise<void>
   callCollabRestore?: (docId: string, contentBinaryBase64: string) => Promise<void>
 }
 
 // --- Helpers ---
 
-function computeDocEtag(docId: string, updatedAt: Date): string {
-  const revision = createHash('sha256').update(`${docId}:${updatedAt.toISOString()}`).digest('base64url').slice(0, 24)
-  return `"doc:${docId}:${revision}"`
-}
-
-async function callCollabMutateDefault(docId: string, contentBinaryBase64: string): Promise<void> {
+async function callCollabMutateDefault(
+  docId: string,
+  contentBinaryBase64: string,
+  expectedUpdatedAt?: string
+): Promise<void> {
   const baseUrl = process.env.COLLABORATE_EDIT_HTTP_URL || ''
   const internalKey = process.env.COLLABORATE_INTERNAL_API_KEY || ''
   if (!baseUrl) throw new Error('COLLABORATE_EDIT_HTTP_URL required')
@@ -64,7 +64,10 @@ async function callCollabMutateDefault(docId: string, contentBinaryBase64: strin
       'Content-Type': 'application/json',
       'x-doc-internal-key': internalKey,
     },
-    body: JSON.stringify({ contentBinaryBase64 }),
+    body: JSON.stringify({
+      contentBinaryBase64,
+      ...(expectedUpdatedAt ? { expectedUpdatedAt } : {}),
+    }),
   })
 
   const data = await res.json()
@@ -164,10 +167,29 @@ export async function mutateDocumentContent(
     select: { id: true },
   })
 
-  // Send mutation through the collaboration authority (active room)
+  // Collaboration owns both the live Yjs room and idle persist
+  // (`updateDocBinaryAndJson`). The API process never writes Doc.content itself.
   const collabMutate = deps.callCollabMutate || callCollabMutateDefault
   const contentBinaryBase64 = encoded.contentBinary.toString('base64')
-  await collabMutate(docId, contentBinaryBase64)
+  const expectedUpdatedAt = input.baseVersion === '*' ? undefined : doc.updatedAt.toISOString()
+  try {
+    await collabMutate(docId, contentBinaryBase64, expectedUpdatedAt)
+  } catch (error) {
+    try {
+      await db.docVersion.delete({ where: { id: snapshot.id } })
+    } catch {
+      /* snapshot may already be gone */
+    }
+    const message = error instanceof Error ? error.message : ''
+    if (message.includes('version_conflict')) {
+      throw new ApiV1Error(409, 'version_conflict', 'Document has been modified since the specified base version')
+    }
+    throw new ApiV1Error(
+      503,
+      'collaboration_unavailable',
+      'The collaboration service could not apply the content replacement'
+    )
+  }
 
   // Fetch updated document for etag
   const updated = await db.doc.findFirst({
@@ -183,6 +205,12 @@ export async function mutateDocumentContent(
     etag: newEtag,
     operationId,
   }
+
+  publishDocumentChange(docId, {
+    documentId: docId,
+    etag: newEtag,
+    updatedAt: (updated?.updatedAt ?? new Date()).toISOString(),
+  })
 
   if (idempotencyKey) setIdempotentResult(idempotencyKey, result)
   return result

@@ -4,9 +4,10 @@
 document API are separate: scripts use `/api/v1`, while personal access tokens are created and
 revoked from the signed-in user settings page.
 
-The current v1 surface is intentionally small. It supports token inspection, owner document
-listing, document reads, document creation, and concurrency-safe metadata updates. It does not
-yet expose content replacement, delete/restore, versions, publishing, or workspace import/export.
+The current v1 surface supports token inspection, owner document listing, document reads,
+document creation, concurrency-safe metadata updates, collaboration-aware content replacement,
+and a document-change SSE stream. It does not yet expose delete, publish, or workspace
+import/export as documented CLI commands.
 
 ## Authentication
 
@@ -25,9 +26,9 @@ Pass the raw token in the request header:
 Authorization: Bearer doc_pat_...
 ```
 
-`documents:read` is required for list and get. `documents:write` is required for create and
-update. Token-management routes require an authenticated browser session and are not part of the
-Bearer API.
+`documents:read` is required for list, get, and the document-change stream. `documents:write` is
+required for create, metadata update, and content replacement. Token-management routes require an
+authenticated browser session and are not part of the Bearer API.
 
 Do not put tokens in command arguments, URLs, repository files, or shell history. The CLI accepts
 tokens through a hidden terminal prompt, standard input, or `DOC_API_TOKEN`.
@@ -217,8 +218,77 @@ document content.
 - send the current document `ETag`: update atomically; or
 - send `*`: deliberately force a metadata update.
 
-Content replacement is not accepted by this endpoint. It needs a collaboration-aware mutation
-path so an API write cannot diverge from an active Yjs room.
+Content replacement is not accepted by this endpoint. Use `PUT /api/v1/documents/{id}/content`.
+
+### Replace document content
+
+```http
+PUT /api/v1/documents/{id}/content
+Content-Type: application/json
+```
+
+```json
+{
+  "content": {
+    "type": "doc",
+    "content": [
+      {
+        "type": "paragraph",
+        "content": [{ "type": "text", "text": "Updated runbook" }]
+      }
+    ]
+  },
+  "baseVersion": "etag-from-get",
+  "idempotencyKey": "optional-retry-key"
+}
+```
+
+`content` is TipTap JSON with a `doc` root (same codec as create). `baseVersion` is required:
+
+- the current document `ETag` from `GET /api/v1/documents/{id}`: apply if unchanged;
+- `*`: force the write;
+- any other value: `409 version_conflict`.
+
+The write always goes through `POST /collab/documents/{id}/restore`. Collaboration persists
+JSON + Yjs binary with `updateDocBinaryAndJson` (the idle kernel). If a live room exists, or
+appears after persist, it also replaces the in-memory Y.Doc so an open editor is not left beside
+an overwritten row. The API process does not `UPDATE "Doc"` itself. Other collaboration failures
+return `503 collaboration_unavailable` and do not leave an orphan version snapshot.
+
+A successful response is `200` with `documentId`, `versionId`, `etag`, and `operationId`, and an
+`ETag` header. Optional `idempotencyKey` (max 128 characters) replays the same result for a short
+window without applying the mutation twice.
+
+### Watch document changes
+
+```http
+GET /api/v1/documents/{id}/events
+```
+
+Requires `documents:read`. The response is `text/event-stream`. The first event is
+`document.snapshot` with the current `etag` and `updatedAt`. Later `document.updated` events fire
+when this Web/API process learns of a content change: a successful `PUT` (CLI/API), or a
+Hocuspocus `onStoreDocument` / restore that notifies `POST /api/internal/document-changes`.
+Collaboration requires `DOC_WEB_INTERNAL_URL` and sends
+`COLLABORATE_INTERNAL_API_KEY` or `INTERNAL_API_KEY` (same secret the Web process
+accepts). Notify after persist is best-effort: a missing URL/key or Web 5xx is
+logged and does not fail a successful store/restore. The watch stream also polls
+the durable `Doc` row so a subscriber on another Web process still sees
+`document.updated` (this is not a multi-instance push bus). Host Memory UI and
+Markdown↔TipTap remain out of this repo; do not treat this endpoint as closing #82.
+Heartbeats are comment lines.
+
+```
+event: document.snapshot
+data: {"documentId":"document-id","etag":"\"doc:document-id:revision\"","updatedAt":"2026-01-01T00:00:00.000Z"}
+
+event: document.updated
+data: {"documentId":"document-id","etag":"\"doc:document-id:next\"","updatedAt":"2026-01-01T00:00:05.000Z"}
+```
+
+Hosts should treat a new `etag` as the signal to refresh preview content (`GET /api/v1/documents/{id}`
+or the payload they already hold). PUT compares `baseVersion` again at the collaboration persist
+boundary (`expectedUpdatedAt`); a live-room write in between returns `409 version_conflict`.
 
 ## CLI mapping
 
