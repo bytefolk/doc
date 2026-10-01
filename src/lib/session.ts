@@ -13,13 +13,13 @@ export async function getUserInfo() {
   }
 
   const user = session.user // 格式如 { id, name, email, image }
-  if (user.email == null) {
+  if (user.id == null) {
     return null
   }
 
   try {
     const persistedUser = await db.user.findUnique({
-      where: { email: user.email },
+      where: { id: user.id },
       select: { id: true, email: true, name: true, image: true },
     })
     if (persistedUser == null) {

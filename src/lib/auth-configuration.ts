@@ -89,3 +89,12 @@ export function resolveAuthConfiguration(env: AuthEnvironment = process.env): Re
 
   return result
 }
+
+/** Optional stable GitHub account IDs for private self-hosted instances. */
+export function isGitHubAccountAllowed(accountId: string | undefined, env: AuthEnvironment = process.env): boolean {
+  if (env.AUTH_GITHUB_ALLOWED_IDS == null) return env.DOC_PERSONAL_PREVIEW !== '1'
+  const ids = env.AUTH_GITHUB_ALLOWED_IDS.split(',').map((id) => id.trim())
+  // An explicitly empty or malformed allowlist must not turn a private preview public.
+  if (ids.length === 0 || ids.some((id) => !/^\d+$/.test(id))) return false
+  return accountId != null && ids.includes(accountId)
+}
