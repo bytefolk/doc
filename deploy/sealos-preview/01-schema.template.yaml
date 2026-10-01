@@ -57,6 +57,8 @@ spec:
           env:
             - name: DOC_FRESH_PREVIEW_DATABASE
               value: '1'
+            - name: DOC_FRESH_PREVIEW_ALLOW_MANAGED_MONITORING
+              value: '1'
             - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:

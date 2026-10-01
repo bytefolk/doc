@@ -4,6 +4,13 @@ All notable changes to `doc` are documented here.
 
 ## [Unreleased]
 
+### Fixed
+
+- Allow explicitly opted-in managed PostgreSQL monitoring views during fresh
+  preview initialization only when their definitions, owners, dependencies and
+  extension membership match the same server's template database. Existing
+  application tables and unknown or altered views still prevent initialization.
+
 ### Added
 
 - Show GitHub account connection status in profile settings and let signed-in users
