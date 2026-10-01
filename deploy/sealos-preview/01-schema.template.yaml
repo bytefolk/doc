@@ -1,0 +1,82 @@
+apiVersion: app.sealos.io/v1
+kind: Template
+metadata:
+  name: doc-personal-schema
+spec:
+  title: 'doc personal preview schema'
+  url: ''
+  gitRepo: 'https://github.com/bytefolk/doc'
+  author: 'ByteFolk'
+  description: 'Initialize a newly created empty doc preview database; deploy applications only after this Job succeeds.'
+  readme: ''
+  icon: ''
+  templateType: inline
+  locale: en
+  categories: []
+  defaults:
+    app_name:
+      type: string
+      value: doc-schema-peterguy326-f5396ac8
+    app_host:
+      type: string
+      value: doc-peterguy326-f5396ac8
+  inputs:
+    migrator_image:
+      description: 'Pinned linux/amd64 migrator image from this checkout'
+      type: string
+      default: 'DOC_MIGRATOR_IMAGE'
+      required: true
+    runtime_secret:
+      description: 'Existing Secret containing DATABASE_URL for the new empty database'
+      type: string
+      default: 'doc-preview-secrets'
+      required: true
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: ${{ defaults.app_name }}
+  labels:
+    app: ${{ defaults.app_name }}
+    cloud.sealos.io/app-deploy-manager: ${{ defaults.app_name }}
+    cloud.sealos.io/deploy-on-sealos: ${{ defaults.app_name }}
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        app: ${{ defaults.app_name }}
+    spec:
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      containers:
+        - name: ${{ defaults.app_name }}
+          image: ${{ inputs.migrator_image }}
+          imagePullPolicy: IfNotPresent
+          command: ['node', 'services/collaboration/scripts/initialize-preview-database.mjs']
+          env:
+            - name: DOC_FRESH_PREVIEW_DATABASE
+              value: '1'
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: ${{ inputs.runtime_secret }}
+                  key: DATABASE_URL
+          resources:
+            requests: { cpu: 50m, memory: 51Mi }
+            limits: { cpu: 500m, memory: 512Mi }
+---
+apiVersion: app.sealos.io/v1
+kind: App
+metadata:
+  name: ${{ defaults.app_name }}
+  labels:
+    cloud.sealos.io/app-deploy-manager: ${{ defaults.app_name }}
+    cloud.sealos.io/deploy-on-sealos: ${{ defaults.app_name }}
+spec:
+  data:
+    url: https://${{ defaults.app_host }}.${{ SEALOS_CLOUD_DOMAIN }}
+  displayType: normal
+  icon: ''
+  name: 'doc preview initialization'
+  type: link

@@ -6,6 +6,15 @@ All notable changes to `doc` are documented here.
 
 ### Added
 
+- Show GitHub account connection status in profile settings and let signed-in users
+  connect GitHub through the existing authenticated OAuth account-linking flow.
+- Add an optional stable GitHub account-ID allowlist for private self-hosted previews.
+- Require an expiring, single-use actor/session-bound intent when connecting a new
+  GitHub identity; retain only the provider subject rather than OAuth tokens.
+- Add two-stage personal Sealos preview templates with guarded empty-database
+  initialization. Live Sealos deployment and GitHub OAuth remain unverified until
+  the operator completes the deployment and interactive sign-in checks.
+
 - #86: Host Memory ranking abstains without a confirmed task intent. Overlay candidates drop `NONE` access via `resolveDocumentAccess`. `GET /api/v1/documents` returns list abstain copy in `meta.hostMemory`. Default advice payload never includes document bodies. Overlay does not change `shareRelations`. Refs #82.
 
 - Migrate the app to Next.js 16.3.5 / React 19.1.2: async `params` via

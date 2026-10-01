@@ -23,6 +23,7 @@ RUN apk add --no-cache openssl
 FROM prisma-base AS migrator
 WORKDIR /app
 COPY prisma ./prisma
+COPY services/collaboration/scripts/initialize-preview-database.mjs ./services/collaboration/scripts/initialize-preview-database.mjs
 CMD ["npm", "run", "db:push"]
 
 # Rebuild the source code only when needed
