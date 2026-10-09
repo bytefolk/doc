@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { resolveAuthConfiguration } from '@/lib/auth-configuration'
+import { isGitHubAccountAllowed, resolveAuthConfiguration } from '@/lib/auth-configuration'
 
 describe('authentication provider configuration', () => {
   it('does not expose providers with partial configuration', () => {
@@ -48,5 +48,26 @@ describe('authentication provider configuration', () => {
       secure: true,
       auth: { user: 'mailer', pass: 'smtp-secret' },
     })
+  })
+})
+
+describe('private GitHub account allowlist', () => {
+  it('preserves open signup when an allowlist is not configured', () => {
+    expect(isGitHubAccountAllowed('47820304', {})).toBe(true)
+    expect(isGitHubAccountAllowed('47820304', { DOC_PERSONAL_PREVIEW: '1' })).toBe(false)
+  })
+
+  it('matches stable account IDs and rejects a different account or missing identity', () => {
+    const env = { AUTH_GITHUB_ALLOWED_IDS: '47820304, 12345678' }
+    expect(isGitHubAccountAllowed('47820304', env)).toBe(true)
+    expect(isGitHubAccountAllowed('12345678', env)).toBe(true)
+    expect(isGitHubAccountAllowed('99999999', env)).toBe(false)
+    expect(isGitHubAccountAllowed(undefined, env)).toBe(false)
+  })
+
+  it('fails closed for an explicitly empty or malformed allowlist', () => {
+    for (const value of ['', ' ', 'PeterGuy326', '47820304,']) {
+      expect(isGitHubAccountAllowed('47820304', { AUTH_GITHUB_ALLOWED_IDS: value })).toBe(false)
+    }
   })
 })
