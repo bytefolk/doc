@@ -88,6 +88,17 @@
     "profileTitle": "Complete your profile",
     "profileDescription": "Choose the name collaborators will see, then continue to your workspace."
   },
+  "accountConnections": {
+    "title": "GitHub account",
+    "description": "Connect GitHub to sign in to this same doc account. Your documents stay with your current account.",
+    "loading": "Loading account connection…",
+    "connected": "GitHub is connected.",
+    "connect": "Connect GitHub",
+    "connecting": "Connecting…",
+    "unavailable": "GitHub sign-in is not configured for this instance.",
+    "loadFailed": "Could not load the account connection.",
+    "connectFailed": "Could not connect GitHub. Please try again."
+  },
   "personalAccessTokens": {
     "title": "Personal access tokens",
     "description": "Create scoped credentials for doc API and CLI access. Tokens expire automatically and can be revoked at any time.",

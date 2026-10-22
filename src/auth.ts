@@ -9,20 +9,37 @@ import Resend from 'next-auth/providers/resend'
 // 其他 provider 看这里 https://github.com/nextauthjs/next-auth/blob/main/apps/examples/nextjs/auth.ts
 
 import type { NextAuthConfig } from 'next-auth'
-import { resolveAuthConfiguration } from '@/lib/auth-configuration'
+import { isGitHubAccountAllowed, resolveAuthConfiguration } from '@/lib/auth-configuration'
+import { cookies } from 'next/headers'
+import { authorizeGitHubLink, GITHUB_LINK_COOKIE } from '@/lib/github-account-link'
+import { fetchVerifiedGitHubProfile } from '@/lib/github-identity'
 
 function genProviders() {
   const configuration = resolveAuthConfiguration()
   const providers: NextAuthConfig['providers'] = []
 
-  if (configuration.github) providers.push(GitHub(configuration.github))
+  if (configuration.github) {
+    providers.push(
+      GitHub({
+        ...configuration.github,
+        checks: ['pkce', 'state'],
+        account: () => ({}),
+        userinfo: {
+          url: 'https://api.github.com/user',
+          async request({ tokens }: { tokens: { access_token?: string } }) {
+            return fetchVerifiedGitHubProfile(tokens.access_token)
+          },
+        },
+      })
+    )
+  }
   if (configuration.smtp) providers.push(Email(configuration.smtp))
   if (configuration.resend) providers.push(Resend(configuration.resend))
 
   return providers
 }
 
-export const config = {
+export const config: NextAuthConfig = {
   trustHost: true,
   theme: {
     logo: '/doc-mark.svg',
@@ -39,20 +56,33 @@ export const config = {
   },
   secret: process.env.AUTH_SECRET,
   callbacks: {
+    async signIn({ account }) {
+      if (account?.provider !== 'github') return process.env.DOC_PERSONAL_PREVIEW !== '1'
+      if (!isGitHubAccountAllowed(account.providerAccountId)) return false
+      try {
+        const session = await auth()
+        const cookieStore = await cookies()
+        const allowed = await authorizeGitHubLink(account.providerAccountId, session?.user?.id, cookieStore.getAll())
+        if (cookieStore.has(GITHUB_LINK_COOKIE)) cookieStore.delete(GITHUB_LINK_COOKIE)
+        return allowed
+      } catch {
+        return false
+      }
+    },
     authorized({ request, auth }) {
       // const { pathname } = request.nextUrl
       // if (pathname.startsWith('/work/')) return !!auth // 因为 NextAuth Adapter 默认不支持 middleware，所以这里暂时不用了
       return true
     },
-    jwt({ token, trigger, user }) {
-      if (trigger === 'signIn') {
+    jwt({ token, user }) {
+      if (user?.id) {
         token.id = user.id
       }
       return token
     },
     session({ session, token }) {
       // @ts-ignore
-      session.user.id = token.id
+      session.user.id = token.id ?? token.sub
       return session
     },
   },

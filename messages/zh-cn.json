@@ -88,6 +88,17 @@
     "profileTitle": "完善个人资料",
     "profileDescription": "设置协作者可见的名称，然后进入工作区。"
   },
+  "accountConnections": {
+    "title": "GitHub 账号",
+    "description": "连接 GitHub 后，可用它登录当前 doc 账号。你的文档仍属于当前账号。",
+    "loading": "正在加载账号连接…",
+    "connected": "已连接 GitHub。",
+    "connect": "连接 GitHub",
+    "connecting": "连接中…",
+    "unavailable": "当前实例尚未配置 GitHub 登录。",
+    "loadFailed": "账号连接加载失败。",
+    "connectFailed": "GitHub 连接失败，请重试。"
+  },
   "personalAccessTokens": {
     "title": "个人访问令牌",
     "description": "为 doc API 和 CLI 创建限定权限的凭证。令牌会自动过期，也可以随时撤销。",
