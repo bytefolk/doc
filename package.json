@@ -125,7 +125,7 @@
     "ws": "^8.18.0",
     "y-indexeddb": "^9.0.12",
     "yjs": "^13.6.18",
-    "zod": "^3.25.76",
+    "zod": "^4.6.7",
     "zustand": "^4.5.5",
     "@tiptap/core": "2.27.2",
     "@tiptap/extension-drag-handle": "2.27.2",
