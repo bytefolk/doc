@@ -14,6 +14,7 @@ import { UserProfileForm } from './user-profile-form'
 import { useUserStore } from '@/stores/user-store'
 import { User } from 'next-auth'
 import { useTranslations } from 'next-intl'
+import GitHubAccountConnection from './github-account-connection'
 
 export default function UserSettingButton() {
   const userInfo = useUserStore((s) => s.userInfo)
@@ -34,6 +35,7 @@ export default function UserSettingButton() {
           <DialogTitle>{t('changeUerInfo')}</DialogTitle>
         </DialogHeader>
         <UserProfileForm name={name || ''} avatar={image || ''} email={email || ''} />
+        <GitHubAccountConnection />
       </DialogContent>
     </Dialog>
   )

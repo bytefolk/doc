@@ -2,6 +2,7 @@ import { Link } from '@/i18n/routing'
 import HomeNav from '@/components/home-nav'
 import SignOutButton from '@/components/sign-out-button'
 import PersonalAccessTokenManager from '@/components/personal-access-token-manager'
+import GitHubAccountConnection from '@/components/github-account-connection'
 import { UserProfileForm } from '@/components/user-profile-form'
 import { getUserInfo } from '@/lib/session'
 import { getTranslations } from 'next-intl/server'
@@ -48,6 +49,7 @@ export default async function UserTestPage({ params }: { params: RouteParams<{ l
             redirectTo={`/${locale}/work`}
           />
         </section>
+        <GitHubAccountConnection />
         <PersonalAccessTokenManager />
       </main>
     </Wrapper>

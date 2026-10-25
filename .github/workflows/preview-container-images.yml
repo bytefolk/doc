@@ -1,0 +1,86 @@
+name: Build Sealos preview images
+
+on:
+  push:
+    branches: ['preview/sealos-*']
+  workflow_dispatch:
+    inputs:
+      app_url:
+        description: Public HTTPS origin compiled into the web image
+        type: string
+        required: true
+      collaboration_url:
+        description: Public WSS collaboration URL compiled into the web image
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: doc-preview-images-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  images:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        include:
+          - image: doc-preview-web
+            file: Dockerfile
+            target: runner
+          - image: doc-preview-schema
+            file: Dockerfile
+            target: migrator
+          - image: doc-preview-collaboration
+            file: services/collaboration/Dockerfile
+            target: ''
+    env:
+      DOC_PREVIEW_APP_URL: ${{ inputs.app_url || vars.DOC_PREVIEW_APP_URL }}
+      DOC_PREVIEW_COLLABORATION_URL: ${{ inputs.collaboration_url || vars.DOC_PREVIEW_COLLABORATION_URL }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - name: Require public build configuration
+        if: matrix.target == 'runner'
+        run: |
+          test -n "$DOC_PREVIEW_APP_URL"
+          test -n "$DOC_PREVIEW_COLLABORATION_URL"
+          case "$DOC_PREVIEW_APP_URL" in https://*) ;; *) exit 1 ;; esac
+          case "$DOC_PREVIEW_COLLABORATION_URL" in wss://*) ;; *) exit 1 ;; esac
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4
+      - uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and publish commit image
+        id: build
+        uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7
+        with:
+          context: .
+          file: ${{ matrix.file }}
+          target: ${{ matrix.target }}
+          platforms: linux/amd64
+          push: true
+          tags: ghcr.io/bytefolk/${{ matrix.image }}:${{ github.sha }}
+          labels: |
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+          build-args: |
+            NEXT_PUBLIC_APP_URL=${{ env.DOC_PREVIEW_APP_URL }}
+            NEXT_PUBLIC_COLLABORATE_EDIT_URL=${{ env.DOC_PREVIEW_COLLABORATION_URL }}
+          cache-from: type=gha,scope=doc-preview
+          cache-to: type=gha,scope=doc-preview,mode=max
+      - name: Record image digest
+        env:
+          IMAGE_NAME: ${{ matrix.image }}
+          IMAGE_DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          printf '%s\n' "ghcr.io/bytefolk/$IMAGE_NAME@$IMAGE_DIGEST" >> "$GITHUB_STEP_SUMMARY"
