@@ -10,7 +10,9 @@ permissions:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # Pinned: Playwright 1.58.x does not support ubuntu-26.04 images, and
+    # `ubuntu-latest` now resolves to 26.04, which breaks `playwright install --with-deps`.
+    runs-on: ubuntu-24.04
     timeout-minutes: 20
     env:
       DATABASE_URL: postgresql://doc:doc@127.0.0.1:5432/doc?schema=public
